@@ -23,6 +23,15 @@ jobs:
             curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
             dep ensure
         fi
+    - name: Apt dependencies
+      run: |
+        apt update && apt install -y libusb-1.0-0-dev
+    - name: Get & Make Phidgets22
+      run: |
+        wget https://www.phidgets.com/downloads/phidget22/libraries/linux/libphidget22.tar.gz
+        tar xvf libphidget22.tar.gz
+        cd libphidget22
+        ./configure --prefix=/usr && make && sudo make install
 
     - name: Build
       run: go build -v .
