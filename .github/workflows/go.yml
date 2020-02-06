@@ -30,7 +30,7 @@ jobs:
       run: |
         wget https://www.phidgets.com/downloads/phidget22/libraries/linux/libphidget22.tar.gz
         tar zxvf libphidget22.tar.gz
-        ls -lrt libphidget22*
+        rm libphidget22.tar.gz
         cd libphidget22*
         ./configure --prefix=/usr && make && sudo make install
         cd ..
