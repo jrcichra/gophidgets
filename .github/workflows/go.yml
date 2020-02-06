@@ -29,9 +29,8 @@ jobs:
     - name: Get & Make Phidgets22
       run: |
         wget https://www.phidgets.com/downloads/phidget22/libraries/linux/libphidget22.tar.gz
-        tar xvf libphidget22.tar.gz
-        ls -l "libphidget22*"
-        cd "libphidget22*"
+        tar zxvf libphidget22.tar.gz
+        cd libphidget22*
         ./configure --prefix=/usr && make && sudo make install
         cd ..
 
