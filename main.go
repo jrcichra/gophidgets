@@ -4,12 +4,13 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/jrcichra/gophidgets/phidgetnet"
 	"github.com/jrcichra/gophidgets/temperature"
 )
 
 func main() {
-	t := temperature.TemperatureSensor{}
-	temperature.AddServer("Justin", "10.0.0.176", 5661, "", 0)
+	t := temperature.PhidgetTemperatureSensor{}
+	phidgetnet.AddServer("Justin", "10.0.0.176", 5661, "", 0)
 	t.Create()
 	t.SetIsRemote(true)
 	t.SetDeviceSerialNumber(597101)
