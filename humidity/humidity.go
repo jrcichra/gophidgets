@@ -1,4 +1,4 @@
-package temperature
+package humidity
 
 // #cgo CFLAGS: -g -Wall
 // #cgo LDFLAGS: -lphidget22
@@ -7,70 +7,70 @@ package temperature
 import "C"
 import "unsafe"
 
-//PhidgetTemperatureSensor is the struct that is a phidget temperature sensor
-type PhidgetTemperatureSensor struct {
-	handle C.PhidgetTemperatureSensorHandle
+//PhidgetHumiditySensor is the struct that is a phidget humidity sensor
+type PhidgetHumiditySensor struct {
+	handle C.PhidgetHumiditySensorHandle
 }
 
-//Create creates a phidget temperature sensor
-func (t *PhidgetTemperatureSensor) Create() {
-	C.PhidgetTemperatureSensor_create(&t.handle)
+//Create creates a phidget humidity sensor
+func (t *PhidgetHumiditySensor) Create() {
+	C.PhidgetHumiditySensor_create(&t.handle)
 }
 
-//GetTemperature gets the temperature from a phidget temperature sensor
-func (t *PhidgetTemperatureSensor) GetTemperature() float32 {
+//GetHumidity gets the humidity from a phidget humidity sensor
+func (t *PhidgetHumiditySensor) GetHumidity() float32 {
 	var r C.double
-	C.PhidgetTemperatureSensor_getTemperature(t.handle, &r)
+	C.PhidgetHumiditySensor_getHumidity(t.handle, &r)
 	return cDoubleTofloat32(r)
 }
 
 //Common to all derived phidgets
 
 //SetIsRemote sets a phidget sensor as a remote device
-func (p *PhidgetTemperatureSensor) SetIsRemote(b bool) {
+func (p *PhidgetHumiditySensor) SetIsRemote(b bool) {
 	h := (*C.struct__Phidget)(unsafe.Pointer(p.handle))
 	C.Phidget_setIsRemote(h, boolToCInt(b))
 }
 
-//SetDeviceSerialNumber sets a phidget temperature sensor's serial number
-func (p *PhidgetTemperatureSensor) SetDeviceSerialNumber(serial int) {
+//SetDeviceSerialNumber sets a phidget humidity sensor's serial number
+func (p *PhidgetHumiditySensor) SetDeviceSerialNumber(serial int) {
 	h := (*C.struct__Phidget)(unsafe.Pointer(p.handle))
 	C.Phidget_setDeviceSerialNumber(h, intToCInt(serial))
 }
 
-//SetHubPort sets a phidget temperature sensor's hub port
-func (p *PhidgetTemperatureSensor) SetHubPort(port int) {
+//SetHubPort sets a phidget humidity sensor's hub port
+func (p *PhidgetHumiditySensor) SetHubPort(port int) {
 	h := (*C.struct__Phidget)(unsafe.Pointer(p.handle))
 	C.Phidget_setHubPort(h, intToCInt(port))
 }
 
-//GetIsRemote gets a phidget temperature sensor's remote status
-func (p *PhidgetTemperatureSensor) GetIsRemote() bool {
-	//Cast TemperatureHandle to PhidgetHandle
+//GetIsRemote gets a phidget humidity sensor's remote status
+func (p *PhidgetHumiditySensor) GetIsRemote() bool {
+	//Cast HumidityHandle to PhidgetHandle
 	h := (*C.struct__Phidget)(unsafe.Pointer(p.handle))
 	var r C.int
 	C.Phidget_getIsRemote(h, &r)
 	return cIntTobool(r)
 }
 
-//GetDeviceSerialNumber gets a phidget temperature sensor's serial number
-func (p *PhidgetTemperatureSensor) GetDeviceSerialNumber() int {
+//GetDeviceSerialNumber gets a phidget humidity sensor's serial number
+func (p *PhidgetHumiditySensor) GetDeviceSerialNumber() int {
 	h := (*C.struct__Phidget)(unsafe.Pointer(p.handle))
 	var r C.int
 	C.Phidget_getDeviceSerialNumber(h, &r)
 	return cIntToint(r)
 }
 
-//GetHubPort gets a phidget temperature sensor's hub port
-func (p *PhidgetTemperatureSensor) GetHubPort() int {
+//GetHubPort gets a phidget humidity sensor's hub port
+func (p *PhidgetHumiditySensor) GetHubPort() int {
 	h := (*C.struct__Phidget)(unsafe.Pointer(p.handle))
 	var r C.int
 	C.Phidget_getHubPort(h, &r)
 	return cIntToint(r)
 }
 
-//OpenWaitForAttachment opens a phidget temperature sensor for attachment
-func (p *PhidgetTemperatureSensor) OpenWaitForAttachment(timeout uint) {
+//OpenWaitForAttachment opens a phidget humidity sensor for attachment
+func (p *PhidgetHumiditySensor) OpenWaitForAttachment(timeout uint) {
 	h := (*C.struct__Phidget)(unsafe.Pointer(p.handle))
 	C.Phidget_openWaitForAttachment(h, uintToCUInt(timeout))
 }
