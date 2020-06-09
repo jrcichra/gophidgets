@@ -30,10 +30,6 @@ func main() {
 
 	vr := voltageinputratio.PhidgetVoltageRatioInput{}
 	vr.Create()
-	vr.SetIsRemote(true)
-	vr.SetDeviceSerialNumber(597101)
-	vr.SetHubPort(0)
-	vr.OpenWaitForAttachment(20000)
 	vr.SetSensorType("SENSOR_TYPE_1122_DC")
 
 	for i := 0; i < 5; i++ {
