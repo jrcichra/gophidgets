@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/jrcichra/gophidgets/lcd"
+
 	"github.com/jrcichra/gophidgets/voltageinputratio"
 
 	"github.com/jrcichra/gophidgets/humidity"
@@ -19,22 +21,32 @@ func main() {
 	t.SetIsRemote(true)
 	t.SetDeviceSerialNumber(597101)
 	t.SetHubPort(0)
-	t.OpenWaitForAttachment(20000)
+	t.OpenWaitForAttachment(2000)
 
 	h := humidity.PhidgetHumiditySensor{}
 	h.Create()
 	h.SetIsRemote(true)
 	h.SetDeviceSerialNumber(597101)
 	h.SetHubPort(0)
-	h.OpenWaitForAttachment(20000)
+	h.OpenWaitForAttachment(2000)
 
 	vr := voltageinputratio.PhidgetVoltageRatioInput{}
 	vr.Create()
 	vr.SetSensorType("SENSOR_TYPE_1122_DC")
 
+	lcd := lcd.PhidgetLCD{}
+	lcd.Create()
+	lcd.SetDeviceSerialNumber(597101)
+	lcd.SetHubPort(5)
+	lcd.SetIsRemote(true)
+	lcd.SetBacklight(.55)
+	lcd.OpenWaitForAttachment(2000)
+
 	for i := 0; i < 5; i++ {
-		fmt.Println("Temperature is", t.GetTemperature()*9.0/5.0+32)
+		temperature := t.GetTemperature()*9.0/5.0 + 32
+		fmt.Println("Temperature is", temperature)
 		fmt.Println("Humidity is", h.GetHumidity())
+		lcd.SetText(fmt.Sprintf("Justin: %f", temperature))
 		time.Sleep(time.Duration(5) * time.Second)
 	}
 }
