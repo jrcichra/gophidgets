@@ -7,6 +7,7 @@ package voltageinputratio
 import "C"
 import (
 	"errors"
+	"reflect"
 	"unsafe"
 )
 
@@ -30,9 +31,11 @@ func (t *PhidgetVoltageRatioInput) GetVoltage() float32 {
 //Common to all derived phidgets
 
 func (p *PhidgetVoltageRatioInput) getErrorDescription(cerr C.PhidgetReturnCode) string {
-	var errorString **C.char
-	C.Phidget_getErrorDescription(cerr, errorString)
-	return C.GoString(*errorString)
+	var errorString *C.char
+	C.Phidget_getErrorDescription(cerr, &errorString)
+	//Get the name of our class
+	t := reflect.TypeOf(p)
+	return t.Elem().Name() + ": " + C.GoString(errorString)
 }
 
 //SetIsRemote sets a phidget sensor as a remote device

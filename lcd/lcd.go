@@ -7,6 +7,7 @@ package lcd
 import "C"
 import (
 	"errors"
+	"reflect"
 	"unsafe"
 )
 
@@ -35,7 +36,9 @@ func (t *PhidgetLCD) SetBacklight(brightness float32) {
 func (p *PhidgetLCD) getErrorDescription(cerr C.PhidgetReturnCode) string {
 	var errorString *C.char
 	C.Phidget_getErrorDescription(cerr, &errorString)
-	return C.GoString(errorString)
+	//Get the name of our class
+	t := reflect.TypeOf(p)
+	return t.Elem().Name() + ": " + C.GoString(errorString)
 }
 
 //SetIsRemote sets a phidget sensor as a remote device

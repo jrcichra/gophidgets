@@ -5,7 +5,11 @@ package humidity
 // #include <stdlib.h>
 // #include <phidget22.h>
 import "C"
-import "unsafe"
+import (
+	"errors"
+	"reflect"
+	"unsafe"
+)
 
 //PhidgetHumiditySensor is the struct that is a phidget humidity sensor
 type PhidgetHumiditySensor struct {
@@ -26,53 +30,87 @@ func (t *PhidgetHumiditySensor) GetHumidity() float32 {
 
 //Common to all derived phidgets
 
+func (p *PhidgetHumiditySensor) getErrorDescription(cerr C.PhidgetReturnCode) string {
+	var errorString *C.char
+	C.Phidget_getErrorDescription(cerr, &errorString)
+	//Get the name of our class
+	t := reflect.TypeOf(p)
+	return t.Elem().Name() + ": " + C.GoString(errorString)
+}
+
 //SetIsRemote sets a phidget sensor as a remote device
-func (p *PhidgetHumiditySensor) SetIsRemote(b bool) {
+func (p *PhidgetHumiditySensor) SetIsRemote(b bool) error {
 	h := (*C.struct__Phidget)(unsafe.Pointer(p.handle))
-	C.Phidget_setIsRemote(h, boolToCInt(b))
+	cerr := C.Phidget_setIsRemote(h, boolToCInt(b))
+	if cerr != C.EPHIDGET_OK {
+		return errors.New(p.getErrorDescription(cerr))
+	}
+	return nil
+
 }
 
-//SetDeviceSerialNumber sets a phidget humidity sensor's serial number
-func (p *PhidgetHumiditySensor) SetDeviceSerialNumber(serial int) {
+//SetDeviceSerialNumber sets a phidget lcd sensor's serial number
+func (p *PhidgetHumiditySensor) SetDeviceSerialNumber(serial int) error {
 	h := (*C.struct__Phidget)(unsafe.Pointer(p.handle))
-	C.Phidget_setDeviceSerialNumber(h, intToCInt(serial))
+	cerr := C.Phidget_setDeviceSerialNumber(h, intToCInt(serial))
+	if cerr != C.EPHIDGET_OK {
+		return errors.New(p.getErrorDescription(cerr))
+	}
+	return nil
 }
 
-//SetHubPort sets a phidget humidity sensor's hub port
-func (p *PhidgetHumiditySensor) SetHubPort(port int) {
+//SetHubPort sets a phidget lcd sensor's hub port
+func (p *PhidgetHumiditySensor) SetHubPort(port int) error {
 	h := (*C.struct__Phidget)(unsafe.Pointer(p.handle))
-	C.Phidget_setHubPort(h, intToCInt(port))
+	cerr := C.Phidget_setHubPort(h, intToCInt(port))
+	if cerr != C.EPHIDGET_OK {
+		return errors.New(p.getErrorDescription(cerr))
+	}
+	return nil
 }
 
-//GetIsRemote gets a phidget humidity sensor's remote status
-func (p *PhidgetHumiditySensor) GetIsRemote() bool {
-	//Cast HumidityHandle to PhidgetHandle
+//GetIsRemote gets a phidget lcd sensor's remote status
+func (p *PhidgetHumiditySensor) GetIsRemote() (bool, error) {
+	//Cast humidityHandle to PhidgetHandle
 	h := (*C.struct__Phidget)(unsafe.Pointer(p.handle))
 	var r C.int
-	C.Phidget_getIsRemote(h, &r)
-	return cIntTobool(r)
+	cerr := C.Phidget_getIsRemote(h, &r)
+	if cerr != C.EPHIDGET_OK {
+		return false, errors.New(p.getErrorDescription(cerr))
+	}
+	return cIntTobool(r), nil
 }
 
-//GetDeviceSerialNumber gets a phidget humidity sensor's serial number
-func (p *PhidgetHumiditySensor) GetDeviceSerialNumber() int {
+//GetDeviceSerialNumber gets a phidget lcd sensor's serial number
+func (p *PhidgetHumiditySensor) GetDeviceSerialNumber() (int, error) {
 	h := (*C.struct__Phidget)(unsafe.Pointer(p.handle))
 	var r C.int
-	C.Phidget_getDeviceSerialNumber(h, &r)
-	return cIntToint(r)
+	cerr := C.Phidget_getDeviceSerialNumber(h, &r)
+	if cerr != C.EPHIDGET_OK {
+		return 0, errors.New(p.getErrorDescription(cerr))
+	}
+	return cIntToint(r), nil
 }
 
-//GetHubPort gets a phidget humidity sensor's hub port
-func (p *PhidgetHumiditySensor) GetHubPort() int {
+//GetHubPort gets a phidget lcd sensor's hub port
+func (p *PhidgetHumiditySensor) GetHubPort() (int, error) {
 	h := (*C.struct__Phidget)(unsafe.Pointer(p.handle))
 	var r C.int
-	C.Phidget_getHubPort(h, &r)
-	return cIntToint(r)
+	cerr := C.Phidget_getHubPort(h, &r)
+	if cerr != C.EPHIDGET_OK {
+		return 0, errors.New(p.getErrorDescription(cerr))
+	}
+	return cIntToint(r), nil
 }
 
 //OpenWaitForAttachment opens a phidget humidity sensor for attachment
-func (p *PhidgetHumiditySensor) OpenWaitForAttachment(timeout uint) {
+func (p *PhidgetHumiditySensor) OpenWaitForAttachment(timeout uint) error {
 	h := (*C.struct__Phidget)(unsafe.Pointer(p.handle))
-	C.Phidget_openWaitForAttachment(h, uintToCUInt(timeout))
+	cerr := C.Phidget_openWaitForAttachment(h, uintToCUInt(timeout))
+	if cerr != C.EPHIDGET_OK {
+		return errors.New(p.getErrorDescription(cerr))
+	}
+	return nil
 }
 
 //Can't put these in a common module because their type is associated with the module
