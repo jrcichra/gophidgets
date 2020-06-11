@@ -21,8 +21,8 @@ func (t *PhidgetVoltageRatioInput) Create() {
 	C.PhidgetVoltageRatioInput_create(&t.handle)
 }
 
-//GetVoltage gets the voltageinputratio from a phidget voltageinputratio sensor
-func (t *PhidgetVoltageRatioInput) GetVoltage() float32 {
+//GetValue gets the voltageinputratio from a phidget voltageinputratio sensor
+func (t *PhidgetVoltageRatioInput) GetValue() float32 {
 	var r C.double
 	C.PhidgetVoltageRatioInput_getVoltageRatio(t.handle, &r)
 	return cDoubleTofloat32(r)

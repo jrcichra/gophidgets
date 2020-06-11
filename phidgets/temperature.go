@@ -21,8 +21,8 @@ func (t *PhidgetTemperatureSensor) Create() {
 	C.PhidgetTemperatureSensor_create(&t.handle)
 }
 
-//GetTemperature gets the temperature from a phidget temperature sensor
-func (t *PhidgetTemperatureSensor) GetTemperature() float32 {
+//GetValue gets the temperature from a phidget temperature sensor
+func (t *PhidgetTemperatureSensor) GetValue() float32 {
 	var r C.double
 	C.PhidgetTemperatureSensor_getTemperature(t.handle, &r)
 	return cDoubleTofloat32(r)

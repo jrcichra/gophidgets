@@ -21,8 +21,8 @@ func (t *PhidgetHumiditySensor) Create() {
 	C.PhidgetHumiditySensor_create(&t.handle)
 }
 
-//GetHumidity gets the humidity from a phidget humidity sensor
-func (t *PhidgetHumiditySensor) GetHumidity() float32 {
+//GetValue gets the humidity from a phidget humidity sensor
+func (t *PhidgetHumiditySensor) GetValue() float32 {
 	var r C.double
 	C.PhidgetHumiditySensor_getHumidity(t.handle, &r)
 	return cDoubleTofloat32(r)

@@ -21,8 +21,8 @@ func (t *PhidgetCurrentInput) Create() {
 	C.PhidgetCurrentInput_create(&t.handle)
 }
 
-//GetTemperature gets the current from a phidget current sensor
-func (t *PhidgetCurrentInput) GetTemperature() float32 {
+//GetValue gets the current from a phidget current sensor
+func (t *PhidgetCurrentInput) GetValue() float32 {
 	var r C.double
 	C.PhidgetCurrentInput_getCurrent(t.handle, &r)
 	return cDoubleTofloat32(r)

@@ -11,6 +11,9 @@ func main() {
 
 	var err error
 
+	//Array of generic phidget sensors
+	sensors := make([]phidgets.Phidget, 0)
+
 	phidgets.AddServer("Justin", "10.0.0.176", 5661, "", 0)
 
 	t := phidgets.PhidgetTemperatureSensor{}
@@ -22,6 +25,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	sensors = append(sensors, &t)
 
 	h := phidgets.PhidgetHumiditySensor{}
 	h.Create()
@@ -32,6 +36,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	sensors = append(sensors, &h)
 
 	vr := phidgets.PhidgetVoltageRatioInput{}
 	vr.Create()
@@ -49,10 +54,15 @@ func main() {
 	}
 
 	for i := 0; i < 5; i++ {
-		temperature := t.GetTemperature()*9.0/5.0 + 32
-		fmt.Println("Temperature is", temperature)
-		fmt.Println("Humidity is", h.GetHumidity())
-		lcd.SetText(fmt.Sprintf("Justin: %f", temperature))
+		for _, sensor := range sensors {
+			switch s := sensor.(type) {
+			case *phidgets.PhidgetTemperatureSensor:
+				fmt.Println("Temperature is", s.GetValue()*9.0/5.0+32)
+				lcd.SetText(fmt.Sprintf("Justin: %f", s.GetValue()*9.0/5.0+32))
+			case *phidgets.PhidgetHumiditySensor:
+				fmt.Println("Humidity is", s.GetValue())
+			}
+		}
 		time.Sleep(time.Duration(5) * time.Second)
 	}
 }

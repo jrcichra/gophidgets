@@ -21,8 +21,8 @@ func (t *PhidgetLightSensor) Create() {
 	C.PhidgetLightSensor_create(&t.handle)
 }
 
-//GetTemperature gets the lumenance from a phidget lumenance sensor
-func (t *PhidgetLightSensor) GetTemperature() float32 {
+//GetValue gets the lumenance from a phidget lumenance sensor
+func (t *PhidgetLightSensor) GetValue() float32 {
 	var r C.double
 	C.PhidgetLightSensor_getIlluminance(t.handle, &r)
 	return cDoubleTofloat32(r)
