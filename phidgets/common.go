@@ -1,4 +1,4 @@
-package phidgetnet
+package phidgets
 
 // #cgo CFLAGS: -g -Wall
 // #cgo LDFLAGS: -lphidget22
@@ -6,12 +6,11 @@ package phidgetnet
 // #include <phidget22.h>
 import "C"
 
-//AddServer adds a
-func AddServer(serverName string, address string, port int, password string, flags int) {
-	C.PhidgetNet_addServer(C.CString(serverName), C.CString(address), intToCInt(port), C.CString(password), intToCInt(flags))
-}
+//Common functions that convert different types for this package
 
-//Can't put these in a common module because their type is associated with the module
+func float32ToCdouble(f float32) C.double {
+	return C.double(f)
+}
 
 func boolToCInt(b bool) C.int {
 	var r C.int
@@ -60,4 +59,8 @@ func cDoubleTofloat32(d C.double) float32 {
 	var f float32
 	f = (float32)(d)
 	return f
+}
+
+func stringToCCharArray(s string) *C.char {
+	return C.CString(s)
 }

@@ -1,4 +1,4 @@
-package humidity
+package phidgets
 
 // #cgo CFLAGS: -g -Wall
 // #cgo LDFLAGS: -lphidget22
@@ -11,26 +11,26 @@ import (
 	"unsafe"
 )
 
-//PhidgetHumiditySensor is the struct that is a phidget humidity sensor
-type PhidgetHumiditySensor struct {
-	handle C.PhidgetHumiditySensorHandle
+//PhidgetTemperatureSensor is the struct that is a phidget temperature sensor
+type PhidgetTemperatureSensor struct {
+	handle C.PhidgetTemperatureSensorHandle
 }
 
-//Create creates a phidget humidity sensor
-func (t *PhidgetHumiditySensor) Create() {
-	C.PhidgetHumiditySensor_create(&t.handle)
+//Create creates a phidget temperature sensor
+func (t *PhidgetTemperatureSensor) Create() {
+	C.PhidgetTemperatureSensor_create(&t.handle)
 }
 
-//GetHumidity gets the humidity from a phidget humidity sensor
-func (t *PhidgetHumiditySensor) GetHumidity() float32 {
+//GetTemperature gets the temperature from a phidget temperature sensor
+func (t *PhidgetTemperatureSensor) GetTemperature() float32 {
 	var r C.double
-	C.PhidgetHumiditySensor_getHumidity(t.handle, &r)
+	C.PhidgetTemperatureSensor_getTemperature(t.handle, &r)
 	return cDoubleTofloat32(r)
 }
 
 //Common to all derived phidgets
 
-func (p *PhidgetHumiditySensor) getErrorDescription(cerr C.PhidgetReturnCode) string {
+func (p *PhidgetTemperatureSensor) getErrorDescription(cerr C.PhidgetReturnCode) string {
 	var errorString *C.char
 	C.Phidget_getErrorDescription(cerr, &errorString)
 	//Get the name of our class
@@ -39,7 +39,7 @@ func (p *PhidgetHumiditySensor) getErrorDescription(cerr C.PhidgetReturnCode) st
 }
 
 //SetIsRemote sets a phidget sensor as a remote device
-func (p *PhidgetHumiditySensor) SetIsRemote(b bool) error {
+func (p *PhidgetTemperatureSensor) SetIsRemote(b bool) error {
 	h := (*C.struct__Phidget)(unsafe.Pointer(p.handle))
 	cerr := C.Phidget_setIsRemote(h, boolToCInt(b))
 	if cerr != C.EPHIDGET_OK {
@@ -50,7 +50,7 @@ func (p *PhidgetHumiditySensor) SetIsRemote(b bool) error {
 }
 
 //SetDeviceSerialNumber sets a phidget lcd sensor's serial number
-func (p *PhidgetHumiditySensor) SetDeviceSerialNumber(serial int) error {
+func (p *PhidgetTemperatureSensor) SetDeviceSerialNumber(serial int) error {
 	h := (*C.struct__Phidget)(unsafe.Pointer(p.handle))
 	cerr := C.Phidget_setDeviceSerialNumber(h, intToCInt(serial))
 	if cerr != C.EPHIDGET_OK {
@@ -60,7 +60,7 @@ func (p *PhidgetHumiditySensor) SetDeviceSerialNumber(serial int) error {
 }
 
 //SetHubPort sets a phidget lcd sensor's hub port
-func (p *PhidgetHumiditySensor) SetHubPort(port int) error {
+func (p *PhidgetTemperatureSensor) SetHubPort(port int) error {
 	h := (*C.struct__Phidget)(unsafe.Pointer(p.handle))
 	cerr := C.Phidget_setHubPort(h, intToCInt(port))
 	if cerr != C.EPHIDGET_OK {
@@ -70,8 +70,8 @@ func (p *PhidgetHumiditySensor) SetHubPort(port int) error {
 }
 
 //GetIsRemote gets a phidget lcd sensor's remote status
-func (p *PhidgetHumiditySensor) GetIsRemote() (bool, error) {
-	//Cast humidityHandle to PhidgetHandle
+func (p *PhidgetTemperatureSensor) GetIsRemote() (bool, error) {
+	//Cast TemperatureHandle to PhidgetHandle
 	h := (*C.struct__Phidget)(unsafe.Pointer(p.handle))
 	var r C.int
 	cerr := C.Phidget_getIsRemote(h, &r)
@@ -82,7 +82,7 @@ func (p *PhidgetHumiditySensor) GetIsRemote() (bool, error) {
 }
 
 //GetDeviceSerialNumber gets a phidget lcd sensor's serial number
-func (p *PhidgetHumiditySensor) GetDeviceSerialNumber() (int, error) {
+func (p *PhidgetTemperatureSensor) GetDeviceSerialNumber() (int, error) {
 	h := (*C.struct__Phidget)(unsafe.Pointer(p.handle))
 	var r C.int
 	cerr := C.Phidget_getDeviceSerialNumber(h, &r)
@@ -93,7 +93,7 @@ func (p *PhidgetHumiditySensor) GetDeviceSerialNumber() (int, error) {
 }
 
 //GetHubPort gets a phidget lcd sensor's hub port
-func (p *PhidgetHumiditySensor) GetHubPort() (int, error) {
+func (p *PhidgetTemperatureSensor) GetHubPort() (int, error) {
 	h := (*C.struct__Phidget)(unsafe.Pointer(p.handle))
 	var r C.int
 	cerr := C.Phidget_getHubPort(h, &r)
@@ -103,63 +103,12 @@ func (p *PhidgetHumiditySensor) GetHubPort() (int, error) {
 	return cIntToint(r), nil
 }
 
-//OpenWaitForAttachment opens a phidget humidity sensor for attachment
-func (p *PhidgetHumiditySensor) OpenWaitForAttachment(timeout uint) error {
+//OpenWaitForAttachment opens a phidget lcd sensor for attachment
+func (p *PhidgetTemperatureSensor) OpenWaitForAttachment(timeout uint) error {
 	h := (*C.struct__Phidget)(unsafe.Pointer(p.handle))
 	cerr := C.Phidget_openWaitForAttachment(h, uintToCUInt(timeout))
 	if cerr != C.EPHIDGET_OK {
 		return errors.New(p.getErrorDescription(cerr))
 	}
 	return nil
-}
-
-//Can't put these in a common module because their type is associated with the module
-
-func boolToCInt(b bool) C.int {
-	var r C.int
-	if b {
-		r = 1
-	} else {
-		r = 0
-	}
-	return r
-}
-
-func intToBool(i int) bool {
-	var b bool
-	if i > 0 {
-		b = true
-	} else {
-		b = false
-	}
-	return b
-}
-
-func intToCInt(i int) C.int {
-	var c C.int
-	c = (C.int)(i)
-	return c
-}
-
-func cIntToint(c C.int) int {
-	var i int
-	i = (int)(c)
-	return i
-}
-
-func cIntTobool(c C.int) bool {
-	i := cIntToint(c)
-	return intToBool(i)
-}
-
-func uintToCUInt(i uint) C.uint {
-	var c C.uint
-	c = (C.uint)(i)
-	return c
-}
-
-func cDoubleTofloat32(d C.double) float32 {
-	var f float32
-	f = (float32)(d)
-	return f
 }

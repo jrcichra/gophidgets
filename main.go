@@ -4,22 +4,16 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/jrcichra/gophidgets/lcd"
-
-	"github.com/jrcichra/gophidgets/voltageinputratio"
-
-	"github.com/jrcichra/gophidgets/humidity"
-	"github.com/jrcichra/gophidgets/phidgetnet"
-	"github.com/jrcichra/gophidgets/temperature"
+	"github.com/jrcichra/gophidgets/phidgets"
 )
 
 func main() {
 
 	var err error
 
-	phidgetnet.AddServer("Justin", "10.0.0.176", 5661, "", 0)
+	phidgets.AddServer("Justin", "10.0.0.176", 5661, "", 0)
 
-	t := temperature.PhidgetTemperatureSensor{}
+	t := phidgets.PhidgetTemperatureSensor{}
 	t.Create()
 	t.SetIsRemote(true)
 	t.SetDeviceSerialNumber(597101)
@@ -29,7 +23,7 @@ func main() {
 		panic(err)
 	}
 
-	h := humidity.PhidgetHumiditySensor{}
+	h := phidgets.PhidgetHumiditySensor{}
 	h.Create()
 	h.SetIsRemote(true)
 	h.SetDeviceSerialNumber(597101)
@@ -39,13 +33,13 @@ func main() {
 		panic(err)
 	}
 
-	vr := voltageinputratio.PhidgetVoltageRatioInput{}
+	vr := phidgets.PhidgetVoltageRatioInput{}
 	vr.Create()
 	vr.SetSensorType("SENSOR_TYPE_1122_DC")
 
-	lcd := lcd.PhidgetLCD{}
+	lcd := phidgets.PhidgetLCD{}
 	lcd.Create()
-	lcd.SetDeviceSerialNumber(597102)
+	lcd.SetDeviceSerialNumber(597101)
 	lcd.SetHubPort(5)
 	lcd.SetIsRemote(true)
 	lcd.SetBacklight(.55)
