@@ -1,6 +1,9 @@
 # gophidgets
 A Golang wrapper to the Phidgets C library
 
+## Install
+`go get "github.com/jrcichra/gophidgets/phidgets"`
+
 ## Example
 ```go
 t := phidgets.PhidgetTemperatureSensor{}
@@ -15,5 +18,6 @@ if err != nil {
 //Loop forever
 for {
     fmt.Println("Temperature is", t.GetValue()*9.0/5.0+32)
+    time.Sleep(time.Duration(5) * time.Second)
 }
 ```
