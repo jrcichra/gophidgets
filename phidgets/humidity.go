@@ -17,14 +17,14 @@ type PhidgetHumiditySensor struct {
 }
 
 //Create creates a phidget humidity sensor
-func (t *PhidgetHumiditySensor) Create() {
-	C.PhidgetHumiditySensor_create(&t.handle)
+func (p *PhidgetHumiditySensor) Create() {
+	C.PhidgetHumiditySensor_create(&p.handle)
 }
 
 //GetValue gets the humidity from a phidget humidity sensor
-func (t *PhidgetHumiditySensor) GetValue() float32 {
+func (p *PhidgetHumiditySensor) GetValue() float32 {
 	var r C.double
-	C.PhidgetHumiditySensor_getHumidity(t.handle, &r)
+	C.PhidgetHumiditySensor_getHumidity(p.handle, &r)
 	return cDoubleTofloat32(r)
 }
 

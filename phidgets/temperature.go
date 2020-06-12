@@ -17,14 +17,14 @@ type PhidgetTemperatureSensor struct {
 }
 
 //Create creates a phidget temperature sensor
-func (t *PhidgetTemperatureSensor) Create() {
-	C.PhidgetTemperatureSensor_create(&t.handle)
+func (p *PhidgetTemperatureSensor) Create() {
+	C.PhidgetTemperatureSensor_create(&p.handle)
 }
 
 //GetValue gets the temperature from a phidget temperature sensor
-func (t *PhidgetTemperatureSensor) GetValue() float32 {
+func (p *PhidgetTemperatureSensor) GetValue() float32 {
 	var r C.double
-	C.PhidgetTemperatureSensor_getTemperature(t.handle, &r)
+	C.PhidgetTemperatureSensor_getTemperature(p.handle, &r)
 	return cDoubleTofloat32(r)
 }
 

@@ -17,14 +17,14 @@ type PhidgetVoltageRatioInput struct {
 }
 
 //Create creates a phidget voltageinputratio sensor
-func (t *PhidgetVoltageRatioInput) Create() {
-	C.PhidgetVoltageRatioInput_create(&t.handle)
+func (p *PhidgetVoltageRatioInput) Create() {
+	C.PhidgetVoltageRatioInput_create(&p.handle)
 }
 
 //GetValue gets the voltageinputratio from a phidget voltageinputratio sensor
-func (t *PhidgetVoltageRatioInput) GetValue() float32 {
+func (p *PhidgetVoltageRatioInput) GetValue() float32 {
 	var r C.double
-	C.PhidgetVoltageRatioInput_getVoltageRatio(t.handle, &r)
+	C.PhidgetVoltageRatioInput_getVoltageRatio(p.handle, &r)
 	return cDoubleTofloat32(r)
 }
 

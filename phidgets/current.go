@@ -17,14 +17,14 @@ type PhidgetCurrentInput struct {
 }
 
 //Create creates a phidget current sensor
-func (t *PhidgetCurrentInput) Create() {
-	C.PhidgetCurrentInput_create(&t.handle)
+func (p *PhidgetCurrentInput) Create() {
+	C.PhidgetCurrentInput_create(&p.handle)
 }
 
 //GetValue gets the current from a phidget current sensor
-func (t *PhidgetCurrentInput) GetValue() float32 {
+func (p *PhidgetCurrentInput) GetValue() float32 {
 	var r C.double
-	C.PhidgetCurrentInput_getCurrent(t.handle, &r)
+	C.PhidgetCurrentInput_getCurrent(p.handle, &r)
 	return cDoubleTofloat32(r)
 }
 

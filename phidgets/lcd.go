@@ -17,18 +17,18 @@ type PhidgetLCD struct {
 }
 
 //Create creates a phidget lcd sensor
-func (t *PhidgetLCD) Create() {
-	C.PhidgetLCD_create(&t.handle)
+func (p *PhidgetLCD) Create() {
+	C.PhidgetLCD_create(&p.handle)
 }
 
 //SetText sets the lcd text
-func (t *PhidgetLCD) SetText(text string) {
-	C.PhidgetLCD_writeText(t.handle, C.FONT_6x12, 40, 25, stringToCCharArray(text))
-	C.PhidgetLCD_flush(t.handle)
+func (p *PhidgetLCD) SetText(text string) {
+	C.PhidgetLCD_writeText(p.handle, C.FONT_6x12, 40, 25, stringToCCharArray(text))
+	C.PhidgetLCD_flush(p.handle)
 }
 
-func (t *PhidgetLCD) SetBacklight(brightness float32) {
-	C.PhidgetLCD_setBacklight(t.handle, float32ToCdouble(brightness))
+func (p *PhidgetLCD) SetBacklight(brightness float32) {
+	C.PhidgetLCD_setBacklight(p.handle, float32ToCdouble(brightness))
 }
 
 //Common to all derived phidgets

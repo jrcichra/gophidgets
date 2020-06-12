@@ -17,14 +17,14 @@ type PhidgetVoltageInputHandle struct {
 }
 
 //Create creates a phidget voltageinput sensor
-func (t *PhidgetVoltageInputHandle) Create() {
-	C.PhidgetVoltageInput_create(&t.handle)
+func (p *PhidgetVoltageInputHandle) Create() {
+	C.PhidgetVoltageInput_create(&p.handle)
 }
 
 //GetValue gets the voltageinput from a phidget voltageinput sensor
-func (t *PhidgetVoltageInputHandle) GetValue() float32 {
+func (p *PhidgetVoltageInputHandle) GetValue() float32 {
 	var r C.double
-	C.PhidgetVoltageInput_getVoltage(t.handle, &r)
+	C.PhidgetVoltageInput_getVoltage(p.handle, &r)
 	return cDoubleTofloat32(r)
 }
 

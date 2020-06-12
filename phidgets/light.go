@@ -17,14 +17,14 @@ type PhidgetLightSensor struct {
 }
 
 //Create creates a phidget lumenance sensor
-func (t *PhidgetLightSensor) Create() {
-	C.PhidgetLightSensor_create(&t.handle)
+func (p *PhidgetLightSensor) Create() {
+	C.PhidgetLightSensor_create(&p.handle)
 }
 
 //GetValue gets the lumenance from a phidget lumenance sensor
-func (t *PhidgetLightSensor) GetValue() float32 {
+func (p *PhidgetLightSensor) GetValue() float32 {
 	var r C.double
-	C.PhidgetLightSensor_getIlluminance(t.handle, &r)
+	C.PhidgetLightSensor_getIlluminance(p.handle, &r)
 	return cDoubleTofloat32(r)
 }
 
