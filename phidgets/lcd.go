@@ -27,6 +27,7 @@ func (p *PhidgetLCD) SetText(text string) {
 	C.PhidgetLCD_flush(p.handle)
 }
 
+//SetBacklight - sets the backlight value
 func (p *PhidgetLCD) SetBacklight(brightness float32) {
 	C.PhidgetLCD_setBacklight(p.handle, float32ToCdouble(brightness))
 }

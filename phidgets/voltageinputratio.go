@@ -113,7 +113,7 @@ func (p *PhidgetVoltageRatioInput) OpenWaitForAttachment(timeout uint) error {
 	return nil
 }
 
-//Specific to a voltageinputratio - setting the proper sensor type
+//SetSensorType - Specific to a voltageinputratio - setting the proper sensor type
 func (p *PhidgetVoltageRatioInput) SetSensorType(sensorType string) {
 	//TODO: need a better way to select a voltage ratio input sensor type by bringing the enum out to go world
 	var cSensor C.PhidgetVoltageRatioInput_SensorType
