@@ -49,7 +49,7 @@ func (p *PhidgetVoltageInputHandle) SetIsRemote(b bool) error {
 
 }
 
-//SetDeviceSerialNumber sets a phidget lcd sensor's serial number
+//SetDeviceSerialNumber sets a phidget voltageinput sensor's serial number
 func (p *PhidgetVoltageInputHandle) SetDeviceSerialNumber(serial int) error {
 	h := (*C.struct__Phidget)(unsafe.Pointer(p.handle))
 	cerr := C.Phidget_setDeviceSerialNumber(h, intToCInt(serial))
@@ -59,7 +59,7 @@ func (p *PhidgetVoltageInputHandle) SetDeviceSerialNumber(serial int) error {
 	return nil
 }
 
-//SetHubPort sets a phidget lcd sensor's hub port
+//SetHubPort sets a phidget voltageinput sensor's hub port
 func (p *PhidgetVoltageInputHandle) SetHubPort(port int) error {
 	h := (*C.struct__Phidget)(unsafe.Pointer(p.handle))
 	cerr := C.Phidget_setHubPort(h, intToCInt(port))
@@ -69,7 +69,7 @@ func (p *PhidgetVoltageInputHandle) SetHubPort(port int) error {
 	return nil
 }
 
-//GetIsRemote gets a phidget lcd sensor's remote status
+//GetIsRemote gets a phidget voltageinput sensor's remote status
 func (p *PhidgetVoltageInputHandle) GetIsRemote() (bool, error) {
 	//Cast TemperatureHandle to PhidgetHandle
 	h := (*C.struct__Phidget)(unsafe.Pointer(p.handle))
@@ -81,7 +81,7 @@ func (p *PhidgetVoltageInputHandle) GetIsRemote() (bool, error) {
 	return cIntTobool(r), nil
 }
 
-//GetDeviceSerialNumber gets a phidget lcd sensor's serial number
+//GetDeviceSerialNumber gets a phidget voltageinput sensor's serial number
 func (p *PhidgetVoltageInputHandle) GetDeviceSerialNumber() (int, error) {
 	h := (*C.struct__Phidget)(unsafe.Pointer(p.handle))
 	var r C.int
@@ -92,7 +92,7 @@ func (p *PhidgetVoltageInputHandle) GetDeviceSerialNumber() (int, error) {
 	return cIntToint(r), nil
 }
 
-//GetHubPort gets a phidget lcd sensor's hub port
+//GetHubPort gets a phidget voltageinput sensor's hub port
 func (p *PhidgetVoltageInputHandle) GetHubPort() (int, error) {
 	h := (*C.struct__Phidget)(unsafe.Pointer(p.handle))
 	var r C.int
@@ -103,7 +103,28 @@ func (p *PhidgetVoltageInputHandle) GetHubPort() (int, error) {
 	return cIntToint(r), nil
 }
 
-//OpenWaitForAttachment opens a phidget lcd sensor for attachment
+//SetChannel sets a phidget voltageinput sensor's channel port
+func (p *PhidgetVoltageInputHandle) SetChannel(port int) error {
+	h := (*C.struct__Phidget)(unsafe.Pointer(p.handle))
+	cerr := C.Phidget_setChannel(h, intToCInt(port))
+	if cerr != C.EPHIDGET_OK {
+		return errors.New(p.getErrorDescription(cerr))
+	}
+	return nil
+}
+
+//GetChannel gets a phidget voltageinput sensor's channel port
+func (p *PhidgetVoltageInputHandle) GetChannel() (int, error) {
+	h := (*C.struct__Phidget)(unsafe.Pointer(p.handle))
+	var r C.int
+	cerr := C.Phidget_getChannel(h, &r)
+	if cerr != C.EPHIDGET_OK {
+		return 0, errors.New(p.getErrorDescription(cerr))
+	}
+	return cIntToint(r), nil
+}
+
+//OpenWaitForAttachment opens a phidget voltageinput sensor for attachment
 func (p *PhidgetVoltageInputHandle) OpenWaitForAttachment(timeout uint) error {
 	h := (*C.struct__Phidget)(unsafe.Pointer(p.handle))
 	cerr := C.Phidget_openWaitForAttachment(h, uintToCUInt(timeout))

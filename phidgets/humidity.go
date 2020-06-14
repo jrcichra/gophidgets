@@ -113,6 +113,27 @@ func (p *PhidgetHumiditySensor) OpenWaitForAttachment(timeout uint) error {
 	return nil
 }
 
+//SetChannel sets a phidget humidity sensor's channel port
+func (p *PhidgetHumiditySensor) SetChannel(port int) error {
+	h := (*C.struct__Phidget)(unsafe.Pointer(p.handle))
+	cerr := C.Phidget_setChannel(h, intToCInt(port))
+	if cerr != C.EPHIDGET_OK {
+		return errors.New(p.getErrorDescription(cerr))
+	}
+	return nil
+}
+
+//GetChannel gets a phidget humidity sensor's channel port
+func (p *PhidgetHumiditySensor) GetChannel() (int, error) {
+	h := (*C.struct__Phidget)(unsafe.Pointer(p.handle))
+	var r C.int
+	cerr := C.Phidget_getChannel(h, &r)
+	if cerr != C.EPHIDGET_OK {
+		return 0, errors.New(p.getErrorDescription(cerr))
+	}
+	return cIntToint(r), nil
+}
+
 //Close - close the handle and delete it
 func (p *PhidgetHumiditySensor) Close() error {
 	h := (*C.struct__Phidget)(unsafe.Pointer(p.handle))

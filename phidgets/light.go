@@ -49,7 +49,7 @@ func (p *PhidgetLightSensor) SetIsRemote(b bool) error {
 
 }
 
-//SetDeviceSerialNumber sets a phidget lcd sensor's serial number
+//SetDeviceSerialNumber sets a phidget light sensor's serial number
 func (p *PhidgetLightSensor) SetDeviceSerialNumber(serial int) error {
 	h := (*C.struct__Phidget)(unsafe.Pointer(p.handle))
 	cerr := C.Phidget_setDeviceSerialNumber(h, intToCInt(serial))
@@ -59,7 +59,7 @@ func (p *PhidgetLightSensor) SetDeviceSerialNumber(serial int) error {
 	return nil
 }
 
-//SetHubPort sets a phidget lcd sensor's hub port
+//SetHubPort sets a phidget light sensor's hub port
 func (p *PhidgetLightSensor) SetHubPort(port int) error {
 	h := (*C.struct__Phidget)(unsafe.Pointer(p.handle))
 	cerr := C.Phidget_setHubPort(h, intToCInt(port))
@@ -69,7 +69,39 @@ func (p *PhidgetLightSensor) SetHubPort(port int) error {
 	return nil
 }
 
-//GetIsRemote gets a phidget lcd sensor's remote status
+//GetHubPort gets a phidget light sensor's hub port
+func (p *PhidgetLightSensor) GetHubPort() (int, error) {
+	h := (*C.struct__Phidget)(unsafe.Pointer(p.handle))
+	var r C.int
+	cerr := C.Phidget_getHubPort(h, &r)
+	if cerr != C.EPHIDGET_OK {
+		return 0, errors.New(p.getErrorDescription(cerr))
+	}
+	return cIntToint(r), nil
+}
+
+//SetChannel sets a phidget light sensor's channel port
+func (p *PhidgetLightSensor) SetChannel(port int) error {
+	h := (*C.struct__Phidget)(unsafe.Pointer(p.handle))
+	cerr := C.Phidget_setChannel(h, intToCInt(port))
+	if cerr != C.EPHIDGET_OK {
+		return errors.New(p.getErrorDescription(cerr))
+	}
+	return nil
+}
+
+//GetChannel gets a phidget light sensor's channel port
+func (p *PhidgetLightSensor) GetChannel() (int, error) {
+	h := (*C.struct__Phidget)(unsafe.Pointer(p.handle))
+	var r C.int
+	cerr := C.Phidget_getChannel(h, &r)
+	if cerr != C.EPHIDGET_OK {
+		return 0, errors.New(p.getErrorDescription(cerr))
+	}
+	return cIntToint(r), nil
+}
+
+//GetIsRemote gets a phidget light sensor's remote status
 func (p *PhidgetLightSensor) GetIsRemote() (bool, error) {
 	//Cast TemperatureHandle to PhidgetHandle
 	h := (*C.struct__Phidget)(unsafe.Pointer(p.handle))
@@ -81,7 +113,7 @@ func (p *PhidgetLightSensor) GetIsRemote() (bool, error) {
 	return cIntTobool(r), nil
 }
 
-//GetDeviceSerialNumber gets a phidget lcd sensor's serial number
+//GetDeviceSerialNumber gets a phidget light sensor's serial number
 func (p *PhidgetLightSensor) GetDeviceSerialNumber() (int, error) {
 	h := (*C.struct__Phidget)(unsafe.Pointer(p.handle))
 	var r C.int
@@ -92,18 +124,7 @@ func (p *PhidgetLightSensor) GetDeviceSerialNumber() (int, error) {
 	return cIntToint(r), nil
 }
 
-//GetHubPort gets a phidget lcd sensor's hub port
-func (p *PhidgetLightSensor) GetHubPort() (int, error) {
-	h := (*C.struct__Phidget)(unsafe.Pointer(p.handle))
-	var r C.int
-	cerr := C.Phidget_getHubPort(h, &r)
-	if cerr != C.EPHIDGET_OK {
-		return 0, errors.New(p.getErrorDescription(cerr))
-	}
-	return cIntToint(r), nil
-}
-
-//OpenWaitForAttachment opens a phidget lcd sensor for attachment
+//OpenWaitForAttachment opens a phidget light sensor for attachment
 func (p *PhidgetLightSensor) OpenWaitForAttachment(timeout uint) error {
 	h := (*C.struct__Phidget)(unsafe.Pointer(p.handle))
 	cerr := C.Phidget_openWaitForAttachment(h, uintToCUInt(timeout))

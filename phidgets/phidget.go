@@ -13,6 +13,7 @@ type Phidget interface {
 	SetIsRemote(bool) error
 	SetDeviceSerialNumber(int) error
 	SetHubPort(int) error
+	SetChannel(int) error
 	GetIsRemote() (bool, error)
 	GetDeviceSerialNumber() (int, error)
 	GetHubPort() (int, error)

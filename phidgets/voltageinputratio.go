@@ -49,7 +49,7 @@ func (p *PhidgetVoltageRatioInput) SetIsRemote(b bool) error {
 
 }
 
-//SetDeviceSerialNumber sets a phidget lcd sensor's serial number
+//SetDeviceSerialNumber sets a phidget voltageinputratio sensor's serial number
 func (p *PhidgetVoltageRatioInput) SetDeviceSerialNumber(serial int) error {
 	h := (*C.struct__Phidget)(unsafe.Pointer(p.handle))
 	cerr := C.Phidget_setDeviceSerialNumber(h, intToCInt(serial))
@@ -59,7 +59,7 @@ func (p *PhidgetVoltageRatioInput) SetDeviceSerialNumber(serial int) error {
 	return nil
 }
 
-//SetHubPort sets a phidget lcd sensor's hub port
+//SetHubPort sets a phidget voltageinputratio sensor's hub port
 func (p *PhidgetVoltageRatioInput) SetHubPort(port int) error {
 	h := (*C.struct__Phidget)(unsafe.Pointer(p.handle))
 	cerr := C.Phidget_setHubPort(h, intToCInt(port))
@@ -69,7 +69,7 @@ func (p *PhidgetVoltageRatioInput) SetHubPort(port int) error {
 	return nil
 }
 
-//GetIsRemote gets a phidget lcd sensor's remote status
+//GetIsRemote gets a phidget voltageinputratio sensor's remote status
 func (p *PhidgetVoltageRatioInput) GetIsRemote() (bool, error) {
 	//Cast TemperatureHandle to PhidgetHandle
 	h := (*C.struct__Phidget)(unsafe.Pointer(p.handle))
@@ -81,7 +81,7 @@ func (p *PhidgetVoltageRatioInput) GetIsRemote() (bool, error) {
 	return cIntTobool(r), nil
 }
 
-//GetDeviceSerialNumber gets a phidget lcd sensor's serial number
+//GetDeviceSerialNumber gets a phidget voltageinputratio sensor's serial number
 func (p *PhidgetVoltageRatioInput) GetDeviceSerialNumber() (int, error) {
 	h := (*C.struct__Phidget)(unsafe.Pointer(p.handle))
 	var r C.int
@@ -92,7 +92,7 @@ func (p *PhidgetVoltageRatioInput) GetDeviceSerialNumber() (int, error) {
 	return cIntToint(r), nil
 }
 
-//GetHubPort gets a phidget lcd sensor's hub port
+//GetHubPort gets a phidget voltageinputratio sensor's hub port
 func (p *PhidgetVoltageRatioInput) GetHubPort() (int, error) {
 	h := (*C.struct__Phidget)(unsafe.Pointer(p.handle))
 	var r C.int
@@ -103,7 +103,7 @@ func (p *PhidgetVoltageRatioInput) GetHubPort() (int, error) {
 	return cIntToint(r), nil
 }
 
-//OpenWaitForAttachment opens a phidget lcd sensor for attachment
+//OpenWaitForAttachment opens a phidget voltageinputratio sensor for attachment
 func (p *PhidgetVoltageRatioInput) OpenWaitForAttachment(timeout uint) error {
 	h := (*C.struct__Phidget)(unsafe.Pointer(p.handle))
 	cerr := C.Phidget_openWaitForAttachment(h, uintToCUInt(timeout))
@@ -111,6 +111,27 @@ func (p *PhidgetVoltageRatioInput) OpenWaitForAttachment(timeout uint) error {
 		return errors.New(p.getErrorDescription(cerr))
 	}
 	return nil
+}
+
+//SetChannel sets a phidget voltageinputratio sensor's channel port
+func (p *PhidgetVoltageRatioInput) SetChannel(port int) error {
+	h := (*C.struct__Phidget)(unsafe.Pointer(p.handle))
+	cerr := C.Phidget_setChannel(h, intToCInt(port))
+	if cerr != C.EPHIDGET_OK {
+		return errors.New(p.getErrorDescription(cerr))
+	}
+	return nil
+}
+
+//GetChannel gets a phidget voltageinputratio sensor's channel port
+func (p *PhidgetVoltageRatioInput) GetChannel() (int, error) {
+	h := (*C.struct__Phidget)(unsafe.Pointer(p.handle))
+	var r C.int
+	cerr := C.Phidget_getChannel(h, &r)
+	if cerr != C.EPHIDGET_OK {
+		return 0, errors.New(p.getErrorDescription(cerr))
+	}
+	return cIntToint(r), nil
 }
 
 //Close - close the handle and delete it
