@@ -22,10 +22,13 @@ func (p *PhidgetVoltageInputHandle) Create() {
 }
 
 //GetValue gets the voltageinput from a phidget voltageinput sensor
-func (p *PhidgetVoltageInputHandle) GetValue() float32 {
+func (p *PhidgetVoltageInputHandle) GetValue() (float32, error) {
 	var r C.double
-	C.PhidgetVoltageInput_getVoltage(p.handle, &r)
-	return cDoubleTofloat32(r)
+	cerr := C.PhidgetVoltageInput_getVoltage(p.handle, &r)
+	if cerr != C.EPHIDGET_OK {
+		return 0, errors.New(p.getErrorDescription(cerr))
+	}
+	return cDoubleTofloat32(r), nil
 }
 
 //Common to all derived phidgets

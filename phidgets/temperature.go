@@ -22,10 +22,13 @@ func (p *PhidgetTemperatureSensor) Create() {
 }
 
 //GetValue gets the temperature from a phidget temperature sensor
-func (p *PhidgetTemperatureSensor) GetValue() float32 {
+func (p *PhidgetTemperatureSensor) GetValue() (float32, error) {
 	var r C.double
-	C.PhidgetTemperatureSensor_getTemperature(p.handle, &r)
-	return cDoubleTofloat32(r)
+	cerr := C.PhidgetTemperatureSensor_getTemperature(p.handle, &r)
+	if cerr != C.EPHIDGET_OK {
+		return 0, errors.New(p.getErrorDescription(cerr))
+	}
+	return cDoubleTofloat32(r), nil
 }
 
 //Common to all derived phidgets

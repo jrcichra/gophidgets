@@ -22,10 +22,13 @@ func (p *PhidgetHumiditySensor) Create() {
 }
 
 //GetValue gets the humidity from a phidget humidity sensor
-func (p *PhidgetHumiditySensor) GetValue() float32 {
+func (p *PhidgetHumiditySensor) GetValue() (float32, error) {
 	var r C.double
-	C.PhidgetHumiditySensor_getHumidity(p.handle, &r)
-	return cDoubleTofloat32(r)
+	cerr := C.PhidgetHumiditySensor_getHumidity(p.handle, &r)
+	if cerr != C.EPHIDGET_OK {
+		return 0, errors.New(p.getErrorDescription(cerr))
+	}
+	return cDoubleTofloat32(r), nil
 }
 
 //Common to all derived phidgets

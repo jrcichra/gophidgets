@@ -22,10 +22,13 @@ func (p *PhidgetLightSensor) Create() {
 }
 
 //GetValue gets the lumenance from a phidget lumenance sensor
-func (p *PhidgetLightSensor) GetValue() float32 {
+func (p *PhidgetLightSensor) GetValue() (float32, error) {
 	var r C.double
-	C.PhidgetLightSensor_getIlluminance(p.handle, &r)
-	return cDoubleTofloat32(r)
+	cerr := C.PhidgetLightSensor_getIlluminance(p.handle, &r)
+	if cerr != C.EPHIDGET_OK {
+		return 0, errors.New(p.getErrorDescription(cerr))
+	}
+	return cDoubleTofloat32(r), nil
 }
 
 //Common to all derived phidgets

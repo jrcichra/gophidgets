@@ -22,10 +22,13 @@ func (p *PhidgetVoltageRatioInput) Create() {
 }
 
 //GetValue gets the voltageinputratio from a phidget voltageinputratio sensor
-func (p *PhidgetVoltageRatioInput) GetValue() float32 {
+func (p *PhidgetVoltageRatioInput) GetValue() (float32, error) {
 	var r C.double
-	C.PhidgetVoltageRatioInput_getVoltageRatio(p.handle, &r)
-	return cDoubleTofloat32(r)
+	cerr := C.PhidgetVoltageRatioInput_getVoltageRatio(p.handle, &r)
+	if cerr != C.EPHIDGET_OK {
+		return 0, errors.New(p.getErrorDescription(cerr))
+	}
+	return cDoubleTofloat32(r), nil
 }
 
 //Common to all derived phidgets

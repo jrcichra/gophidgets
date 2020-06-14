@@ -57,10 +57,13 @@ func main() {
 		for _, sensor := range sensors {
 			switch s := sensor.(type) {
 			case *phidgets.PhidgetTemperatureSensor:
-				fmt.Println("Temperature is", s.GetValue()*9.0/5.0+32)
-				lcd.SetText(fmt.Sprintf("Justin: %f", s.GetValue()*9.0/5.0+32))
+				val, _ := s.GetValue()
+				val = val*9.0/5.0 + 32
+				fmt.Println("Temperature is")
+				lcd.SetText(fmt.Sprintf("Justin: %f", val))
 			case *phidgets.PhidgetHumiditySensor:
-				fmt.Println("Humidity is", s.GetValue())
+				hum, _ := s.GetValue()
+				fmt.Println("Humidity is", hum)
 			}
 		}
 		time.Sleep(time.Duration(5) * time.Second)

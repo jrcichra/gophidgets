@@ -22,10 +22,13 @@ func (p *PhidgetCurrentInput) Create() {
 }
 
 //GetValue gets the current from a phidget current sensor
-func (p *PhidgetCurrentInput) GetValue() float32 {
+func (p *PhidgetCurrentInput) GetValue() (float32, error) {
 	var r C.double
-	C.PhidgetCurrentInput_getCurrent(p.handle, &r)
-	return cDoubleTofloat32(r)
+	cerr := C.PhidgetCurrentInput_getCurrent(p.handle, &r)
+	if cerr != C.EPHIDGET_OK {
+		return 0, errors.New(p.getErrorDescription(cerr))
+	}
+	return cDoubleTofloat32(r), nil
 }
 
 //Common to all derived phidgets
