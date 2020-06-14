@@ -116,3 +116,17 @@ func (p *PhidgetLCD) OpenWaitForAttachment(timeout uint) error {
 	}
 	return nil
 }
+
+//Close - close the handle and delete it
+func (p *PhidgetLCD) Close() error {
+	h := (*C.struct__Phidget)(unsafe.Pointer(p.handle))
+	cerr := C.Phidget_close(h)
+	if cerr != C.EPHIDGET_OK {
+		return errors.New(p.getErrorDescription(cerr))
+	}
+	cerr = C.PhidgetLCD_delete((*C.PhidgetLCDHandle)(&p.handle))
+	if cerr != C.EPHIDGET_OK {
+		return errors.New(p.getErrorDescription(cerr))
+	}
+	return nil
+}

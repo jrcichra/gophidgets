@@ -112,3 +112,17 @@ func (p *PhidgetVoltageInputHandle) OpenWaitForAttachment(timeout uint) error {
 	}
 	return nil
 }
+
+//Close - close the handle and delete it
+func (p *PhidgetVoltageInputHandle) Close() error {
+	h := (*C.struct__Phidget)(unsafe.Pointer(p.handle))
+	cerr := C.Phidget_close(h)
+	if cerr != C.EPHIDGET_OK {
+		return errors.New(p.getErrorDescription(cerr))
+	}
+	cerr = C.PhidgetVoltageInput_delete((*C.PhidgetVoltageInputHandle)(&p.handle))
+	if cerr != C.EPHIDGET_OK {
+		return errors.New(p.getErrorDescription(cerr))
+	}
+	return nil
+}

@@ -113,6 +113,20 @@ func (p *PhidgetVoltageRatioInput) OpenWaitForAttachment(timeout uint) error {
 	return nil
 }
 
+//Close - close the handle and delete it
+func (p *PhidgetVoltageRatioInput) Close() error {
+	h := (*C.struct__Phidget)(unsafe.Pointer(p.handle))
+	cerr := C.Phidget_close(h)
+	if cerr != C.EPHIDGET_OK {
+		return errors.New(p.getErrorDescription(cerr))
+	}
+	cerr = C.PhidgetVoltageRatioInput_delete((*C.PhidgetVoltageRatioInputHandle)(&p.handle))
+	if cerr != C.EPHIDGET_OK {
+		return errors.New(p.getErrorDescription(cerr))
+	}
+	return nil
+}
+
 //SetSensorType - Specific to a voltageinputratio - setting the proper sensor type
 func (p *PhidgetVoltageRatioInput) SetSensorType(sensorType string) {
 	//TODO: need a better way to select a voltage ratio input sensor type by bringing the enum out to go world

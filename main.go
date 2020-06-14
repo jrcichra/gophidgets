@@ -65,4 +65,11 @@ func main() {
 		}
 		time.Sleep(time.Duration(5) * time.Second)
 	}
+
+	//Close the sensors
+	for _, sensor := range sensors {
+		sensor.Close()
+	}
+
+	lcd.Close()
 }

@@ -17,4 +17,5 @@ type Phidget interface {
 	GetDeviceSerialNumber() (int, error)
 	GetHubPort() (int, error)
 	OpenWaitForAttachment(uint) error
+	Close() error
 }
