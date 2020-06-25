@@ -52,6 +52,17 @@ func (p *PhidgetVoltageRatioInput) SetIsRemote(b bool) error {
 
 }
 
+//SetIsHubPortDevice sets a phidget sensor as a remote device
+func (p *PhidgetVoltageRatioInput) SetIsHubPortDevice(b bool) error {
+	h := (*C.struct__Phidget)(unsafe.Pointer(p.handle))
+	cerr := C.Phidget_setIsHubPortDevice(h, boolToCInt(b))
+	if cerr != C.EPHIDGET_OK {
+		return errors.New(p.getErrorDescription(cerr))
+	}
+	return nil
+
+}
+
 //SetDeviceSerialNumber sets a phidget voltageinputratio sensor's serial number
 func (p *PhidgetVoltageRatioInput) SetDeviceSerialNumber(serial int) error {
 	h := (*C.struct__Phidget)(unsafe.Pointer(p.handle))
