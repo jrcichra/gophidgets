@@ -5,8 +5,8 @@ package phidgets
 #cgo LDFLAGS: -lphidget22
 #include <stdlib.h>
 #include <phidget22.h>
-typedef void (*callback_fcn)(void* handle, void* ctx, double b);
-void ccallback(void* handle, void* ctx, double b);  // Forward declaration.
+typedef void (*sound_callback_fcn)(void* handle, void* ctx, double dB, double dBA, double dBC, const double octaves[10]);
+void csoundcallback(void* handle, void* ctx, double dB, double dBA, double dBC, const double octaves[10]);  // Forward declaration.
 */
 import "C"
 import (
@@ -38,14 +38,14 @@ func (p *PhidgetSoundSensor) GetValue() (float32, error) {
 }
 
 //SetOnSPLChangeHandler - interrupt for sound changes calls a function
-func (p *PhidgetSoundSensor) SetOnSPLChangeHandler(f func(Phidget, interface{}, float32), ctx interface{}) error {
+func (p *PhidgetSoundSensor) SetOnSPLChangeHandler(f func(Phidget, interface{}, float32, float32, float32, []float32), ctx interface{}) error {
 	//make a c function pointer to a go function pointer and pass it through the phidget context
-	var passthrough Passthrough
+	var passthrough SoundPassthrough
 	passthrough.f = f
 	passthrough.ctx = ctx
 	passthrough.handle = p
 	pt := gopointer.Save(passthrough)
-	cerr := C.PhidgetSoundSensor_setOnSPLChangeHandler(p.handle, (C.callback_fcn)(unsafe.Pointer(C.ccallback)), pt)
+	cerr := C.PhidgetSoundSensor_setOnSPLChangeHandler(p.handle, (C.sound_callback_fcn)(unsafe.Pointer(C.csoundcallback)), pt)
 	if cerr != C.EPHIDGET_OK {
 		return errors.New(p.getErrorDescription(cerr))
 	}

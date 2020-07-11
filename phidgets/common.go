@@ -8,6 +8,7 @@ package phidgets
 */
 import "C"
 import (
+	"reflect"
 	"unsafe"
 
 	gopointer "github.com/mattn/go-pointer"
@@ -20,6 +21,13 @@ type Passthrough struct {
 	handle Phidget
 }
 
+//SoundPassthrough - has more than one float32 value as a parameter
+type SoundPassthrough struct {
+	f      func(Phidget, interface{}, float32, float32, float32, []float32)
+	ctx    interface{}
+	handle Phidget
+}
+
 //export callback
 func callback(handle unsafe.Pointer, ctx unsafe.Pointer, value C.double) {
 	passthrough := gopointer.Restore(ctx).(Passthrough)
@@ -27,6 +35,31 @@ func callback(handle unsafe.Pointer, ctx unsafe.Pointer, value C.double) {
 	c := passthrough.ctx
 	h := passthrough.handle
 	p2(h, c, cDoubleTofloat32(value))
+}
+
+func carray2slice(array *C.double, len int) []C.double {
+	var list []C.double
+	sliceHeader := (*reflect.SliceHeader)((unsafe.Pointer(&list)))
+	sliceHeader.Cap = len
+	sliceHeader.Len = len
+	sliceHeader.Data = uintptr(unsafe.Pointer(array))
+	return list
+}
+
+//export soundcallback
+func soundcallback(handle unsafe.Pointer, ctx unsafe.Pointer, dB C.double, dBA C.double, dBC C.double, octaves *C.double) {
+	passthrough := gopointer.Restore(ctx).(SoundPassthrough)
+	p2 := passthrough.f
+	c := passthrough.ctx
+	h := passthrough.handle
+	var slce []float32
+	length := 10
+	cslce := carray2slice(octaves, length)
+	for i := 0; i < length; i++ {
+		slce = append(slce, cDoubleTofloat32(cslce[i]))
+	}
+
+	p2(h, c, cDoubleTofloat32(dB), cDoubleTofloat32(dBA), cDoubleTofloat32(dBC), slce)
 }
 
 //Common functions that convert different types for this package
