@@ -8,17 +8,23 @@ package phidgets
 */
 import "C"
 import (
-	"fmt"
 	"unsafe"
 
 	gopointer "github.com/mattn/go-pointer"
 )
 
+//Passthrough - Go struct that passes through the phidget context callback, giving us a Go phidget pointer and the function we should callback to
+type Passthrough struct {
+	f      func(Phidget, float32)
+	handle Phidget
+}
+
 //export callback
 func callback(handle unsafe.Pointer, ctx unsafe.Pointer, value C.double) {
-	p2 := gopointer.Restore(ctx).(func())
-	p2()
-	fmt.Println("Callback is getting the value", cDoubleTofloat32(value))
+	passthrough := gopointer.Restore(ctx).(Passthrough)
+	p2 := passthrough.f
+	h := passthrough.handle
+	p2(h, cDoubleTofloat32(value))
 }
 
 //Common functions that convert different types for this package

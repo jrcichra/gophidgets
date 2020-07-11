@@ -1,9 +1,13 @@
 package phidgets
 
-// #cgo CFLAGS: -g -Wall
-// #cgo LDFLAGS: -lphidget22
-// #include <stdlib.h>
-// #include <phidget22.h>
+/*
+#cgo CFLAGS: -g -Wall
+#cgo LDFLAGS: -lphidget22
+#include <stdlib.h>
+#include <phidget22.h>
+typedef void (*callback_fcn)(void* handle, void* ctx, double b);
+void ccallback(void* handle, void* ctx, double b);  // Forward declaration.
+*/
 import "C"
 import (
 	"errors"

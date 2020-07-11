@@ -1,14 +1,20 @@
 package phidgets
 
-// #cgo CFLAGS: -g -Wall
-// #cgo LDFLAGS: -lphidget22
-// #include <stdlib.h>
-// #include <phidget22.h>
+/*
+#cgo CFLAGS: -g -Wall
+#cgo LDFLAGS: -lphidget22
+#include <stdlib.h>
+#include <phidget22.h>
+typedef void (*callback_fcn)(void* handle, void* ctx, double b);
+void ccallback(void* handle, void* ctx, double b);  // Forward declaration.
+*/
 import "C"
 import (
 	"errors"
 	"reflect"
 	"unsafe"
+
+	gopointer "github.com/mattn/go-pointer"
 )
 
 //PhidgetLightSensor is the struct that is a phidget lumenance sensor
@@ -29,6 +35,20 @@ func (p *PhidgetLightSensor) GetValue() (float32, error) {
 		return 0, errors.New(p.getErrorDescription(cerr))
 	}
 	return cDoubleTofloat32(r), nil
+}
+
+//SetOnIlluminanceChangeHandler - interrupt for illumiance changes calls a function
+func (p *PhidgetLightSensor) SetOnIlluminanceChangeHandler(f func(Phidget, float32)) error {
+	//make a c function pointer to a go function pointer and pass it through the phidget context
+	var passthrough Passthrough
+	passthrough.f = f
+	passthrough.handle = p
+	pt := gopointer.Save(passthrough)
+	cerr := C.PhidgetLightSensor_setOnIlluminanceChangeHandler(p.handle, (C.callback_fcn)(unsafe.Pointer(C.ccallback)), pt)
+	if cerr != C.EPHIDGET_OK {
+		return errors.New(p.getErrorDescription(cerr))
+	}
+	return nil
 }
 
 //Common to all derived phidgets
