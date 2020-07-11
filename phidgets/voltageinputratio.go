@@ -38,10 +38,11 @@ func (p *PhidgetVoltageRatioInput) GetValue() (float32, error) {
 }
 
 //SetOnVoltageRatioChangeHandler - voltage input changes calls a function
-func (p *PhidgetVoltageRatioInput) SetOnVoltageRatioChangeHandler(f func(Phidget, float32)) error {
+func (p *PhidgetVoltageRatioInput) SetOnVoltageRatioChangeHandler(f func(Phidget, interface{}, float32), ctx interface{}) error {
 	//make a c function pointer to a go function pointer and pass it through the phidget context
 	var passthrough Passthrough
 	passthrough.f = f
+	passthrough.ctx = ctx
 	passthrough.handle = p
 	pt := gopointer.Save(passthrough)
 	cerr := C.PhidgetVoltageRatioInput_setOnVoltageRatioChangeHandler(p.handle, (C.callback_fcn)(unsafe.Pointer(C.ccallback)), pt)

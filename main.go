@@ -36,11 +36,11 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	h.SetOnHumidityChangeHandler(func(p phidgets.Phidget, value float32) {
+	h.SetOnHumidityChangeHandler(func(p phidgets.Phidget, ctx interface{}, value float32) {
 		fmt.Println("I got a humidity of", value)
 		serial, _ := p.GetDeviceSerialNumber()
 		fmt.Println("My phidget serial is", serial)
-	})
+	}, nil)
 	// sensors = append(sensorqs, &h)
 
 	vr := phidgets.PhidgetVoltageRatioInput{}

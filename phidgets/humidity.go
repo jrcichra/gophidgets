@@ -38,10 +38,11 @@ func (p *PhidgetHumiditySensor) GetValue() (float32, error) {
 }
 
 //SetOnHumidityChangeHandler - interrupt for humdity changes calls a function
-func (p *PhidgetHumiditySensor) SetOnHumidityChangeHandler(f func(Phidget, float32)) error {
+func (p *PhidgetHumiditySensor) SetOnHumidityChangeHandler(f func(Phidget, interface{}, float32), ctx interface{}) error {
 	//make a c function pointer to a go function pointer and pass it through the phidget context
 	var passthrough Passthrough
 	passthrough.f = f
+	passthrough.ctx = ctx
 	passthrough.handle = p
 	pt := gopointer.Save(passthrough)
 	cerr := C.PhidgetHumiditySensor_setOnHumidityChangeHandler(p.handle, (C.callback_fcn)(unsafe.Pointer(C.ccallback)), pt)

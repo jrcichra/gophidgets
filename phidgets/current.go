@@ -38,10 +38,11 @@ func (p *PhidgetCurrentInput) GetValue() (float32, error) {
 }
 
 //SetOnCurrentChangeHandler - interrupt for current changes calls a function
-func (p *PhidgetCurrentInput) SetOnCurrentChangeHandler(f func(Phidget, float32)) error {
+func (p *PhidgetCurrentInput) SetOnCurrentChangeHandler(f func(Phidget, interface{}, float32), ctx interface{}) error {
 	//make a c function pointer to a go function pointer and pass it through the phidget context
 	var passthrough Passthrough
 	passthrough.f = f
+	passthrough.ctx = ctx
 	passthrough.handle = p
 	pt := gopointer.Save(passthrough)
 	cerr := C.PhidgetCurrentInput_setOnCurrentChangeHandler(p.handle, (C.callback_fcn)(unsafe.Pointer(C.ccallback)), pt)

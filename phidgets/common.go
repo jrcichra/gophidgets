@@ -15,7 +15,8 @@ import (
 
 //Passthrough - Go struct that passes through the phidget context callback, giving us a Go phidget pointer and the function we should callback to
 type Passthrough struct {
-	f      func(Phidget, float32)
+	f      func(Phidget, interface{}, float32)
+	ctx    interface{}
 	handle Phidget
 }
 
@@ -23,8 +24,9 @@ type Passthrough struct {
 func callback(handle unsafe.Pointer, ctx unsafe.Pointer, value C.double) {
 	passthrough := gopointer.Restore(ctx).(Passthrough)
 	p2 := passthrough.f
+	c := passthrough.ctx
 	h := passthrough.handle
-	p2(h, cDoubleTofloat32(value))
+	p2(h, c, cDoubleTofloat32(value))
 }
 
 //Common functions that convert different types for this package

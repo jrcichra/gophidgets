@@ -38,10 +38,11 @@ func (p *PhidgetTemperatureSensor) GetValue() (float32, error) {
 }
 
 //SetOnTemperatureChangeHandler - interrupt for temperature changes calls a function
-func (p *PhidgetTemperatureSensor) SetOnTemperatureChangeHandler(f func(Phidget, float32)) error {
+func (p *PhidgetTemperatureSensor) SetOnTemperatureChangeHandler(f func(Phidget, interface{}, float32), ctx interface{}) error {
 	//make a c function pointer to a go function pointer and pass it through the phidget context
 	var passthrough Passthrough
 	passthrough.f = f
+	passthrough.ctx = ctx
 	passthrough.handle = p
 	pt := gopointer.Save(passthrough)
 	cerr := C.PhidgetTemperatureSensor_setOnTemperatureChangeHandler(p.handle, (C.callback_fcn)(unsafe.Pointer(C.ccallback)), pt)

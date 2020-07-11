@@ -38,10 +38,11 @@ func (p *PhidgetLightSensor) GetValue() (float32, error) {
 }
 
 //SetOnIlluminanceChangeHandler - interrupt for illumiance changes calls a function
-func (p *PhidgetLightSensor) SetOnIlluminanceChangeHandler(f func(Phidget, float32)) error {
+func (p *PhidgetLightSensor) SetOnIlluminanceChangeHandler(f func(Phidget, interface{}, float32), ctx interface{}) error {
 	//make a c function pointer to a go function pointer and pass it through the phidget context
 	var passthrough Passthrough
 	passthrough.f = f
+	passthrough.ctx = ctx
 	passthrough.handle = p
 	pt := gopointer.Save(passthrough)
 	cerr := C.PhidgetLightSensor_setOnIlluminanceChangeHandler(p.handle, (C.callback_fcn)(unsafe.Pointer(C.ccallback)), pt)
