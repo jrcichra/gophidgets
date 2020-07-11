@@ -1,10 +1,18 @@
 package phidgets
 
-// #cgo CFLAGS: -g -Wall
-// #cgo LDFLAGS: -lphidget22
-// #include <stdlib.h>
-// #include <phidget22.h>
+/*
+#cgo CFLAGS: -I . -g -Wall
+#cgo LDFLAGS: -L . -lphidget22
+#include <stdlib.h>
+#include <phidget22.h>
+*/
 import "C"
+import "fmt"
+
+//export callback
+func callback(handle interface{}, ctx interface{}, value C.double) {
+	fmt.Println("Callback is getting the value", cDoubleTofloat32(value))
+}
 
 //Common functions that convert different types for this package
 

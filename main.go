@@ -36,7 +36,10 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	sensors = append(sensors, &h)
+	h.SetOnHumidityChangeHandler(func() {
+		fmt.Println("Tanner is real")
+	})
+	// sensors = append(sensors, &h)
 
 	vr := phidgets.PhidgetVoltageRatioInput{}
 	vr.Create()

@@ -1,9 +1,13 @@
 package phidgets
 
-// #cgo CFLAGS: -g -Wall
-// #cgo LDFLAGS: -lphidget22
-// #include <stdlib.h>
-// #include <phidget22.h>
+/*
+#cgo CFLAGS: -I . -g -Wall
+#cgo LDFLAGS: -L . -lphidget22
+#include <stdlib.h>
+#include <phidget22.h>
+typedef void (*callback_fcn)(double i);
+void ccallback(void* handle, void* ctx, double b);  // Forward declaration.
+*/
 import "C"
 import (
 	"errors"
@@ -29,6 +33,16 @@ func (p *PhidgetHumiditySensor) GetValue() (float32, error) {
 		return 0, errors.New(p.getErrorDescription(cerr))
 	}
 	return cDoubleTofloat32(r), nil
+}
+
+//SetOnHumidityChangeHandler - interrupt for humdity changes calls a function
+func (p *PhidgetHumiditySensor) SetOnHumidityChangeHandler(f func()) error {
+
+	cerr := C.PhidgetHumiditySensor_setOnHumidityChangeHandler(p.handle, (C.callback_fcn)(unsafe.Pointer(C.ccallback)), C.NULL)
+	if cerr != C.EPHIDGET_OK {
+		return errors.New(p.getErrorDescription(cerr))
+	}
+	return nil
 }
 
 //Common to all derived phidgets
