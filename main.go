@@ -37,7 +37,7 @@ func main() {
 		panic(err)
 	}
 	h.SetOnHumidityChangeHandler(func() {
-		fmt.Println("Tanner is real")
+		fmt.Println("This is a function")
 	})
 	// sensors = append(sensors, &h)
 

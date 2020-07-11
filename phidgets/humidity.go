@@ -5,7 +5,7 @@ package phidgets
 #cgo LDFLAGS: -L . -lphidget22
 #include <stdlib.h>
 #include <phidget22.h>
-typedef void (*callback_fcn)(double i);
+typedef void (*callback_fcn)(void* handle, void* ctx, double b);
 void ccallback(void* handle, void* ctx, double b);  // Forward declaration.
 */
 import "C"
@@ -13,6 +13,8 @@ import (
 	"errors"
 	"reflect"
 	"unsafe"
+
+	gopointer "github.com/mattn/go-pointer"
 )
 
 //PhidgetHumiditySensor is the struct that is a phidget humidity sensor
@@ -37,8 +39,9 @@ func (p *PhidgetHumiditySensor) GetValue() (float32, error) {
 
 //SetOnHumidityChangeHandler - interrupt for humdity changes calls a function
 func (p *PhidgetHumiditySensor) SetOnHumidityChangeHandler(f func()) error {
-
-	cerr := C.PhidgetHumiditySensor_setOnHumidityChangeHandler(p.handle, (C.callback_fcn)(unsafe.Pointer(C.ccallback)), C.NULL)
+	//make a c function pointer to a go function pointer and pass it through the phidget context
+	fp := gopointer.Save(f)
+	cerr := C.PhidgetHumiditySensor_setOnHumidityChangeHandler(p.handle, (C.callback_fcn)(unsafe.Pointer(C.ccallback)), fp)
 	if cerr != C.EPHIDGET_OK {
 		return errors.New(p.getErrorDescription(cerr))
 	}

@@ -7,10 +7,17 @@ package phidgets
 #include <phidget22.h>
 */
 import "C"
-import "fmt"
+import (
+	"fmt"
+	"unsafe"
+
+	gopointer "github.com/mattn/go-pointer"
+)
 
 //export callback
-func callback(handle interface{}, ctx interface{}, value C.double) {
+func callback(handle unsafe.Pointer, ctx unsafe.Pointer, value C.double) {
+	p2 := gopointer.Restore(ctx).(func())
+	p2()
 	fmt.Println("Callback is getting the value", cDoubleTofloat32(value))
 }
 
