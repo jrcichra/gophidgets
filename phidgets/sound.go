@@ -37,6 +37,15 @@ func (p *PhidgetSoundSensor) GetValue() (float32, error) {
 	return cDoubleTofloat32(r), nil
 }
 
+//SetSPLChangeTrigger sets the interrupt trigger point
+func (p *PhidgetSoundSensor) SetSPLChangeTrigger(dBs float32) error {
+	cerr := C.PhidgetSoundSensor_setSPLChangeTrigger(p.handle, float32ToCdouble(dBs))
+	if cerr != C.EPHIDGET_OK {
+		return errors.New(p.getErrorDescription(cerr))
+	}
+	return nil
+}
+
 //SetOnSPLChangeHandler - interrupt for sound changes calls a function
 func (p *PhidgetSoundSensor) SetOnSPLChangeHandler(f func(Phidget, interface{}, float32, float32, float32, []float32), ctx interface{}) error {
 	//make a c function pointer to a go function pointer and pass it through the phidget context
