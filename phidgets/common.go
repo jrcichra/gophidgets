@@ -21,6 +21,13 @@ type Passthrough struct {
 	handle Phidget
 }
 
+//MotionPassthrough - has more than one float32 value as a parameter
+type MotionPassthrough struct {
+	f      func(Phidget, interface{}, []float32, float32)
+	ctx    interface{}
+	handle Phidget
+}
+
 //SoundPassthrough - has more than one float32 value as a parameter
 type SoundPassthrough struct {
 	f      func(Phidget, interface{}, float32, float32, float32, []float32)
