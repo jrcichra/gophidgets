@@ -1,5 +1,5 @@
 # gophidgets [![Go Report Card](https://goreportcard.com/badge/github.com/jrcichra/gophidgets)](https://goreportcard.com/report/github.com/jrcichra/gophidgets)
-A Golang wrapper to the Phidgets C library
+A Golang binding for the Phidgets C library
 
 ## Install
 `go get "github.com/jrcichra/gophidgets/phidgets"`
