@@ -30,7 +30,7 @@ jobs:
           tar zxvf libphidget22.tar.gz
           rm libphidget22.tar.gz
           cd libphidget22*
-          ./configure --prefix=/usr && make && sudo make install
+          ./configure --prefix=/usr && make -j$(nproc) && sudo make install
           cd ..
 
       - name: Build
