@@ -20,7 +20,7 @@ import (
 
 var (
 	handles []*PhidgetHandle
-	mutex sync.Mutex
+	mutex   sync.Mutex
 )
 
 //PhidgetManager is the struct that is a phidget manager handle
@@ -69,7 +69,6 @@ func (m *PhidgetManager) ListPhidgets() []*PhidgetHandle {
 	return l
 }
 
-
 //Close - close the handle and delete it
 func (p *PhidgetManager) Close() error {
 	if cerr := C.PhidgetManager_close(p.handle); cerr != C.EPHIDGET_OK {
@@ -103,7 +102,7 @@ func (p *PhidgetHandle) DeviceLabel() string {
 		return ""
 	}
 	name := C.GoString(cstr)
-	return name	
+	return name
 }
 
 func (p *PhidgetHandle) Name() string {
@@ -116,18 +115,18 @@ func (p *PhidgetHandle) Name() string {
 }
 
 func (p *PhidgetHandle) HubPort() int {
-	var port C.int	
+	var port C.int
 	C.Phidget_getHubPort(p.handle, &port)
 	return int(port)
 }
 
 func (p *PhidgetHandle) Channel() int {
-	var ch C.int	
+	var ch C.int
 	C.Phidget_getChannel(p.handle, &ch)
 	return int(ch)
 }
 
 func (p *PhidgetHandle) String() string {
-	return fmt.Sprintf("%s: %s channel %d [ser=%x] [label=%s] [port=%d]", 
+	return fmt.Sprintf("%s: %s channel %d [ser=%x] [label=%s] [port=%d]",
 		p.Name(), p.ChannelClass(), p.Channel(), p.DeviceSerialNumber(), p.DeviceLabel(), p.HubPort())
 }
