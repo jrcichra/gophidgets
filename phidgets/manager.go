@@ -131,5 +131,3 @@ func (p *PhidgetHandle) String() string {
 	return fmt.Sprintf("%s: %s channel %d [ser=%x] [label=%s] [port=%d]", 
 		p.Name(), p.ChannelClass(), p.Channel(), p.DeviceSerialNumber(), p.DeviceLabel(), p.HubPort())
 }
-
-
