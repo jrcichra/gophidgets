@@ -14,6 +14,16 @@ func main() {
 	//Array of generic phidget sensors
 	sensors := make([]phidgets.Phidget, 0)
 
+	m, err := phidgets.NewPhidgetManager()
+	if err != nil {
+		panic(err)
+	}
+	found := m.ListPhidgets()
+	fmt.Printf("Found %d Phidgets\n", len(found))
+	for i, p := range found {
+		fmt.Printf("  %d: %s\n", i, p.String())
+	}
+
 	phidgets.AddServer("Justin", "10.0.0.176", 5661, "", 0)
 
 	t := phidgets.PhidgetTemperatureSensor{}

@@ -127,3 +127,11 @@ func cDoubleTofloat32(d C.double) float32 {
 func stringToCCharArray(s string) *C.char {
 	return C.CString(s)
 }
+
+func getErrorDescription(p interface{}, cerr C.PhidgetReturnCode) string {
+	var errorString *C.char
+	C.Phidget_getErrorDescription(cerr, &errorString)
+	//Get the name of our class
+	t := reflect.TypeOf(p)
+	return t.Elem().Name() + ": " + C.GoString(errorString)
+}
