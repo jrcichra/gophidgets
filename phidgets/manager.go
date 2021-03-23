@@ -80,8 +80,8 @@ func (p *PhidgetManager) Close() error {
 	return nil
 }
 
-//ChannelClass retrieves the class of channel for this handle
-func (p *PhidgetHandle) ChannelClass() string {
+//GetChannelClass retrieves the class of channel for this handle
+func (p *PhidgetHandle) GetChannelClass() string {
 	var cstr *C.char
 	if cerr := C.Phidget_getChannelClassName(p.handle, &cstr); cerr != C.EPHIDGET_OK {
 		panic(errors.New(getErrorDescription(p, cerr)))
@@ -91,15 +91,15 @@ func (p *PhidgetHandle) ChannelClass() string {
 	return name
 }
 
-//DeviceSerialNumber retrieves the serial number of the devices this handle is on
-func (p *PhidgetHandle) DeviceSerialNumber() int32 {
+//GetDeviceSerialNumber retrieves the serial number of the devices this handle is on
+func (p *PhidgetHandle) GetDeviceSerialNumber() int {
 	var ser C.int32_t
 	C.Phidget_getDeviceSerialNumber(p.handle, &ser)
-	return int32(ser)
+	return int(ser)
 }
 
-//DeviceLabel retrieves the label for the device of this handle
-func (p *PhidgetHandle) DeviceLabel() string {
+//GetDeviceLabel retrieves the label for the device of this handle
+func (p *PhidgetHandle) GetDeviceLabel() string {
 	var cstr *C.char
 	if cerr := C.Phidget_getDeviceLabel(p.handle, &cstr); cerr != C.EPHIDGET_OK {
 		return ""
@@ -108,8 +108,8 @@ func (p *PhidgetHandle) DeviceLabel() string {
 	return name
 }
 
-//Name retrieves the channel name of this handle
-func (p *PhidgetHandle) Name() string {
+//GetName retrieves the channel name of this handle
+func (p *PhidgetHandle) GetName() string {
 	var cstr *C.char
 	if cerr := C.Phidget_getChannelName(p.handle, &cstr); cerr != C.EPHIDGET_OK {
 		return ""
@@ -118,15 +118,15 @@ func (p *PhidgetHandle) Name() string {
 	return name
 }
 
-//HubPort retrieves which port on the hub this handle is attached to
-func (p *PhidgetHandle) HubPort() int {
+//GetHubPort retrieves which port on the hub this handle is attached to
+func (p *PhidgetHandle) GetHubPort() int {
 	var port C.int
 	C.Phidget_getHubPort(p.handle, &port)
 	return int(port)
 }
 
-//Channel retrives which channel this handle is attached to
-func (p *PhidgetHandle) Channel() int {
+//GetChannel retrives which channel this handle is attached to
+func (p *PhidgetHandle) GetChannel() int {
 	var ch C.int
 	C.Phidget_getChannel(p.handle, &ch)
 	return int(ch)
@@ -135,5 +135,5 @@ func (p *PhidgetHandle) Channel() int {
 //String returns a string description of the handle
 func (p *PhidgetHandle) String() string {
 	return fmt.Sprintf("%s: %s channel %d [ser=%x] [label=%s] [port=%d]",
-		p.Name(), p.ChannelClass(), p.Channel(), p.DeviceSerialNumber(), p.DeviceLabel(), p.HubPort())
+		p.GetName(), p.GetChannelClass(), p.GetChannel(), p.GetDeviceSerialNumber(), p.GetDeviceLabel(), p.GetHubPort())
 }
