@@ -27,7 +27,10 @@ func (p *PhidgetLCD) Create() {
 
 //SetText sets the lcd text
 func (p *PhidgetLCD) SetText(text string) error {
-	if cerr := C.PhidgetLCD_writeText(p.handle, C.FONT_6x12, 40, 25, C.CString(text)); cerr != C.EPHIDGET_OK {
+	str := C.CString(text)
+	cerr := C.PhidgetLCD_writeText(p.handle, C.FONT_6x12, 40, 25, str)
+	C.free(unsafe.Pointer(str))
+	if cerr != C.EPHIDGET_OK {
 		return p.phidgetError(cerr)
 	}
 	return p.phidgetError(C.PhidgetLCD_flush(p.handle))
