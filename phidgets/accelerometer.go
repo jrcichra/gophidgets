@@ -34,8 +34,7 @@ func (p *PhidgetAccelerometer) GetAcceleration() ([]float64, error) {
 	if cerr != C.EPHIDGET_OK {
 		return nil, p.phidgetError(cerr)
 	}
-	var ret []float64 = []float64{(float64)(r[0]), (float64)(r[1]), (float64)(r[2])}
-	return ret, nil
+	return []float64{(float64)(r[0]), (float64)(r[1]), (float64)(r[2])}, nil
 }
 
 //GetMinAcceleration gets the min acceleration value from a phidget motion sensor
@@ -45,8 +44,7 @@ func (p *PhidgetAccelerometer) GetMinAcceleration() ([]float64, error) {
 	if cerr != C.EPHIDGET_OK {
 		return nil, p.phidgetError(cerr)
 	}
-	var ret []float64 = []float64{(float64)(r[0]), (float64)(r[1]), (float64)(r[2])}
-	return ret, nil
+	return []float64{(float64)(r[0]), (float64)(r[1]), (float64)(r[2])}, nil
 }
 
 //GetMaxAcceleration gets the max acceleration value from a phidget motion sensor
@@ -56,8 +54,7 @@ func (p *PhidgetAccelerometer) GetMaxAcceleration() ([]float64, error) {
 	if cerr != C.EPHIDGET_OK {
 		return nil, p.phidgetError(cerr)
 	}
-	var ret []float64 = []float64{(float64)(r[0]), (float64)(r[1]), (float64)(r[2])}
-	return ret, nil
+	return []float64{(float64)(r[0]), (float64)(r[1]), (float64)(r[2])}, nil
 }
 
 //GetAccelerationChangeTrigger gets the acceleration from a phidget temperature sensor
