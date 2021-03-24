@@ -62,3 +62,11 @@ func (p *PhidgetVoltageRatioInput) SetSensorType(sensorType string) error {
 	}
 	return p.phidgetError(C.PhidgetVoltageRatioInput_setSensorType(p.handle, cSensor))
 }
+
+//Close - close the handle and delete it
+func (p *PhidgetVoltageRatioInput) Close() error {
+	if err := p.Phidget.Close(); err != nil {
+		return err
+	}
+	return p.phidgetError(C.PhidgetVoltageRatioInput_delete(&p.handle))
+}

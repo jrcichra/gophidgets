@@ -16,10 +16,10 @@ func main() {
 
 	t := phidgets.PhidgetTemperatureSensor{}
 	t.Create()
-	//t.SetIsRemote(true)
-	//t.SetDeviceSerialNumber(597101)
-	//t.SetHubPort(0)
-	if err := t.OpenWaitForAttachment(2000); err != nil {
+	t.SetIsRemote(true)
+	t.SetDeviceSerialNumber(597101)
+	t.SetHubPort(0)
+	if err := t.OpenWaitForAttachment(time.Second * 2); err != nil {
 		panic(err)
 	}
 	if err := t.SetOnTemperatureChangeHandler(func(val float64) {
@@ -34,7 +34,7 @@ func main() {
 	h.SetIsRemote(true)
 	h.SetDeviceSerialNumber(597101)
 	h.SetHubPort(0)
-	if err := h.OpenWaitForAttachment(2000); err != nil {
+	if err := h.OpenWaitForAttachment(time.Second * 2); err != nil {
 		panic(err)
 	}
 	h.SetOnHumidityChangeHandler(func(value float64) {
@@ -54,7 +54,7 @@ func main() {
 	lcd.SetHubPort(5)
 	lcd.SetIsRemote(true)
 	lcd.SetBacklight(.55)
-	if err := lcd.OpenWaitForAttachment(2000); err != nil {
+	if err := lcd.OpenWaitForAttachment(time.Second * 2); err != nil {
 		panic(err)
 	}
 
@@ -65,7 +65,7 @@ func main() {
 				val, _ := s.GetValue()
 				val = val*9.0/5.0 + 32
 				fmt.Printf("Temperature is %f Fahrenheit\n", val)
-				//lcd.SetText(fmt.Sprintf("Justin: %f", val))
+				lcd.SetText(fmt.Sprintf("Justin: %f", val))
 			case *phidgets.PhidgetHumiditySensor:
 				hum, _ := s.GetValue()
 				fmt.Println("Humidity is", hum)

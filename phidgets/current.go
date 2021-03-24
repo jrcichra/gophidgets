@@ -49,3 +49,11 @@ func (p *PhidgetCurrentInput) SetOnCurrentChangeHandler(f func(float64)) error {
 	}
 	return nil
 }
+
+//Close - close the handle and delete it
+func (p *PhidgetCurrentInput) Close() error {
+	if err := p.Phidget.Close(); err != nil {
+		return err
+	}
+	return p.phidgetError(C.PhidgetCurrentInput_delete(&p.handle))
+}

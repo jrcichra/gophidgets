@@ -10,8 +10,9 @@ void ccallback(void* handle, void* ctx, const double acceleration[3], double tim
 */
 import "C"
 import (
-	gopointer "github.com/mattn/go-pointer"
 	"unsafe"
+
+	gopointer "github.com/mattn/go-pointer"
 )
 
 //PhidgetAccelerometer is the struct that is a phidget motion sensor
@@ -153,4 +154,12 @@ func (p *PhidgetAccelerometer) SetOnAccelerationChangeHandler(f func([]float64, 
 		return p.phidgetError(cerr)
 	}
 	return nil
+}
+
+//Close - close the handle and delete it
+func (p *PhidgetAccelerometer) Close() error {
+	if err := p.Phidget.Close(); err != nil {
+		return err
+	}
+	return p.phidgetError(C.PhidgetAccelerometer_delete(&p.handle))
 }

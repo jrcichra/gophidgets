@@ -79,7 +79,3 @@ func intToBool(i int) bool {
 	}
 	return b
 }
-
-func cIntTobool(c C.int) bool {
-	return c != 0
-}

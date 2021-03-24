@@ -54,3 +54,11 @@ func (p *PhidgetSoundSensor) SetOnSPLChangeHandler(f func(float64, float64, floa
 	}
 	return nil
 }
+
+//Close - close the handle and delete it
+func (p *PhidgetSoundSensor) Close() error {
+	if err := p.Phidget.Close(); err != nil {
+		return err
+	}
+	return p.phidgetError(C.PhidgetSoundSensor_delete(&p.handle))
+}

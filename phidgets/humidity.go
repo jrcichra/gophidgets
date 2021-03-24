@@ -49,3 +49,11 @@ func (p *PhidgetHumiditySensor) SetOnHumidityChangeHandler(f func(float64)) erro
 	}
 	return nil
 }
+
+//Close - close the handle and delete it
+func (p *PhidgetHumiditySensor) Close() error {
+	if err := p.Phidget.Close(); err != nil {
+		return err
+	}
+	return p.phidgetError(C.PhidgetHumiditySensor_delete(&p.handle))
+}

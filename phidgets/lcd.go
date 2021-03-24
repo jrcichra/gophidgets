@@ -37,3 +37,11 @@ func (p *PhidgetLCD) SetText(text string) error {
 func (p *PhidgetLCD) SetBacklight(brightness float32) error {
 	return p.phidgetError(C.PhidgetLCD_setBacklight(p.handle, C.double(brightness)))
 }
+
+//Close - close the handle and delete it
+func (p *PhidgetLCD) Close() error {
+	if err := p.Phidget.Close(); err != nil {
+		return err
+	}
+	return p.phidgetError(C.PhidgetLCD_delete(&p.handle))
+}

@@ -20,6 +20,8 @@ type Phidget struct {
 	class  string
 }
 
+//rawHandle updates the base Phidget object with a handle from another object
+//This must be called when a new Phidget object is created of a differing class
 func (p *Phidget) rawHandle(handle unsafe.Pointer) {
 	p.handle = (*C.struct__Phidget)(handle)
 }
@@ -45,6 +47,7 @@ func (p *Phidget) phidgetError(cerr C.PhidgetReturnCode) error {
 	return errors.New(C.GoString(errorString))
 }
 
+//SetIsRemote sets a phidget sensor as a remote device
 func (p *Phidget) SetIsRemote(b bool) error {
 	return p.phidgetError(C.Phidget_setIsRemote(p.handle, boolToCInt(b)))
 }
@@ -80,7 +83,7 @@ func (p *Phidget) GetIsRemote() (bool, error) {
 	if cerr := C.Phidget_getIsRemote(p.handle, &r); cerr != C.EPHIDGET_OK {
 		return false, p.phidgetError(cerr)
 	}
-	return cIntTobool(r), nil
+	return r != 0, nil
 }
 
 //GetDeviceSerialNumber gets a phidget motion sensor's serial number

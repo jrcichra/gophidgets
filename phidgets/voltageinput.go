@@ -49,3 +49,11 @@ func (p *PhidgetVoltageInput) SetOnVoltageChangeHandler(f func(float64)) error {
 	}
 	return nil
 }
+
+//Close - close the handle and delete it
+func (p *PhidgetVoltageInput) Close() error {
+	if err := p.Phidget.Close(); err != nil {
+		return err
+	}
+	return p.phidgetError(C.PhidgetVoltageInput_delete(&p.handle))
+}
