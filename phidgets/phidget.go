@@ -7,18 +7,103 @@ package phidgets
 #include <phidget22.h>
 */
 import "C"
+import (
+	"errors"
+	"fmt"
+	"time"
+	"unsafe"
+)
 
 //Phidget - general phidget interface that all phidgets are derived from (for ease of type management)
-type Phidget interface {
-	Create()
-	getErrorDescription(C.PhidgetReturnCode) string
-	SetIsRemote(bool) error
-	SetDeviceSerialNumber(int) error
-	SetHubPort(int) error
-	SetChannel(int) error
-	GetIsRemote() (bool, error)
-	GetDeviceSerialNumber() (int, error)
-	GetHubPort() (int, error)
-	OpenWaitForAttachment(uint) error
-	Close() error
+type Phidget struct {
+	handle C.PhidgetHandle
+	class  string
+}
+
+func (p *Phidget) rawHandle(handle unsafe.Pointer) {
+	p.handle = (*C.struct__Phidget)(handle)
+}
+
+//OpenWaitForAttachment opens a phidget and waits for it to be available on the bus
+func (p *Phidget) OpenWaitForAttachment(timeout time.Duration) error {
+	if cerr := C.Phidget_openWaitForAttachment(p.handle, C.uint(timeout.Milliseconds())); cerr != C.EPHIDGET_OK {
+		return p.phidgetError(cerr)
+	}
+	p.class, _ = p.GetChannelClassName()
+	return nil
+}
+
+func (p *Phidget) phidgetError(cerr C.PhidgetReturnCode) error {
+	if cerr == C.EPHIDGET_OK {
+		return nil
+	}
+	var errorString *C.char
+	C.Phidget_getErrorDescription(cerr, &errorString)
+	if p.class != "" {
+		return errors.New(fmt.Sprintf("%s: %s", p.class, C.GoString(errorString)))
+	}
+	return errors.New(C.GoString(errorString))
+}
+
+func (p *Phidget) SetIsRemote(b bool) error {
+	return p.phidgetError(C.Phidget_setIsRemote(p.handle, boolToCInt(b)))
+}
+
+//SetDeviceSerialNumber sets the serial number to use.
+//This must be called before calling OpenWaitForAttachment
+func (p *Phidget) SetDeviceSerialNumber(serial int) error {
+	return p.phidgetError(C.Phidget_setDeviceSerialNumber(p.handle, C.int(serial)))
+}
+
+//SetHubPort sets a phidget's hub port
+func (p *Phidget) SetHubPort(port int) error {
+	return p.phidgetError(C.Phidget_setHubPort(p.handle, C.int(port)))
+}
+
+//GetHubPort gets a phidget's hub port
+func (p *Phidget) GetHubPort() (int, error) {
+	var r C.int
+	if cerr := C.Phidget_getHubPort(p.handle, &r); cerr != C.EPHIDGET_OK {
+		return 0, p.phidgetError(cerr)
+	}
+	return int(r), nil
+}
+
+//SetChannel sets a phidget motion sensor's channel port
+func (p *Phidget) SetChannel(port int) error {
+	return p.phidgetError(C.Phidget_setChannel(p.handle, C.int(port)))
+}
+
+//GetIsRemote gets a phidget's remote status
+func (p *Phidget) GetIsRemote() (bool, error) {
+	var r C.int
+	if cerr := C.Phidget_getIsRemote(p.handle, &r); cerr != C.EPHIDGET_OK {
+		return false, p.phidgetError(cerr)
+	}
+	return cIntTobool(r), nil
+}
+
+//GetDeviceSerialNumber gets a phidget motion sensor's serial number
+func (p *Phidget) GetDeviceSerialNumber() (int, error) {
+	var r C.int
+	cerr := C.Phidget_getDeviceSerialNumber(p.handle, &r)
+	if cerr != C.EPHIDGET_OK {
+		return 0, p.phidgetError(cerr)
+	}
+	return int(r), nil
+}
+
+//Close - close the handle and delete it
+func (p *Phidget) Close() error {
+	return p.phidgetError(C.Phidget_close(p.handle))
+}
+
+//GetChannelClassName gets the name of the channel class the channel belongs to.
+func (p *Phidget) GetChannelClassName() (string, error) {
+	var name *C.char
+	cerr := C.Phidget_getChannelClassName(p.handle, &name)
+	if cerr != C.EPHIDGET_OK {
+		return "", p.phidgetError(cerr)
+	}
+	return C.GoString(name), nil
 }

@@ -11,7 +11,6 @@ void ccallback(void* handle, void* ctx, double b);  // Forward declaration.
 import "C"
 import (
 	"errors"
-	"reflect"
 	"unsafe"
 
 	gopointer "github.com/mattn/go-pointer"
@@ -19,180 +18,47 @@ import (
 
 //PhidgetVoltageRatioInput is the struct that is a phidget voltageinputratio sensor
 type PhidgetVoltageRatioInput struct {
+	Phidget
 	handle C.PhidgetVoltageRatioInputHandle
 }
 
 //Create creates a phidget voltageinputratio sensor
 func (p *PhidgetVoltageRatioInput) Create() {
 	C.PhidgetVoltageRatioInput_create(&p.handle)
+	p.rawHandle(unsafe.Pointer(p.handle))
 }
 
 //GetValue gets the voltageinputratio from a phidget voltageinputratio sensor
-func (p *PhidgetVoltageRatioInput) GetValue() (float32, error) {
+func (p *PhidgetVoltageRatioInput) GetValue() (float64, error) {
 	var r C.double
-	cerr := C.PhidgetVoltageRatioInput_getVoltageRatio(p.handle, &r)
-	if cerr != C.EPHIDGET_OK {
-		return 0, errors.New(p.getErrorDescription(cerr))
+	if cerr := C.PhidgetVoltageRatioInput_getVoltageRatio(p.handle, &r); cerr != C.EPHIDGET_OK {
+		return 0, p.phidgetError(cerr)
 	}
-	return cDoubleTofloat32(r), nil
+	return float64(r), nil
 }
 
 //SetOnVoltageRatioChangeHandler - voltage input changes calls a function
-func (p *PhidgetVoltageRatioInput) SetOnVoltageRatioChangeHandler(f func(Phidget, interface{}, float32), ctx interface{}) error {
+func (p *PhidgetVoltageRatioInput) SetOnVoltageRatioChangeHandler(f func(float64)) error {
 	//make a c function pointer to a go function pointer and pass it through the phidget context
 	var passthrough Passthrough
 	passthrough.f = f
-	passthrough.ctx = ctx
-	passthrough.handle = p
 	pt := gopointer.Save(passthrough)
 	cerr := C.PhidgetVoltageRatioInput_setOnVoltageRatioChangeHandler(p.handle, (C.callback_fcn)(unsafe.Pointer(C.ccallback)), pt)
 	if cerr != C.EPHIDGET_OK {
-		return errors.New(p.getErrorDescription(cerr))
-	}
-	return nil
-}
-
-//Common to all derived phidgets
-
-func (p *PhidgetVoltageRatioInput) getErrorDescription(cerr C.PhidgetReturnCode) string {
-	var errorString *C.char
-	C.Phidget_getErrorDescription(cerr, &errorString)
-	//Get the name of our class
-	t := reflect.TypeOf(p)
-	return t.Elem().Name() + ": " + C.GoString(errorString)
-}
-
-//SetIsRemote sets a phidget sensor as a remote device
-func (p *PhidgetVoltageRatioInput) SetIsRemote(b bool) error {
-	h := (*C.struct__Phidget)(unsafe.Pointer(p.handle))
-	cerr := C.Phidget_setIsRemote(h, boolToCInt(b))
-	if cerr != C.EPHIDGET_OK {
-		return errors.New(p.getErrorDescription(cerr))
-	}
-	return nil
-
-}
-
-//SetIsHubPortDevice sets a phidget sensor as a remote device
-func (p *PhidgetVoltageRatioInput) SetIsHubPortDevice(b bool) error {
-	h := (*C.struct__Phidget)(unsafe.Pointer(p.handle))
-	cerr := C.Phidget_setIsHubPortDevice(h, boolToCInt(b))
-	if cerr != C.EPHIDGET_OK {
-		return errors.New(p.getErrorDescription(cerr))
-	}
-	return nil
-
-}
-
-//SetDeviceSerialNumber sets a phidget voltageinputratio sensor's serial number
-func (p *PhidgetVoltageRatioInput) SetDeviceSerialNumber(serial int) error {
-	h := (*C.struct__Phidget)(unsafe.Pointer(p.handle))
-	cerr := C.Phidget_setDeviceSerialNumber(h, intToCInt(serial))
-	if cerr != C.EPHIDGET_OK {
-		return errors.New(p.getErrorDescription(cerr))
-	}
-	return nil
-}
-
-//SetHubPort sets a phidget voltageinputratio sensor's hub port
-func (p *PhidgetVoltageRatioInput) SetHubPort(port int) error {
-	h := (*C.struct__Phidget)(unsafe.Pointer(p.handle))
-	cerr := C.Phidget_setHubPort(h, intToCInt(port))
-	if cerr != C.EPHIDGET_OK {
-		return errors.New(p.getErrorDescription(cerr))
-	}
-	return nil
-}
-
-//GetIsRemote gets a phidget voltageinputratio sensor's remote status
-func (p *PhidgetVoltageRatioInput) GetIsRemote() (bool, error) {
-	//Cast TemperatureHandle to PhidgetHandle
-	h := (*C.struct__Phidget)(unsafe.Pointer(p.handle))
-	var r C.int
-	cerr := C.Phidget_getIsRemote(h, &r)
-	if cerr != C.EPHIDGET_OK {
-		return false, errors.New(p.getErrorDescription(cerr))
-	}
-	return cIntTobool(r), nil
-}
-
-//GetDeviceSerialNumber gets a phidget voltageinputratio sensor's serial number
-func (p *PhidgetVoltageRatioInput) GetDeviceSerialNumber() (int, error) {
-	h := (*C.struct__Phidget)(unsafe.Pointer(p.handle))
-	var r C.int
-	cerr := C.Phidget_getDeviceSerialNumber(h, &r)
-	if cerr != C.EPHIDGET_OK {
-		return 0, errors.New(p.getErrorDescription(cerr))
-	}
-	return cIntToint(r), nil
-}
-
-//GetHubPort gets a phidget voltageinputratio sensor's hub port
-func (p *PhidgetVoltageRatioInput) GetHubPort() (int, error) {
-	h := (*C.struct__Phidget)(unsafe.Pointer(p.handle))
-	var r C.int
-	cerr := C.Phidget_getHubPort(h, &r)
-	if cerr != C.EPHIDGET_OK {
-		return 0, errors.New(p.getErrorDescription(cerr))
-	}
-	return cIntToint(r), nil
-}
-
-//OpenWaitForAttachment opens a phidget voltageinputratio sensor for attachment
-func (p *PhidgetVoltageRatioInput) OpenWaitForAttachment(timeout uint) error {
-	h := (*C.struct__Phidget)(unsafe.Pointer(p.handle))
-	cerr := C.Phidget_openWaitForAttachment(h, uintToCUInt(timeout))
-	if cerr != C.EPHIDGET_OK {
-		return errors.New(p.getErrorDescription(cerr))
-	}
-	return nil
-}
-
-//SetChannel sets a phidget voltageinputratio sensor's channel port
-func (p *PhidgetVoltageRatioInput) SetChannel(port int) error {
-	h := (*C.struct__Phidget)(unsafe.Pointer(p.handle))
-	cerr := C.Phidget_setChannel(h, intToCInt(port))
-	if cerr != C.EPHIDGET_OK {
-		return errors.New(p.getErrorDescription(cerr))
-	}
-	return nil
-}
-
-//GetChannel gets a phidget voltageinputratio sensor's channel port
-func (p *PhidgetVoltageRatioInput) GetChannel() (int, error) {
-	h := (*C.struct__Phidget)(unsafe.Pointer(p.handle))
-	var r C.int
-	cerr := C.Phidget_getChannel(h, &r)
-	if cerr != C.EPHIDGET_OK {
-		return 0, errors.New(p.getErrorDescription(cerr))
-	}
-	return cIntToint(r), nil
-}
-
-//Close - close the handle and delete it
-func (p *PhidgetVoltageRatioInput) Close() error {
-	h := (*C.struct__Phidget)(unsafe.Pointer(p.handle))
-	cerr := C.Phidget_close(h)
-	if cerr != C.EPHIDGET_OK {
-		return errors.New(p.getErrorDescription(cerr))
-	}
-	cerr = C.PhidgetVoltageRatioInput_delete((*C.PhidgetVoltageRatioInputHandle)(&p.handle))
-	if cerr != C.EPHIDGET_OK {
-		return errors.New(p.getErrorDescription(cerr))
+		return p.phidgetError(cerr)
 	}
 	return nil
 }
 
 //SetSensorType - Specific to a voltageinputratio - setting the proper sensor type
-func (p *PhidgetVoltageRatioInput) SetSensorType(sensorType string) {
+func (p *PhidgetVoltageRatioInput) SetSensorType(sensorType string) error {
 	//TODO: need a better way to select a voltage ratio input sensor type by bringing the enum out to go world
 	var cSensor C.PhidgetVoltageRatioInput_SensorType
 	switch sensorType {
 	case "SENSOR_TYPE_1122_DC":
 		cSensor = C.SENSOR_TYPE_1122_DC
 	default:
-		panic("Unknown sensorType: " + sensorType + ". Please add it to the mapping switch in voltageinputratio.go")
+		return errors.New("Unknown sensorType: " + sensorType + ". Please add it to the mapping switch in voltageinputratio.go")
 	}
-	cSensorType := C.PhidgetVoltageRatioInput_SensorType(cSensor)
-	C.PhidgetVoltageRatioInput_setSensorType(p.handle, cSensorType)
+	return p.phidgetError(C.PhidgetVoltageRatioInput_setSensorType(p.handle, cSensor))
 }

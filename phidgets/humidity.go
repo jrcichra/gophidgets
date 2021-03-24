@@ -10,8 +10,6 @@ void ccallback(void* handle, void* ctx, double b);  // Forward declaration.
 */
 import "C"
 import (
-	"errors"
-	"reflect"
 	"unsafe"
 
 	gopointer "github.com/mattn/go-pointer"
@@ -19,155 +17,35 @@ import (
 
 //PhidgetHumiditySensor is the struct that is a phidget humidity sensor
 type PhidgetHumiditySensor struct {
+	Phidget
 	handle C.PhidgetHumiditySensorHandle
 }
 
 //Create creates a phidget humidity sensor
 func (p *PhidgetHumiditySensor) Create() {
 	C.PhidgetHumiditySensor_create(&p.handle)
+	p.rawHandle(unsafe.Pointer(p.handle))
 }
 
 //GetValue gets the humidity from a phidget humidity sensor
-func (p *PhidgetHumiditySensor) GetValue() (float32, error) {
+func (p *PhidgetHumiditySensor) GetValue() (float64, error) {
 	var r C.double
 	cerr := C.PhidgetHumiditySensor_getHumidity(p.handle, &r)
 	if cerr != C.EPHIDGET_OK {
-		return 0, errors.New(p.getErrorDescription(cerr))
+		return 0, p.phidgetError(cerr)
 	}
-	return cDoubleTofloat32(r), nil
+	return float64(r), nil
 }
 
 //SetOnHumidityChangeHandler - interrupt for humdity changes calls a function
-func (p *PhidgetHumiditySensor) SetOnHumidityChangeHandler(f func(Phidget, interface{}, float32), ctx interface{}) error {
+func (p *PhidgetHumiditySensor) SetOnHumidityChangeHandler(f func(float64)) error {
 	//make a c function pointer to a go function pointer and pass it through the phidget context
 	var passthrough Passthrough
 	passthrough.f = f
-	passthrough.ctx = ctx
-	passthrough.handle = p
 	pt := gopointer.Save(passthrough)
 	cerr := C.PhidgetHumiditySensor_setOnHumidityChangeHandler(p.handle, (C.callback_fcn)(unsafe.Pointer(C.ccallback)), pt)
 	if cerr != C.EPHIDGET_OK {
-		return errors.New(p.getErrorDescription(cerr))
-	}
-	return nil
-}
-
-//Common to all derived phidgets
-
-func (p *PhidgetHumiditySensor) getErrorDescription(cerr C.PhidgetReturnCode) string {
-	var errorString *C.char
-	C.Phidget_getErrorDescription(cerr, &errorString)
-	//Get the name of our class
-	t := reflect.TypeOf(p)
-	return t.Elem().Name() + ": " + C.GoString(errorString)
-}
-
-//SetIsRemote sets a phidget sensor as a remote device
-func (p *PhidgetHumiditySensor) SetIsRemote(b bool) error {
-	h := (*C.struct__Phidget)(unsafe.Pointer(p.handle))
-	cerr := C.Phidget_setIsRemote(h, boolToCInt(b))
-	if cerr != C.EPHIDGET_OK {
-		return errors.New(p.getErrorDescription(cerr))
-	}
-	return nil
-
-}
-
-//SetDeviceSerialNumber sets a phidget lcd sensor's serial number
-func (p *PhidgetHumiditySensor) SetDeviceSerialNumber(serial int) error {
-	h := (*C.struct__Phidget)(unsafe.Pointer(p.handle))
-	cerr := C.Phidget_setDeviceSerialNumber(h, intToCInt(serial))
-	if cerr != C.EPHIDGET_OK {
-		return errors.New(p.getErrorDescription(cerr))
-	}
-	return nil
-}
-
-//SetHubPort sets a phidget lcd sensor's hub port
-func (p *PhidgetHumiditySensor) SetHubPort(port int) error {
-	h := (*C.struct__Phidget)(unsafe.Pointer(p.handle))
-	cerr := C.Phidget_setHubPort(h, intToCInt(port))
-	if cerr != C.EPHIDGET_OK {
-		return errors.New(p.getErrorDescription(cerr))
-	}
-	return nil
-}
-
-//GetIsRemote gets a phidget lcd sensor's remote status
-func (p *PhidgetHumiditySensor) GetIsRemote() (bool, error) {
-	//Cast humidityHandle to PhidgetHandle
-	h := (*C.struct__Phidget)(unsafe.Pointer(p.handle))
-	var r C.int
-	cerr := C.Phidget_getIsRemote(h, &r)
-	if cerr != C.EPHIDGET_OK {
-		return false, errors.New(p.getErrorDescription(cerr))
-	}
-	return cIntTobool(r), nil
-}
-
-//GetDeviceSerialNumber gets a phidget lcd sensor's serial number
-func (p *PhidgetHumiditySensor) GetDeviceSerialNumber() (int, error) {
-	h := (*C.struct__Phidget)(unsafe.Pointer(p.handle))
-	var r C.int
-	cerr := C.Phidget_getDeviceSerialNumber(h, &r)
-	if cerr != C.EPHIDGET_OK {
-		return 0, errors.New(p.getErrorDescription(cerr))
-	}
-	return cIntToint(r), nil
-}
-
-//GetHubPort gets a phidget lcd sensor's hub port
-func (p *PhidgetHumiditySensor) GetHubPort() (int, error) {
-	h := (*C.struct__Phidget)(unsafe.Pointer(p.handle))
-	var r C.int
-	cerr := C.Phidget_getHubPort(h, &r)
-	if cerr != C.EPHIDGET_OK {
-		return 0, errors.New(p.getErrorDescription(cerr))
-	}
-	return cIntToint(r), nil
-}
-
-//OpenWaitForAttachment opens a phidget humidity sensor for attachment
-func (p *PhidgetHumiditySensor) OpenWaitForAttachment(timeout uint) error {
-	h := (*C.struct__Phidget)(unsafe.Pointer(p.handle))
-	cerr := C.Phidget_openWaitForAttachment(h, uintToCUInt(timeout))
-	if cerr != C.EPHIDGET_OK {
-		return errors.New(p.getErrorDescription(cerr))
-	}
-	return nil
-}
-
-//SetChannel sets a phidget humidity sensor's channel port
-func (p *PhidgetHumiditySensor) SetChannel(port int) error {
-	h := (*C.struct__Phidget)(unsafe.Pointer(p.handle))
-	cerr := C.Phidget_setChannel(h, intToCInt(port))
-	if cerr != C.EPHIDGET_OK {
-		return errors.New(p.getErrorDescription(cerr))
-	}
-	return nil
-}
-
-//GetChannel gets a phidget humidity sensor's channel port
-func (p *PhidgetHumiditySensor) GetChannel() (int, error) {
-	h := (*C.struct__Phidget)(unsafe.Pointer(p.handle))
-	var r C.int
-	cerr := C.Phidget_getChannel(h, &r)
-	if cerr != C.EPHIDGET_OK {
-		return 0, errors.New(p.getErrorDescription(cerr))
-	}
-	return cIntToint(r), nil
-}
-
-//Close - close the handle and delete it
-func (p *PhidgetHumiditySensor) Close() error {
-	h := (*C.struct__Phidget)(unsafe.Pointer(p.handle))
-	cerr := C.Phidget_close(h)
-	if cerr != C.EPHIDGET_OK {
-		return errors.New(p.getErrorDescription(cerr))
-	}
-	cerr = C.PhidgetHumiditySensor_delete((*C.PhidgetHumiditySensorHandle)(&p.handle))
-	if cerr != C.EPHIDGET_OK {
-		return errors.New(p.getErrorDescription(cerr))
+		return p.phidgetError(cerr)
 	}
 	return nil
 }

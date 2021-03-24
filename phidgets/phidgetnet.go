@@ -10,5 +10,5 @@ import "C"
 
 //AddServer adds a
 func AddServer(serverName string, address string, port int, password string, flags int) {
-	C.PhidgetNet_addServer(C.CString(serverName), C.CString(address), intToCInt(port), C.CString(password), intToCInt(flags))
+	C.PhidgetNet_addServer(C.CString(serverName), C.CString(address), C.int(port), C.CString(password), C.int(flags))
 }

@@ -2,27 +2,29 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"time"
 
 	"github.com/jrcichra/gophidgets/phidgets"
 )
 
 func main() {
-
-	var err error
-
 	//Array of generic phidget sensors
-	sensors := make([]phidgets.Phidget, 0)
+	sensors := make([]interface{}, 0)
 
 	phidgets.AddServer("Justin", "10.0.0.176", 5661, "", 0)
 
 	t := phidgets.PhidgetTemperatureSensor{}
 	t.Create()
-	t.SetIsRemote(true)
-	t.SetDeviceSerialNumber(597101)
-	t.SetHubPort(0)
-	err = t.OpenWaitForAttachment(2000)
-	if err != nil {
+	//t.SetIsRemote(true)
+	//t.SetDeviceSerialNumber(597101)
+	//t.SetHubPort(0)
+	if err := t.OpenWaitForAttachment(2000); err != nil {
+		panic(err)
+	}
+	if err := t.SetOnTemperatureChangeHandler(func(val float64) {
+		fmt.Printf("temp change: %f\n", val)
+	}); err != nil {
 		panic(err)
 	}
 	sensors = append(sensors, &t)
@@ -32,16 +34,15 @@ func main() {
 	h.SetIsRemote(true)
 	h.SetDeviceSerialNumber(597101)
 	h.SetHubPort(0)
-	err = h.OpenWaitForAttachment(2000)
-	if err != nil {
+	if err := h.OpenWaitForAttachment(2000); err != nil {
 		panic(err)
 	}
-	h.SetOnHumidityChangeHandler(func(p phidgets.Phidget, ctx interface{}, value float32) {
+	h.SetOnHumidityChangeHandler(func(value float64) {
 		fmt.Println("I got a humidity of", value)
-		serial, _ := p.GetDeviceSerialNumber()
+		serial, _ := h.GetDeviceSerialNumber()
 		fmt.Println("My phidget serial is", serial)
-	}, nil)
-	// sensors = append(sensorqs, &h)
+	})
+	sensors = append(sensors, &h)
 
 	vr := phidgets.PhidgetVoltageRatioInput{}
 	vr.Create()
@@ -53,8 +54,7 @@ func main() {
 	lcd.SetHubPort(5)
 	lcd.SetIsRemote(true)
 	lcd.SetBacklight(.55)
-	err = lcd.OpenWaitForAttachment(2000)
-	if err != nil {
+	if err := lcd.OpenWaitForAttachment(2000); err != nil {
 		panic(err)
 	}
 
@@ -64,8 +64,8 @@ func main() {
 			case *phidgets.PhidgetTemperatureSensor:
 				val, _ := s.GetValue()
 				val = val*9.0/5.0 + 32
-				fmt.Println("Temperature is")
-				lcd.SetText(fmt.Sprintf("Justin: %f", val))
+				fmt.Printf("Temperature is %f Fahrenheit\n", val)
+				//lcd.SetText(fmt.Sprintf("Justin: %f", val))
 			case *phidgets.PhidgetHumiditySensor:
 				hum, _ := s.GetValue()
 				fmt.Println("Humidity is", hum)
@@ -76,7 +76,8 @@ func main() {
 
 	//Close the sensors
 	for _, sensor := range sensors {
-		sensor.Close()
+		s := sensor.(io.Closer)
+		s.Close()
 	}
 
 	lcd.Close()
