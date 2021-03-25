@@ -17,7 +17,7 @@ import (
 
 //PhidgetCurrentInput is the struct that is a phidget current sensor
 type PhidgetCurrentInput struct {
-	Phidget
+	phidget
 	handle C.PhidgetCurrentInputHandle
 }
 
@@ -52,7 +52,7 @@ func (p *PhidgetCurrentInput) SetOnCurrentChangeHandler(f func(float64)) error {
 
 //Close - close the handle and delete it
 func (p *PhidgetCurrentInput) Close() error {
-	if err := p.Phidget.Close(); err != nil {
+	if err := p.phidget.Close(); err != nil {
 		return err
 	}
 	return p.phidgetError(C.PhidgetCurrentInput_delete(&p.handle))

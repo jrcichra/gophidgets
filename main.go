@@ -10,7 +10,7 @@ import (
 
 func main() {
 	//Array of generic phidget sensors
-	sensors := make([]interface{}, 0)
+	sensors := make([]phidgets.Phidget, 0)
 
 	phidgets.AddServer("Justin", "10.0.0.176", 5661, "", 0)
 

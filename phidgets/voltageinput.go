@@ -17,7 +17,7 @@ import (
 
 //PhidgetVoltageInput is the struct that is a phidget voltageinput sensor
 type PhidgetVoltageInput struct {
-	Phidget
+	phidget
 	handle C.PhidgetVoltageInputHandle
 }
 
@@ -52,7 +52,7 @@ func (p *PhidgetVoltageInput) SetOnVoltageChangeHandler(f func(float64)) error {
 
 //Close - close the handle and delete it
 func (p *PhidgetVoltageInput) Close() error {
-	if err := p.Phidget.Close(); err != nil {
+	if err := p.phidget.Close(); err != nil {
 		return err
 	}
 	return p.phidgetError(C.PhidgetVoltageInput_delete(&p.handle))

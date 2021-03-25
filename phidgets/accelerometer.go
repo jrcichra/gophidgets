@@ -17,7 +17,7 @@ import (
 
 //PhidgetAccelerometer is the struct that is a phidget motion sensor
 type PhidgetAccelerometer struct {
-	Phidget
+	phidget
 	handle C.PhidgetAccelerometerHandle
 }
 
@@ -155,7 +155,7 @@ func (p *PhidgetAccelerometer) SetOnAccelerationChangeHandler(f func([]float64, 
 
 //Close - close the handle and delete it
 func (p *PhidgetAccelerometer) Close() error {
-	if err := p.Phidget.Close(); err != nil {
+	if err := p.phidget.Close(); err != nil {
 		return err
 	}
 	return p.phidgetError(C.PhidgetAccelerometer_delete(&p.handle))

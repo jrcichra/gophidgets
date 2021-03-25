@@ -17,7 +17,7 @@ import (
 
 //PhidgetTemperatureSensor is the struct that is a phidget temperature sensor
 type PhidgetTemperatureSensor struct {
-	Phidget
+	phidget
 	handle C.PhidgetTemperatureSensorHandle
 }
 
@@ -47,7 +47,7 @@ func (p *PhidgetTemperatureSensor) SetOnTemperatureChangeHandler(f func(float64)
 }
 
 func (p *PhidgetTemperatureSensor) Close() error {
-	if err := p.Phidget.Close(); err != nil {
+	if err := p.phidget.Close(); err != nil {
 		return err
 	}
 	return p.phidgetError(C.PhidgetTemperatureSensor_delete(&p.handle))

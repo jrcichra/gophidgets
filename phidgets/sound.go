@@ -17,7 +17,7 @@ import (
 
 //PhidgetSoundSensor is the struct that is a phidget sound sensor
 type PhidgetSoundSensor struct {
-	Phidget
+	phidget
 	handle C.PhidgetSoundSensorHandle
 }
 
@@ -43,7 +43,7 @@ func (p *PhidgetSoundSensor) SetSPLChangeTrigger(dBs float64) error {
 }
 
 //SetOnSPLChangeHandler - interrupt for sound changes calls a function
-func (p *PhidgetSoundSensor) SetOnSPLChangeHandler(f func(float64, float64, float64, []float64), ctx interface{}) error {
+func (p *PhidgetSoundSensor) SetOnSPLChangeHandler(f func(float64, float64, float64, []float64)) error {
 	//make a c function pointer to a go function pointer and pass it through the phidget context
 	var passthrough SoundPassthrough
 	passthrough.f = f
@@ -57,7 +57,7 @@ func (p *PhidgetSoundSensor) SetOnSPLChangeHandler(f func(float64, float64, floa
 
 //Close - close the handle and delete it
 func (p *PhidgetSoundSensor) Close() error {
-	if err := p.Phidget.Close(); err != nil {
+	if err := p.phidget.Close(); err != nil {
 		return err
 	}
 	return p.phidgetError(C.PhidgetSoundSensor_delete(&p.handle))

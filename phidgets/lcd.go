@@ -15,7 +15,7 @@ import (
 
 //PhidgetLCD is the struct that is a phidget lcd sensor
 type PhidgetLCD struct {
-	Phidget
+	phidget
 	handle C.PhidgetLCDHandle
 }
 
@@ -43,7 +43,7 @@ func (p *PhidgetLCD) SetBacklight(brightness float32) error {
 
 //Close - close the handle and delete it
 func (p *PhidgetLCD) Close() error {
-	if err := p.Phidget.Close(); err != nil {
+	if err := p.phidget.Close(); err != nil {
 		return err
 	}
 	return p.phidgetError(C.PhidgetLCD_delete(&p.handle))

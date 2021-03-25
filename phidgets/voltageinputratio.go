@@ -18,7 +18,7 @@ import (
 
 //PhidgetVoltageRatioInput is the struct that is a phidget voltageinputratio sensor
 type PhidgetVoltageRatioInput struct {
-	Phidget
+	phidget
 	handle C.PhidgetVoltageRatioInputHandle
 }
 
@@ -65,7 +65,7 @@ func (p *PhidgetVoltageRatioInput) SetSensorType(sensorType string) error {
 
 //Close - close the handle and delete it
 func (p *PhidgetVoltageRatioInput) Close() error {
-	if err := p.Phidget.Close(); err != nil {
+	if err := p.phidget.Close(); err != nil {
 		return err
 	}
 	return p.phidgetError(C.PhidgetVoltageRatioInput_delete(&p.handle))

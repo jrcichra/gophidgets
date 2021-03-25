@@ -17,7 +17,7 @@ import (
 
 //PhidgetLightSensor is the struct that is a phidget lumenance sensor
 type PhidgetLightSensor struct {
-	Phidget
+	phidget
 	handle C.PhidgetLightSensorHandle
 }
 
@@ -52,7 +52,7 @@ func (p *PhidgetLightSensor) SetOnIlluminanceChangeHandler(f func(float64)) erro
 
 //Close - close the handle and delete it
 func (p *PhidgetLightSensor) Close() error {
-	if err := p.Phidget.Close(); err != nil {
+	if err := p.phidget.Close(); err != nil {
 		return err
 	}
 	return p.phidgetError(C.PhidgetLightSensor_delete(&p.handle))
