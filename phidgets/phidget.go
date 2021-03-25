@@ -127,5 +127,5 @@ func (p *phidget) GetChannelClassName() (string, error) {
 
 //SetIsHubPortDevice sets a phidget sensor as a remote device
 func (p *phidget) SetIsHubPortDevice(b bool) error {
- 	return p.phidgetError(C.Phidget_setIsHubPortDevice(p.handle, boolToCInt(b)))
- }
+	return p.phidgetError(C.Phidget_setIsHubPortDevice(p.handle, boolToCInt(b)))
+}
