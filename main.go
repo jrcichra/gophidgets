@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"io"
 	"time"
 
 	"github.com/jrcichra/gophidgets/phidgets"
@@ -76,8 +75,7 @@ func main() {
 
 	//Close the sensors
 	for _, sensor := range sensors {
-		s := sensor.(io.Closer)
-		s.Close()
+		sensor.Close()
 	}
 
 	lcd.Close()
