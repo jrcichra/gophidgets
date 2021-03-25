@@ -21,6 +21,7 @@ type phidget struct {
 }
 
 type Phidget interface {
+	Create()
 	OpenWaitForAttachment(timeout time.Duration) error
 	SetIsRemote(b bool) error
 	SetDeviceSerialNumber(serial int) error
