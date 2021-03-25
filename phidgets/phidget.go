@@ -17,7 +17,6 @@ import (
 //Phidget - general phidget interface that all phidgets are derived from (for ease of type management)
 type phidget struct {
 	handle C.PhidgetHandle
-	class  string
 }
 
 type Phidget interface {
@@ -46,7 +45,6 @@ func (p *phidget) OpenWaitForAttachment(timeout time.Duration) error {
 	if cerr := C.Phidget_openWaitForAttachment(p.handle, C.uint(timeout.Milliseconds())); cerr != C.EPHIDGET_OK {
 		return p.phidgetError(cerr)
 	}
-	p.class, _ = p.GetChannelClassName()
 	return nil
 }
 
@@ -55,9 +53,10 @@ func (p *phidget) phidgetError(cerr C.PhidgetReturnCode) error {
 		return nil
 	}
 	var errorString *C.char
+	var className *C.char
 	C.Phidget_getErrorDescription(cerr, &errorString)
-	if p.class != "" {
-		return errors.New(fmt.Sprintf("%s: %s", p.class, C.GoString(errorString)))
+	if C.Phidget_getChannelClassName(p.handle, &className) == C.EPHIDGET_OK {
+		return fmt.Errorf("%s: %s", C.GoString(className), C.GoString(errorString))
 	}
 	return errors.New(C.GoString(errorString))
 }
