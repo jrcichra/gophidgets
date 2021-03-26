@@ -13,7 +13,6 @@ import (
 	"errors"
 	"fmt"
 	"sync"
-	"time"
 	"unsafe"
 )
 
@@ -31,6 +30,7 @@ type PhidgetManager struct {
 func attach_handler(man C.PhidgetManagerHandle, ctx unsafe.Pointer, channel C.PhidgetHandle) {
 	mutex.Lock()
 	defer mutex.Unlock()
+	// TODO: We are not doing a Phidget_release at any point to get rid of these
 	C.Phidget_retain(channel)
 
 	var class C.Phidget_ChannelClass
@@ -38,11 +38,33 @@ func attach_handler(man C.PhidgetManagerHandle, ctx unsafe.Pointer, channel C.Ph
 		fmt.Printf("unable to determine class of attached phidget: %d\n", cerr)
 		return
 	}
+
+	// TODO: All supported phidgets should be here
 	switch class {
 	case C.PHIDCHCLASS_ACCELEROMETER:
 		p := &PhidgetAccelerometer{}
 		p.phidget.handle = channel
 		p.handle = (C.PhidgetAccelerometerHandle)(unsafe.Pointer(channel))
+		handles = append(handles, p)
+	case C.PHIDCHCLASS_CURRENTINPUT:
+		p := &PhidgetCurrentInput{}
+		p.phidget.handle = channel
+		p.handle = (C.PhidgetCurrentInputHandle)(unsafe.Pointer(channel))
+		handles = append(handles, p)
+	case C.PHIDCHCLASS_LCD:
+		p := &PhidgetLCD{}
+		p.phidget.handle = channel
+		p.handle = (C.PhidgetLCDHandle)(unsafe.Pointer(channel))
+		handles = append(handles, p)
+	case C.PHIDCHCLASS_LIGHTSENSOR:
+		p := &PhidgetLightSensor{}
+		p.phidget.handle = channel
+		p.handle = (C.PhidgetLightSensorHandle)(unsafe.Pointer(channel))
+		handles = append(handles, p)
+	case C.PHIDCHCLASS_SOUNDSENSOR:
+		p := &PhidgetSoundSensor{}
+		p.phidget.handle = channel
+		p.handle = (C.PhidgetSoundSensorHandle)(unsafe.Pointer(channel))
 		handles = append(handles, p)
 	case C.PHIDCHCLASS_TEMPERATURESENSOR:
 		p := &PhidgetTemperatureSensor{}
@@ -54,7 +76,11 @@ func attach_handler(man C.PhidgetManagerHandle, ctx unsafe.Pointer, channel C.Ph
 		p.phidget.handle = channel
 		p.handle = (C.PhidgetVoltageInputHandle)(unsafe.Pointer(channel))
 		handles = append(handles, p)
-	// TODO: All supported phidgets should be here
+	case C.PHIDCHCLASS_VOLTAGERATIOINPUT:
+		p := &PhidgetVoltageRatioInput{}
+		p.phidget.handle = channel
+		p.handle = (C.PhidgetVoltageRatioInputHandle)(unsafe.Pointer(channel))
+		handles = append(handles, p)
 	default:
 		fmt.Printf("unsupported phidget discovered: 0x%x\n", class)
 		return
@@ -71,13 +97,13 @@ func NewPhidgetManager() (*PhidgetManager, error) {
 		C.PhidgetManager_delete(&p.handle)
 		return nil, managerError(cerr)
 	}
+	// TODO: Should install a PhidgetManager_OnDetachCallback as well so we can
+	// support removing the devices
 
 	if cerr := C.PhidgetManager_open(p.handle); cerr != C.EPHIDGET_OK {
 		C.PhidgetManager_delete(&p.handle)
 		return nil, managerError(cerr)
 	}
-	// Give the handles time to attach
-	time.Sleep(time.Millisecond * 10)
 
 	return p, nil
 }
