@@ -38,12 +38,19 @@ type Phidget interface {
 	SetIsHubPortDevice(b bool) error
 	GetChannelClassName() (string, error)
 	GetChannelName() (string, error)
+
+	// Unexported function for internal management
+	getRawHandle() *C.PhidgetHandle
 }
 
 //rawHandle updates the base Phidget object with a handle from another object
 //This must be called when a new Phidget object is created of a differing class
 func (p *phidget) rawHandle(handle unsafe.Pointer) {
 	p.handle = (*C.struct__Phidget)(handle)
+}
+
+func (p *phidget) getRawHandle() *C.PhidgetHandle {
+	return &p.handle
 }
 
 //OpenWaitForAttachment opens a phidget and waits for it to be available on the bus

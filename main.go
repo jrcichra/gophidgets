@@ -18,6 +18,8 @@ func main() {
 	for i, p := range available {
 		fmt.Printf("  %d: %s\n", i, p)
 	}
+	m.Close()
+
 	//Array of generic phidget sensors
 	sensors := make([]phidgets.Phidget, 0)
 
