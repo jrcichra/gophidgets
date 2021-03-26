@@ -8,6 +8,16 @@ import (
 )
 
 func main() {
+	m, err := phidgets.NewPhidgetManager()
+	if err != nil {
+		panic(err)
+	}
+
+	available := m.ListPhidgets()
+	fmt.Printf("Found %d phidgets\n", len(available))
+	for i, p := range available {
+		fmt.Printf("  %d: %s\n", i, p)
+	}
 	//Array of generic phidget sensors
 	sensors := make([]phidgets.Phidget, 0)
 
