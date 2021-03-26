@@ -18,6 +18,11 @@ func main() {
 	for i, p := range available {
 		fmt.Printf("  %d: %s\n", i, p)
 		switch s := p.(type) {
+		case *phidgets.PhidgetCurrentInput:
+			s.OpenWaitForAttachment(time.Second)
+			val, _ := s.GetValue()
+			fmt.Printf("Current is %f\n", val)
+			s.Close()
 		case *phidgets.PhidgetTemperatureSensor:
 			s.OpenWaitForAttachment(time.Second)
 			val, _ := s.GetValue()
@@ -30,8 +35,13 @@ func main() {
 			s.Close()
 		case *phidgets.PhidgetVoltageInput:
 			s.OpenWaitForAttachment(time.Second)
-			hum, _ := s.GetValue()
-			fmt.Printf("Voltage is %f\n", hum)
+			val, _ := s.GetValue()
+			fmt.Printf("Voltage is %f\n", val)
+			s.Close()
+		case *phidgets.PhidgetVoltageRatioInput:
+			s.OpenWaitForAttachment(time.Second)
+			val, _ := s.GetValue()
+			fmt.Printf("Voltage Ratio: %f\n", val)
 			s.Close()
 		}
 	}
