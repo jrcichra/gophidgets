@@ -8,6 +8,48 @@ import (
 )
 
 func main() {
+	m, err := phidgets.NewPhidgetManager()
+	if err != nil {
+		panic(err)
+	}
+
+	// Sometimes the phidgets take a while to attach
+	time.Sleep(500 * time.Millisecond)
+
+	available := m.ListPhidgets()
+	fmt.Printf("Found %d phidgets\n", len(available))
+	for i, p := range available {
+		fmt.Printf("  %d: %s\n", i, p)
+		switch s := p.(type) {
+		case *phidgets.PhidgetCurrentInput:
+			s.OpenWaitForAttachment(time.Second)
+			val, _ := s.GetValue()
+			fmt.Printf("Current is %f\n", val)
+			s.Close()
+		case *phidgets.PhidgetTemperatureSensor:
+			s.OpenWaitForAttachment(time.Second)
+			val, _ := s.GetValue()
+			fmt.Printf("Temperature is %f\n", val)
+			s.Close()
+		case *phidgets.PhidgetHumiditySensor:
+			s.OpenWaitForAttachment(time.Second)
+			hum, _ := s.GetValue()
+			fmt.Printf("Humidity is %f\n", hum)
+			s.Close()
+		case *phidgets.PhidgetVoltageInput:
+			s.OpenWaitForAttachment(time.Second)
+			val, _ := s.GetValue()
+			fmt.Printf("Voltage is %f\n", val)
+			s.Close()
+		case *phidgets.PhidgetVoltageRatioInput:
+			s.OpenWaitForAttachment(time.Second)
+			val, _ := s.GetValue()
+			fmt.Printf("Voltage Ratio: %f\n", val)
+			s.Close()
+		}
+	}
+	m.Close()
+
 	//Array of generic phidget sensors
 	sensors := make([]phidgets.Phidget, 0)
 
