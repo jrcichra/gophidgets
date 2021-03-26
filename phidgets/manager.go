@@ -13,7 +13,6 @@ import (
 	"errors"
 	"fmt"
 	"sync"
-	"time"
 	"unsafe"
 )
 
@@ -105,9 +104,6 @@ func NewPhidgetManager() (*PhidgetManager, error) {
 		C.PhidgetManager_delete(&m.handle)
 		return nil, managerError(cerr)
 	}
-
-	// Sometimes the phidgets take a while to attach
-	time.Sleep(20 * time.Millisecond)
 
 	return m, nil
 }

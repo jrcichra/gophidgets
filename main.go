@@ -13,6 +13,9 @@ func main() {
 		panic(err)
 	}
 
+	// Sometimes the phidgets take a while to attach
+	time.Sleep(500 * time.Millisecond)
+
 	available := m.ListPhidgets()
 	fmt.Printf("Found %d phidgets\n", len(available))
 	for i, p := range available {
