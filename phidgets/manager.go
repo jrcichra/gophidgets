@@ -30,8 +30,6 @@ type PhidgetManager struct {
 func attach_handler(man C.PhidgetManagerHandle, ctx unsafe.Pointer, channel C.PhidgetHandle) {
 	mutex.Lock()
 	defer mutex.Unlock()
-	// TODO: We are not doing a Phidget_release at any point to get rid of these
-	C.Phidget_retain(channel)
 
 	var class C.Phidget_ChannelClass
 	if cerr := C.Phidget_getChannelClass(channel, &class); cerr != C.EPHIDGET_OK {
@@ -85,6 +83,9 @@ func attach_handler(man C.PhidgetManagerHandle, ctx unsafe.Pointer, channel C.Ph
 		fmt.Printf("unsupported phidget discovered: 0x%x\n", class)
 		return
 	}
+
+	// TODO: We are not doing a Phidget_release at any point to get rid of these
+	C.Phidget_retain(channel)
 }
 
 //NewPhidgetManager Create creates a phidget manager
