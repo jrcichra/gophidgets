@@ -17,6 +17,23 @@ func main() {
 	fmt.Printf("Found %d phidgets\n", len(available))
 	for i, p := range available {
 		fmt.Printf("  %d: %s\n", i, p)
+		switch s := p.(type) {
+		case *phidgets.PhidgetTemperatureSensor:
+			s.OpenWaitForAttachment(time.Second)
+			val, _ := s.GetValue()
+			fmt.Printf("Temperature is %f\n", val)
+			s.Close()
+		case *phidgets.PhidgetHumiditySensor:
+			s.OpenWaitForAttachment(time.Second)
+			hum, _ := s.GetValue()
+			fmt.Printf("Humidity is %f\n", hum)
+			s.Close()
+		case *phidgets.PhidgetVoltageInput:
+			s.OpenWaitForAttachment(time.Second)
+			hum, _ := s.GetValue()
+			fmt.Printf("Voltage is %f\n", hum)
+			s.Close()
+		}
 	}
 	m.Close()
 
