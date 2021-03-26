@@ -20,7 +20,7 @@ import (
 //PhidgetManager is the struct that is a phidget manager handle
 type PhidgetManager struct {
 	sync.Mutex
-	handle C.PhidgetManagerHandle
+	handle  C.PhidgetManagerHandle
 	handles []Phidget
 }
 
