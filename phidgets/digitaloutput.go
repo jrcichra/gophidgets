@@ -34,8 +34,7 @@ func (p *PhidgetDigitalOutput) GetState() (bool, error) {
 
 //SetValue gets the state from a phidget digital output
 func (p *PhidgetDigitalOutput) SetState(state bool) error {
-	r := boolToCInt(state)
-	return p.phidgetError(C.PhidgetDigitalOutput_getState(p.handle, &r))
+	return p.phidgetError(C.PhidgetDigitalOutput_setState(p.handle, boolToCInt(state)))
 }
 
 //Close - close the handle and delete it
