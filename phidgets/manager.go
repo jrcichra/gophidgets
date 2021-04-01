@@ -48,6 +48,16 @@ func attach_handler(man C.PhidgetManagerHandle, ctx unsafe.Pointer, channel C.Ph
 		p.phidget.handle = channel
 		p.handle = (C.PhidgetCurrentInputHandle)(unsafe.Pointer(channel))
 		m.handles = append(m.handles, p)
+	case C.PHIDCHCLASS_DIGITALINPUT:
+		p := &PhidgetDigitalInput{}
+		p.phidget.handle = channel
+		p.handle = (C.PhidgetDigitalInputHandle)(unsafe.Pointer(channel))
+		m.handles = append(m.handles, p)
+	case C.PHIDCHCLASS_DIGITALOUTPUT:
+		p := &PhidgetDigitalOutput{}
+		p.phidget.handle = channel
+		p.handle = (C.PhidgetDigitalOutputHandle)(unsafe.Pointer(channel))
+		m.handles = append(m.handles, p)
 	case C.PHIDCHCLASS_LCD:
 		p := &PhidgetLCD{}
 		p.phidget.handle = channel
