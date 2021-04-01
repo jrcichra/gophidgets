@@ -21,43 +21,34 @@ func main() {
 	fmt.Printf("Found %d phidgets\n", len(available))
 	for i, p := range available {
 		fmt.Printf("  %d: %s\n", i, p)
+		if err := p.OpenWaitForAttachment(time.Second); err != nil {
+			fmt.Printf("Failed to open: %s", err)
+			continue
+		}
 		switch s := p.(type) {
 		case *phidgets.PhidgetCurrentInput:
-			s.OpenWaitForAttachment(time.Second)
 			val, _ := s.GetValue()
 			fmt.Printf("Current is %f\n", val)
-			s.Close()
 		case *phidgets.PhidgetDigitalInput:
-			s.OpenWaitForAttachment(time.Second)
 			val, _ := s.GetState()
 			fmt.Printf("Input state: %t\n", val)
-			s.Close()
 		case *phidgets.PhidgetDigitalOutput:
-			s.OpenWaitForAttachment(time.Second)
 			val, _ := s.GetState()
 			fmt.Printf("Output state: %t\n", val)
-			s.Close()
 		case *phidgets.PhidgetTemperatureSensor:
-			s.OpenWaitForAttachment(time.Second)
 			val, _ := s.GetValue()
 			fmt.Printf("Temperature is %f\n", val)
-			s.Close()
 		case *phidgets.PhidgetHumiditySensor:
-			s.OpenWaitForAttachment(time.Second)
 			hum, _ := s.GetValue()
 			fmt.Printf("Humidity is %f\n", hum)
-			s.Close()
 		case *phidgets.PhidgetVoltageInput:
-			s.OpenWaitForAttachment(time.Second)
 			val, _ := s.GetValue()
 			fmt.Printf("Voltage is %f\n", val)
-			s.Close()
 		case *phidgets.PhidgetVoltageRatioInput:
-			s.OpenWaitForAttachment(time.Second)
 			val, _ := s.GetValue()
 			fmt.Printf("Voltage Ratio: %f\n", val)
-			s.Close()
 		}
+		p.Close()
 	}
 	m.Close()
 
