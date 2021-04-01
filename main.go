@@ -22,7 +22,7 @@ func main() {
 	for i, p := range available {
 		fmt.Printf("  %d: %s\n", i, p)
 		if err := p.OpenWaitForAttachment(time.Second); err != nil {
-			fmt.Printf("Failed to open: %s", err)
+			fmt.Printf("Failed to open: %s\n", err)
 			continue
 		}
 		switch s := p.(type) {
