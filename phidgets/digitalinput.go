@@ -10,19 +10,19 @@ import (
 	"unsafe"
 )
 
-//PhidgetDigitalInput is the struct that is a phidget current sensor
+//PhidgetDigitalInput is the struct that is a phidget input sensor
 type PhidgetDigitalInput struct {
 	phidget
 	handle C.PhidgetDigitalInputHandle
 }
 
-//Create creates a phidget current sensor
+//Create creates a phidget input sensor
 func (p *PhidgetDigitalInput) Create() {
 	C.PhidgetDigitalInput_create(&p.handle)
 	p.rawHandle(unsafe.Pointer(p.handle))
 }
 
-//GetValue gets the current from a phidget current sensor
+//GetValue gets the input from a phidget input sensor
 func (p *PhidgetDigitalInput) GetState() (bool, error) {
 	var r C.int
 	cerr := C.PhidgetDigitalInput_getState(p.handle, &r)
