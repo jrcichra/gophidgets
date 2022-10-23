@@ -9,7 +9,7 @@ package phidgets
 import "C"
 import "unsafe"
 
-//AddServer adds a
+// AddServer adds a
 func AddServer(serverName string, address string, port int, password string, flags int) {
 	serverC := C.CString(serverName)
 	addressC := C.CString(address)

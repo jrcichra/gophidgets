@@ -15,19 +15,19 @@ import (
 	gopointer "github.com/mattn/go-pointer"
 )
 
-//PhidgetCurrentInput is the struct that is a phidget current sensor
+// PhidgetCurrentInput is the struct that is a phidget current sensor
 type PhidgetCurrentInput struct {
 	phidget
 	handle C.PhidgetCurrentInputHandle
 }
 
-//Create creates a phidget current sensor
+// Create creates a phidget current sensor
 func (p *PhidgetCurrentInput) Create() {
 	C.PhidgetCurrentInput_create(&p.handle)
 	p.rawHandle(unsafe.Pointer(p.handle))
 }
 
-//GetValue gets the current from a phidget current sensor
+// GetValue gets the current from a phidget current sensor
 func (p *PhidgetCurrentInput) GetValue() (float64, error) {
 	var r C.double
 	cerr := C.PhidgetCurrentInput_getCurrent(p.handle, &r)
@@ -37,7 +37,7 @@ func (p *PhidgetCurrentInput) GetValue() (float64, error) {
 	return float64(r), nil
 }
 
-//SetOnCurrentChangeHandler - interrupt for current changes calls a function
+// SetOnCurrentChangeHandler - interrupt for current changes calls a function
 func (p *PhidgetCurrentInput) SetOnCurrentChangeHandler(f func(float64)) error {
 	//make a c function pointer to a go function pointer and pass it through the phidget context
 	var passthrough Passthrough
@@ -50,7 +50,7 @@ func (p *PhidgetCurrentInput) SetOnCurrentChangeHandler(f func(float64)) error {
 	return nil
 }
 
-//Close - close the handle and delete it
+// Close - close the handle and delete it
 func (p *PhidgetCurrentInput) Close() error {
 	if err := p.phidget.Close(); err != nil {
 		return err

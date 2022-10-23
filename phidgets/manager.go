@@ -16,7 +16,7 @@ import (
 	"unsafe"
 )
 
-//PhidgetManager is the struct that is a phidget manager handle
+// PhidgetManager is the struct that is a phidget manager handle
 type PhidgetManager struct {
 	sync.Mutex
 	handle  C.PhidgetManagerHandle
@@ -97,7 +97,7 @@ func attach_handler(man C.PhidgetManagerHandle, ctx unsafe.Pointer, channel C.Ph
 	C.Phidget_retain(channel)
 }
 
-//NewPhidgetManager Create creates a phidget manager
+// NewPhidgetManager Create creates a phidget manager
 func NewPhidgetManager() (*PhidgetManager, error) {
 	m := &PhidgetManager{}
 	C.PhidgetManager_create(&m.handle)
@@ -127,7 +127,7 @@ func managerError(cerr C.PhidgetReturnCode) error {
 	return errors.New(C.GoString(errorString))
 }
 
-//ListPhidgets returns a list of phidgets that have been discovered
+// ListPhidgets returns a list of phidgets that have been discovered
 func (m *PhidgetManager) ListPhidgets() []Phidget {
 	m.Lock()
 	l := append([]Phidget{}, m.handles...)
@@ -135,7 +135,7 @@ func (m *PhidgetManager) ListPhidgets() []Phidget {
 	return l
 }
 
-//Close - close the handle and delete it
+// Close - close the handle and delete it
 func (m *PhidgetManager) Close() error {
 	if cerr := C.PhidgetManager_close(m.handle); cerr != C.EPHIDGET_OK {
 		return managerError(cerr)

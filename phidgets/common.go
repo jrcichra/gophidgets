@@ -14,17 +14,17 @@ import (
 	gopointer "github.com/mattn/go-pointer"
 )
 
-//Passthrough - Go struct that passes through the phidget context callback, giving us a Go phidget pointer and the function we should callback to
+// Passthrough - Go struct that passes through the phidget context callback, giving us a Go phidget pointer and the function we should callback to
 type Passthrough struct {
 	f func(float64)
 }
 
-//MotionPassthrough - has more than one float64 value as a parameter
+// MotionPassthrough - has more than one float64 value as a parameter
 type MotionPassthrough struct {
 	f func([]float64, float64)
 }
 
-//SoundPassthrough - has more than one float64 value as a parameter
+// SoundPassthrough - has more than one float64 value as a parameter
 type SoundPassthrough struct {
 	f func(float64, float64, float64, []float64)
 }
@@ -59,7 +59,7 @@ func soundcallback(handle unsafe.Pointer, ctx unsafe.Pointer, dB C.double, dBA C
 	p2(float64(dB), float64(dBA), float64(dBC), slce)
 }
 
-//Common functions that convert different types for this package
+// Common functions that convert different types for this package
 func boolToCInt(b bool) C.int {
 	var r C.int
 	if b {

@@ -15,19 +15,19 @@ import (
 	gopointer "github.com/mattn/go-pointer"
 )
 
-//PhidgetTemperatureSensor is the struct that is a phidget temperature sensor
+// PhidgetTemperatureSensor is the struct that is a phidget temperature sensor
 type PhidgetTemperatureSensor struct {
 	phidget
 	handle C.PhidgetTemperatureSensorHandle
 }
 
-//Create creates a phidget temperature sensor
+// Create creates a phidget temperature sensor
 func (p *PhidgetTemperatureSensor) Create() {
 	C.PhidgetTemperatureSensor_create(&p.handle)
 	p.rawHandle(unsafe.Pointer(p.handle))
 }
 
-//GetValue gets the temperature from a phidget temperature sensor
+// GetValue gets the temperature from a phidget temperature sensor
 func (p *PhidgetTemperatureSensor) GetValue() (float64, error) {
 	var r C.double
 	if cerr := C.PhidgetTemperatureSensor_getTemperature(p.handle, &r); cerr != C.EPHIDGET_OK {
@@ -36,7 +36,7 @@ func (p *PhidgetTemperatureSensor) GetValue() (float64, error) {
 	return float64(r), nil
 }
 
-//SetOnTemperatureChangeHandler - interrupt for temperature changes calls a function
+// SetOnTemperatureChangeHandler - interrupt for temperature changes calls a function
 func (p *PhidgetTemperatureSensor) SetOnTemperatureChangeHandler(f func(float64)) error {
 	//make a c function pointer to a go function pointer and pass it through the phidget context
 	var passthrough Passthrough

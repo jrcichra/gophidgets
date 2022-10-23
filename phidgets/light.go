@@ -15,19 +15,19 @@ import (
 	gopointer "github.com/mattn/go-pointer"
 )
 
-//PhidgetLightSensor is the struct that is a phidget lumenance sensor
+// PhidgetLightSensor is the struct that is a phidget lumenance sensor
 type PhidgetLightSensor struct {
 	phidget
 	handle C.PhidgetLightSensorHandle
 }
 
-//Create creates a phidget lumenance sensor
+// Create creates a phidget lumenance sensor
 func (p *PhidgetLightSensor) Create() {
 	C.PhidgetLightSensor_create(&p.handle)
 	p.rawHandle(unsafe.Pointer(p.handle))
 }
 
-//GetValue gets the lumenance from a phidget lumenance sensor
+// GetValue gets the lumenance from a phidget lumenance sensor
 func (p *PhidgetLightSensor) GetValue() (float64, error) {
 	var r C.double
 	cerr := C.PhidgetLightSensor_getIlluminance(p.handle, &r)
@@ -37,7 +37,7 @@ func (p *PhidgetLightSensor) GetValue() (float64, error) {
 	return float64(r), nil
 }
 
-//SetOnIlluminanceChangeHandler - interrupt for illumiance changes calls a function
+// SetOnIlluminanceChangeHandler - interrupt for illumiance changes calls a function
 func (p *PhidgetLightSensor) SetOnIlluminanceChangeHandler(f func(float64)) error {
 	//make a c function pointer to a go function pointer and pass it through the phidget context
 	var passthrough Passthrough
@@ -50,7 +50,7 @@ func (p *PhidgetLightSensor) SetOnIlluminanceChangeHandler(f func(float64)) erro
 	return nil
 }
 
-//Close - close the handle and delete it
+// Close - close the handle and delete it
 func (p *PhidgetLightSensor) Close() error {
 	if err := p.phidget.Close(); err != nil {
 		return err
