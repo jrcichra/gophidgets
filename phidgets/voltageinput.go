@@ -66,8 +66,18 @@ func (p *PhidgetVoltageInput) Create() {
 	p.rawHandle(unsafe.Pointer(p.handle))
 }
 
-// GetValue gets the voltageinput from a phidget voltageinput sensor
-func (p *PhidgetVoltageInput) GetValue() (float64, error) {
+// GetVoltage gets the voltage from a phidget voltageinput sensor
+func (p *PhidgetVoltageInput) GetVoltage() (float64, error) {
+	var r C.double
+	cerr := C.PhidgetVoltageInput_getVoltage(p.handle, &r)
+	if cerr != C.EPHIDGET_OK {
+		return 0, p.phidgetError(cerr)
+	}
+	return float64(r), nil
+}
+
+// GetSensorValue gets the sensor value from a phidget voltageinput sensor
+func (p *PhidgetVoltageInput) GetSensorValue() (float64, error) {
 	var r C.double
 	cerr := C.PhidgetVoltageInput_getSensorValue(p.handle, &r)
 	if cerr != C.EPHIDGET_OK {

@@ -42,10 +42,10 @@ func main() {
 			hum, _ := s.GetValue()
 			fmt.Printf("Humidity is %f\n", hum)
 		case *phidgets.PhidgetVoltageInput:
-			val, _ := s.GetValue()
+			val, _ := s.GetVoltage()
 			fmt.Printf("Voltage is %f\n", val)
 		case *phidgets.PhidgetVoltageRatioInput:
-			val, _ := s.GetValue()
+			val, _ := s.GetVoltageRatio()
 			fmt.Printf("Voltage Ratio: %f\n", val)
 		}
 		p.Close()

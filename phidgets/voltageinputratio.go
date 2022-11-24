@@ -80,8 +80,17 @@ func (p *PhidgetVoltageRatioInput) Create() {
 	p.rawHandle(unsafe.Pointer(p.handle))
 }
 
-// GetValue gets the voltageinputratio from a phidget voltageinputratio sensor
-func (p *PhidgetVoltageRatioInput) GetValue() (float64, error) {
+// GetVoltageRatio gets the voltage ratio from a phidget voltageinputratio sensor
+func (p *PhidgetVoltageRatioInput) GetVoltageRatio() (float64, error) {
+	var r C.double
+	if cerr := C.PhidgetVoltageRatioInput_getVoltageRatio(p.handle, &r); cerr != C.EPHIDGET_OK {
+		return 0, p.phidgetError(cerr)
+	}
+	return float64(r), nil
+}
+
+// GetSensorValue gets the sensor value from a phidget voltageinputratio sensor
+func (p *PhidgetVoltageRatioInput) GetSensorValue() (float64, error) {
 	var r C.double
 	if cerr := C.PhidgetVoltageRatioInput_getSensorValue(p.handle, &r); cerr != C.EPHIDGET_OK {
 		return 0, p.phidgetError(cerr)
