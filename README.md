@@ -4,7 +4,7 @@ Golang bindings for the Phidgets C library
 
 # Release Notes
 
-- 11/24/2022 - VoltageInput and VoltageInputRatio `GetValue()` mitakenly called `getVoltage()`, not `getSensorValue()`. It will now pay attention to the sensor type provided.
+- 11/24/2022 - VoltageInput and VoltageInputRatio `GetValue()` mistakenly called `getVoltage()`, not `getSensorValue()`. It will now pay attention to the sensor type provided.
 
 ## Install
 
