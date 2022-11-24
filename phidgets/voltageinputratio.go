@@ -83,7 +83,7 @@ func (p *PhidgetVoltageRatioInput) Create() {
 // GetValue gets the voltageinputratio from a phidget voltageinputratio sensor
 func (p *PhidgetVoltageRatioInput) GetValue() (float64, error) {
 	var r C.double
-	if cerr := C.PhidgetVoltageRatioInput_getVoltageRatio(p.handle, &r); cerr != C.EPHIDGET_OK {
+	if cerr := C.PhidgetVoltageRatioInput_getSensorValue(p.handle, &r); cerr != C.EPHIDGET_OK {
 		return 0, p.phidgetError(cerr)
 	}
 	return float64(r), nil

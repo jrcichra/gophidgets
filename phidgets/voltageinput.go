@@ -69,7 +69,7 @@ func (p *PhidgetVoltageInput) Create() {
 // GetValue gets the voltageinput from a phidget voltageinput sensor
 func (p *PhidgetVoltageInput) GetValue() (float64, error) {
 	var r C.double
-	cerr := C.PhidgetVoltageInput_getVoltage(p.handle, &r)
+	cerr := C.PhidgetVoltageInput_getSensorValue(p.handle, &r)
 	if cerr != C.EPHIDGET_OK {
 		return 0, p.phidgetError(cerr)
 	}
