@@ -13,8 +13,6 @@ void creflectioncallback(void* handle, void* ctx, const uint32_t distances[8], c
 import "C"
 import (
 	"unsafe"
-
-	gopointer "github.com/mattn/go-pointer"
 )
 
 // PhidgetDistanceSensor is the struct that is a phidget distance sensor
@@ -45,30 +43,30 @@ func (p *PhidgetDistanceSensor) SetDistanceChangeTrigger(distance uint32) error 
 }
 
 // SetOnDistanceChangeHandler - interrupt for distance changes calls a function
-func (p *PhidgetDistanceSensor) SetOnDistanceChangeHandler(f func(uint32)) error {
-	//make a c function pointer to a go function pointer and pass it through the phidget context
-	var passthrough DistancePassthrough
-	passthrough.f = f
-	pt := gopointer.Save(passthrough)
-	cerr := C.PhidgetDistanceSensor_setOnDistanceChangeHandler(p.handle, (C.distance_callback_fcn)(unsafe.Pointer(C.cdistancecallback)), pt)
-	if cerr != C.EPHIDGET_OK {
-		return p.phidgetError(cerr)
-	}
-	return nil
-}
+// func (p *PhidgetDistanceSensor) SetOnDistanceChangeHandler(f func(uint32)) error {
+// 	//make a c function pointer to a go function pointer and pass it through the phidget context
+// 	var passthrough DistancePassthrough
+// 	passthrough.f = f
+// 	pt := gopointer.Save(passthrough)
+// 	cerr := C.PhidgetDistanceSensor_setOnDistanceChangeHandler(p.handle, (C.distance_callback_fcn)(unsafe.Pointer(C.cdistancecallback)), pt)
+// 	if cerr != C.EPHIDGET_OK {
+// 		return p.phidgetError(cerr)
+// 	}
+// 	return nil
+// }
 
-// setOnSonarReflectionsUpdateHandler - interrupt for sonar reflections
-func (p *PhidgetDistanceSensor) setOnSonarReflectionsUpdateHandler(f func([8]uint32, [8]uint32, uint32)) error {
-	//make a c function pointer to a go function pointer and pass it through the phidget context
-	var passthrough ReflectionPassthrough
-	passthrough.f = f
-	pt := gopointer.Save(passthrough)
-	cerr := C.PhidgetDistanceSensor_setOnDistanceChangeHandler(p.handle, (C.reflection_callback_fcn)(unsafe.Pointer(C.creflectioncallback)), pt)
-	if cerr != C.EPHIDGET_OK {
-		return p.phidgetError(cerr)
-	}
-	return nil
-}
+// // setOnSonarReflectionsUpdateHandler - interrupt for sonar reflections
+// func (p *PhidgetDistanceSensor) setOnSonarReflectionsUpdateHandler(f func([8]uint32, [8]uint32, uint32)) error {
+// 	//make a c function pointer to a go function pointer and pass it through the phidget context
+// 	var passthrough ReflectionPassthrough
+// 	passthrough.f = f
+// 	pt := gopointer.Save(passthrough)
+// 	cerr := C.PhidgetDistanceSensor_setOnDistanceChangeHandler(p.handle, (C.reflection_callback_fcn)(unsafe.Pointer(C.creflectioncallback)), pt)
+// 	if cerr != C.EPHIDGET_OK {
+// 		return p.phidgetError(cerr)
+// 	}
+// 	return nil
+// }
 
 // GetSonarReflections - The most recent reflection values that the channel has reported.
 func (p *PhidgetDistanceSensor) GetSonarReflections() ([]uint32, []uint32, uint32, error) {
