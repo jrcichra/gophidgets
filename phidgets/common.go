@@ -29,6 +29,16 @@ type SoundPassthrough struct {
 	f func(float64, float64, float64, []float64)
 }
 
+// DistancePassthrough
+type DistancePassthrough struct {
+	f func(uint32)
+}
+
+// ReflectionPassthrough
+type ReflectionPassthrough struct {
+	f func([8]uint32, [8]uint32, uint32)
+}
+
 //export callback
 func callback(handle unsafe.Pointer, ctx unsafe.Pointer, value C.double) {
 	passthrough := gopointer.Restore(ctx).(Passthrough)
