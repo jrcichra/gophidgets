@@ -18,7 +18,7 @@ t.Create()
 t.SetIsRemote(true)
 t.SetDeviceSerialNumber(11111)
 t.SetHubPort(0)
-err = t.OpenWaitForAttachment(2000)
+err = t.OpenWaitForAttachment(2 * time.Second)
 if err != nil {
     panic(err)
 }
