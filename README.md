@@ -2,9 +2,10 @@
 
 Golang bindings for the Phidgets C library
 
-# Release Notes
+# Changelog
 
-- 11/24/2022 - VoltageInput and VoltageInputRatio `GetValue()` always called `getVoltage()`, not `getSensorValue()`. I broke out the functions to match the Phidget's library names since `VoltageInput` and `VoltageRatioInput` are used in different ways based on the hardware.
+- 2025/02/10 - Changed `GetSonarReflections()` to only return `distance` and `amplitude` slices. The count is not required as Go makes it simple to determine. A check was added to validate the lengths are the same.
+- 2022/11/24 - VoltageInput and VoltageInputRatio `GetValue()` always called `getVoltage()`, not `getSensorValue()`. I broke out the functions to match the Phidget's library names since `VoltageInput` and `VoltageRatioInput` are used in different ways based on the hardware.
 
 ## Install
 
