@@ -12,6 +12,7 @@ void creflectioncallback(void* handle, void* ctx, const uint32_t distances[8], c
 */
 import "C"
 import (
+	"fmt"
 	"unsafe"
 )
 
@@ -69,17 +70,16 @@ func (p *PhidgetDistanceSensor) SetDistanceChangeTrigger(distance uint32) error 
 // }
 
 // GetSonarReflections - The most recent reflection values that the channel has reported.
-func (p *PhidgetDistanceSensor) GetSonarReflections() ([]uint32, []uint32, uint32, error) {
+func (p *PhidgetDistanceSensor) GetSonarReflections() ([]uint32, []uint32, error) {
 	var cDistances [8]C.uint
 	var cAmplitudes [8]C.uint
 	var count C.uint
 	cerr := C.PhidgetDistanceSensor_getSonarReflections(p.handle, &cDistances, &cAmplitudes, &count)
 	if cerr != C.EPHIDGET_OK {
-		return nil, nil, 0, p.phidgetError(cerr)
+		return nil, nil, p.phidgetError(cerr)
 	}
 
 	iCount := int(count)
-
 	// trim arrays to count size (removes 2^32 − 1 values)
 	distances := make([]uint32, 0, iCount)
 	for i := 0; i < iCount; i++ {
@@ -90,7 +90,11 @@ func (p *PhidgetDistanceSensor) GetSonarReflections() ([]uint32, []uint32, uint3
 		amplitudes = append(amplitudes, uint32(cAmplitudes[i]))
 	}
 
-	return distances, amplitudes, uint32(count), nil
+	if len(distances) != len(amplitudes) {
+		return distances, amplitudes, fmt.Errorf("length of distances: %d does not match the length of amplitudes: %d", len(distances), len(amplitudes))
+	}
+
+	return distances, amplitudes, nil
 }
 
 func (p *PhidgetDistanceSensor) SetSonarQuietMode(val bool) error {
