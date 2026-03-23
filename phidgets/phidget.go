@@ -38,6 +38,7 @@ type Phidget interface {
 	SetIsHubPortDevice(b bool) error
 	GetChannelClassName() (string, error)
 	GetChannelName() (string, error)
+	GetAttached() (bool, error)
 
 	// Unexported function for internal management
 	getRawHandle() *C.PhidgetHandle
@@ -159,6 +160,16 @@ func (p *phidget) GetChannelName() (string, error) {
 		return "", p.phidgetError(cerr)
 	}
 	return C.GoString(cstr), nil
+}
+
+// GetAttached returns whether the Phidget device is attached
+func (p *phidget) GetAttached() (bool, error) {
+	var r C.int
+	cerr := C.Phidget_getAttached(p.handle, &r)
+	if cerr != C.EPHIDGET_OK {
+		return false, p.phidgetError(cerr)
+	}
+	return r != 0, nil
 }
 
 // GetChannel retrives which channel this handle is attached to
