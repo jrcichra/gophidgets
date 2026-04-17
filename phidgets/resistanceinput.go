@@ -1,0 +1,100 @@
+package phidgets
+
+/*
+#cgo CFLAGS: -g -Wall
+#cgo LDFLAGS: -lphidget22
+#include <stdlib.h>
+#include <phidget22.h>
+typedef void (*callback_fcn)(void* handle, void* ctx, double value);
+void ccallback(void* handle, void* ctx, double value);  // Forward declaration.
+*/
+import "C"
+import (
+	"unsafe"
+
+	gopointer "github.com/mattn/go-pointer"
+)
+
+// PhidgetResistanceInput wraps a Phidget resistance input
+type PhidgetResistanceInput struct {
+	phidget
+	handle C.PhidgetResistanceInputHandle
+}
+
+// Create creates a PhidgetResistanceInput handle
+func (p *PhidgetResistanceInput) Create() {
+	C.PhidgetResistanceInput_create(&p.handle)
+	p.rawHandle(unsafe.Pointer(p.handle))
+}
+
+// GetResistance returns the current resistance in ohms
+func (p *PhidgetResistanceInput) GetResistance() (float64, error) {
+	var r C.double
+	if cerr := C.PhidgetResistanceInput_getResistance(p.handle, &r); cerr != C.EPHIDGET_OK {
+		return 0, p.phidgetError(cerr)
+	}
+	return float64(r), nil
+}
+
+// GetMinResistance returns the minimum measurable resistance
+func (p *PhidgetResistanceInput) GetMinResistance() (float64, error) {
+	var r C.double
+	if cerr := C.PhidgetResistanceInput_getMinResistance(p.handle, &r); cerr != C.EPHIDGET_OK {
+		return 0, p.phidgetError(cerr)
+	}
+	return float64(r), nil
+}
+
+// GetMaxResistance returns the maximum measurable resistance
+func (p *PhidgetResistanceInput) GetMaxResistance() (float64, error) {
+	var r C.double
+	if cerr := C.PhidgetResistanceInput_getMaxResistance(p.handle, &r); cerr != C.EPHIDGET_OK {
+		return 0, p.phidgetError(cerr)
+	}
+	return float64(r), nil
+}
+
+// SetResistanceChangeTrigger sets the change threshold that triggers the callback
+func (p *PhidgetResistanceInput) SetResistanceChangeTrigger(trigger float64) error {
+	return p.phidgetError(C.PhidgetResistanceInput_setResistanceChangeTrigger(p.handle, C.double(trigger)))
+}
+
+// GetResistanceChangeTrigger returns the current change trigger
+func (p *PhidgetResistanceInput) GetResistanceChangeTrigger() (float64, error) {
+	var r C.double
+	if cerr := C.PhidgetResistanceInput_getResistanceChangeTrigger(p.handle, &r); cerr != C.EPHIDGET_OK {
+		return 0, p.phidgetError(cerr)
+	}
+	return float64(r), nil
+}
+
+// SetDataInterval sets the data interval in milliseconds
+func (p *PhidgetResistanceInput) SetDataInterval(ms uint32) error {
+	return p.phidgetError(C.PhidgetResistanceInput_setDataInterval(p.handle, C.uint32_t(ms)))
+}
+
+// GetDataInterval returns the current data interval in milliseconds
+func (p *PhidgetResistanceInput) GetDataInterval() (uint32, error) {
+	var r C.uint32_t
+	if cerr := C.PhidgetResistanceInput_getDataInterval(p.handle, &r); cerr != C.EPHIDGET_OK {
+		return 0, p.phidgetError(cerr)
+	}
+	return uint32(r), nil
+}
+
+// SetOnResistanceChangeHandler sets a callback that fires when resistance changes beyond the trigger
+func (p *PhidgetResistanceInput) SetOnResistanceChangeHandler(f func(float64)) error {
+	var pt Passthrough
+	pt.f = f
+	ctx := gopointer.Save(pt)
+	return p.phidgetError(C.PhidgetResistanceInput_setOnResistanceChangeHandler(
+		p.handle, (C.callback_fcn)(unsafe.Pointer(C.ccallback)), ctx))
+}
+
+// Close closes the handle and deletes it
+func (p *PhidgetResistanceInput) Close() error {
+	if err := p.phidget.Close(); err != nil {
+		return err
+	}
+	return p.phidgetError(C.PhidgetResistanceInput_delete(&p.handle))
+}
