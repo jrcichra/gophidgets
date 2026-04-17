@@ -1,12 +1,8 @@
 package phidgets
 
 /*
-#cgo CFLAGS: -g -Wall
-#cgo LDFLAGS: -lphidget22
-#include <stdlib.h>
 #include <phidget22.h>
-typedef void (*callback_fcn)(void* handle, void* ctx, double b);
-void ccallback(void* handle, void* ctx, double b);  // Forward declaration.
+#include "phidgets.h"
 */
 import "C"
 import (
@@ -43,7 +39,7 @@ func (p *PhidgetLightSensor) SetOnIlluminanceChangeHandler(f func(float64)) erro
 	var passthrough Passthrough
 	passthrough.f = f
 	pt := gopointer.Save(passthrough)
-	cerr := C.PhidgetLightSensor_setOnIlluminanceChangeHandler(p.handle, (C.callback_fcn)(unsafe.Pointer(C.ccallback)), pt)
+	cerr := C.PhidgetLightSensor_setOnIlluminanceChangeHandler(p.handle, (C.phidget_double_fcn)(unsafe.Pointer(C.ccallback)), pt)
 	if cerr != C.EPHIDGET_OK {
 		return p.phidgetError(cerr)
 	}

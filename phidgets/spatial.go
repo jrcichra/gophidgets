@@ -1,18 +1,8 @@
 package phidgets
 
 /*
-#cgo CFLAGS: -g -Wall
-#cgo LDFLAGS: -lphidget22
-#include <stdlib.h>
 #include <phidget22.h>
-
-// Spatial data callback: acceleration[3], angularRate[3], magneticField[3], timestamp
-typedef void (*spatial_callback_fcn)(void* handle, void* ctx, const double accel[3], const double angularRate[3], const double magneticField[3], double timestamp);
-void cspatialcallback(void* handle, void* ctx, const double accel[3], const double angularRate[3], const double magneticField[3], double timestamp);  // Forward declaration.
-
-// Algorithm data callback: quaternion[4], timestamp
-typedef void (*quaternion_callback_fcn)(void* handle, void* ctx, const double quaternion[4], double timestamp);
-void cquaternioncallback(void* handle, void* ctx, const double quaternion[4], double timestamp);  // Forward declaration.
+#include "phidgets.h"
 */
 import "C"
 import (
@@ -101,7 +91,7 @@ func (p *PhidgetSpatial) SetOnSpatialDataHandler(f func([]float64, []float64, []
 	pt.f = f
 	ctx := gopointer.Save(pt)
 	return p.phidgetError(C.PhidgetSpatial_setOnSpatialDataHandler(
-		p.handle, (C.spatial_callback_fcn)(unsafe.Pointer(C.cspatialcallback)), ctx))
+		p.handle, (C.phidget_spatial_fcn)(unsafe.Pointer(C.cspatialcallback)), ctx))
 }
 
 // SetOnAlgorithmDataHandler sets a callback that fires on each orientation algorithm update.
@@ -111,7 +101,7 @@ func (p *PhidgetSpatial) SetOnAlgorithmDataHandler(f func([]float64, float64)) e
 	pt.f = f
 	ctx := gopointer.Save(pt)
 	return p.phidgetError(C.PhidgetSpatial_setOnAlgorithmDataHandler(
-		p.handle, (C.quaternion_callback_fcn)(unsafe.Pointer(C.cquaternioncallback)), ctx))
+		p.handle, (C.phidget_quaternion_fcn)(unsafe.Pointer(C.cquaternioncallback)), ctx))
 }
 
 // Close closes the handle and deletes it

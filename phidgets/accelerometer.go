@@ -1,12 +1,8 @@
 package phidgets
 
 /*
-#cgo CFLAGS: -g -Wall
-#cgo LDFLAGS: -lphidget22
-#include <stdlib.h>
 #include <phidget22.h>
-typedef void (*callback_fcn)(void* handle, void* ctx, const double acceleration[3], double timestamp);
-void cmotioncallback(void* handle, void* ctx, const double acceleration[3], double timestamp);  // Forward declaration.
+#include "phidgets.h"
 */
 import "C"
 import (
@@ -146,7 +142,7 @@ func (p *PhidgetAccelerometer) SetOnAccelerationChangeHandler(f func([]float64, 
 	var passthrough MotionPassthrough
 	passthrough.f = f
 	pt := gopointer.Save(passthrough)
-	cerr := C.PhidgetAccelerometer_setOnAccelerationChangeHandler(p.handle, (C.callback_fcn)(unsafe.Pointer(C.cmotioncallback)), pt)
+	cerr := C.PhidgetAccelerometer_setOnAccelerationChangeHandler(p.handle, (C.phidget_motion_fcn)(unsafe.Pointer(C.cmotioncallback)), pt)
 	if cerr != C.EPHIDGET_OK {
 		return p.phidgetError(cerr)
 	}

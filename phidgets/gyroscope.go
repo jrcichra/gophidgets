@@ -1,12 +1,8 @@
 package phidgets
 
 /*
-#cgo CFLAGS: -g -Wall
-#cgo LDFLAGS: -lphidget22
-#include <stdlib.h>
 #include <phidget22.h>
-typedef void (*callback_fcn)(void* handle, void* ctx, const double angularRate[3], double timestamp);
-void cmotioncallback(void* handle, void* ctx, const double angularRate[3], double timestamp);  // Forward declaration.
+#include "phidgets.h"
 */
 import "C"
 import (
@@ -112,7 +108,7 @@ func (p *PhidgetGyroscope) SetOnAngularRateUpdateHandler(f func([]float64, float
 	pt.f = f
 	ctx := gopointer.Save(pt)
 	return p.phidgetError(C.PhidgetGyroscope_setOnAngularRateUpdateHandler(
-		p.handle, (C.callback_fcn)(unsafe.Pointer(C.cmotioncallback)), ctx))
+		p.handle, (C.phidget_motion_fcn)(unsafe.Pointer(C.cmotioncallback)), ctx))
 }
 
 // Close closes the handle and deletes it

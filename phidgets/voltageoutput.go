@@ -1,9 +1,6 @@
 package phidgets
 
 /*
-#cgo CFLAGS: -g -Wall
-#cgo LDFLAGS: -lphidget22
-#include <stdlib.h>
 #include <phidget22.h>
 */
 import "C"

@@ -1,10 +1,9 @@
 package phidgets
 
 /*
-#cgo CFLAGS: -I . -g -Wall
-#cgo LDFLAGS: -L .
 #include <stdlib.h>
 #include <phidget22.h>
+#include "phidgets.h"
 
 // Single float64 callback
 void callback(void*, void*, double);
@@ -20,13 +19,13 @@ void csoundcallback(void* handle, void* ctx, double dB, double dBA, double dBC, 
 
 // Motion callback: 3-element double array + timestamp (accelerometer, gyroscope, magnetometer)
 void motioncallback(void*, void*, double*, double);
-void cmotioncallback(void* handle, void* ctx, const double arr[3], double timestamp) {
+void cmotioncallback(void* handle, void* ctx, const double* arr, double timestamp) {
   motioncallback(handle, ctx, (double*)arr, timestamp);
 }
 
 // Quaternion callback: 4-element double array + timestamp (spatial algorithm)
 void quaternioncallback(void*, void*, double*, double);
-void cquaternioncallback(void* handle, void* ctx, const double arr[4], double timestamp) {
+void cquaternioncallback(void* handle, void* ctx, const double* arr, double timestamp) {
   quaternioncallback(handle, ctx, (double*)arr, timestamp);
 }
 
@@ -62,7 +61,7 @@ void cthreefloatcallback(void* handle, void* ctx, double a, double b, double c) 
 
 // Spatial data callback: three 3-element arrays + timestamp
 void spatialcallback(void*, void*, double*, double*, double*, double);
-void cspatialcallback(void* handle, void* ctx, const double accel[3], const double angularRate[3], const double magneticField[3], double timestamp) {
+void cspatialcallback(void* handle, void* ctx, const double* accel, const double* angularRate, const double* magneticField, double timestamp) {
   spatialcallback(handle, ctx, (double*)accel, (double*)angularRate, (double*)magneticField, timestamp);
 }
 

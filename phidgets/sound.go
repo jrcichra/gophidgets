@@ -1,12 +1,8 @@
 package phidgets
 
 /*
-#cgo CFLAGS: -g -Wall
-#cgo LDFLAGS: -lphidget22
-#include <stdlib.h>
 #include <phidget22.h>
-typedef void (*sound_callback_fcn)(void* handle, void* ctx, double dB, double dBA, double dBC, const double octaves[10]);
-void csoundcallback(void* handle, void* ctx, double dB, double dBA, double dBC, const double octaves[10]);  // Forward declaration.
+#include "phidgets.h"
 */
 import "C"
 import (
@@ -48,7 +44,7 @@ func (p *PhidgetSoundSensor) SetOnSPLChangeHandler(f func(float64, float64, floa
 	var passthrough SoundPassthrough
 	passthrough.f = f
 	pt := gopointer.Save(passthrough)
-	cerr := C.PhidgetSoundSensor_setOnSPLChangeHandler(p.handle, (C.sound_callback_fcn)(unsafe.Pointer(C.csoundcallback)), pt)
+	cerr := C.PhidgetSoundSensor_setOnSPLChangeHandler(p.handle, (C.phidget_sound_fcn)(unsafe.Pointer(C.csoundcallback)), pt)
 	if cerr != C.EPHIDGET_OK {
 		return p.phidgetError(cerr)
 	}

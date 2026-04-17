@@ -1,9 +1,6 @@
 package phidgets
 
 /*
-#cgo CFLAGS: -g -Wall
-#cgo LDFLAGS: -lphidget22
-#include <stdlib.h>
 #include <phidget22.h>
 typedef void (*attach_fcn)(PhidgetManagerHandle man, void *ctx, PhidgetHandle channel);
 void cattach_callback(PhidgetManagerHandle man, void *ctx, PhidgetHandle channel);

@@ -1,14 +1,8 @@
 package phidgets
 
 /*
-#cgo CFLAGS: -g -Wall
-#cgo LDFLAGS: -lphidget22
-#include <stdlib.h>
 #include <phidget22.h>
-typedef void (*callback_fcn)(void* handle, void* ctx, double value);
-void ccallback(void* handle, void* ctx, double value);  // Forward declaration.
-typedef void (*void_callback_fcn)(void* handle, void* ctx);
-void cvoidcallback(void* handle, void* ctx);  // Forward declaration.
+#include "phidgets.h"
 */
 import "C"
 import (
@@ -95,7 +89,7 @@ func (p *PhidgetCapacitiveTouch) SetOnTouchHandler(f func(float64)) error {
 	pt.f = f
 	ctx := gopointer.Save(pt)
 	return p.phidgetError(C.PhidgetCapacitiveTouch_setOnTouchHandler(
-		p.handle, (C.callback_fcn)(unsafe.Pointer(C.ccallback)), ctx))
+		p.handle, (C.phidget_double_fcn)(unsafe.Pointer(C.ccallback)), ctx))
 }
 
 // SetOnTouchEndHandler sets a callback that fires when touch ends
@@ -104,7 +98,7 @@ func (p *PhidgetCapacitiveTouch) SetOnTouchEndHandler(f func()) error {
 	pt.f = f
 	ctx := gopointer.Save(pt)
 	return p.phidgetError(C.PhidgetCapacitiveTouch_setOnTouchEndHandler(
-		p.handle, (C.void_callback_fcn)(unsafe.Pointer(C.cvoidcallback)), ctx))
+		p.handle, (C.phidget_void_fcn)(unsafe.Pointer(C.cvoidcallback)), ctx))
 }
 
 // Close closes the handle and deletes it

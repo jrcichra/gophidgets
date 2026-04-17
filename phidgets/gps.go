@@ -1,16 +1,8 @@
 package phidgets
 
 /*
-#cgo CFLAGS: -g -Wall
-#cgo LDFLAGS: -lphidget22
-#include <stdlib.h>
 #include <phidget22.h>
-typedef void (*callback_fcn)(void* handle, void* ctx, double value);
-void ccallback(void* handle, void* ctx, double value);  // Forward declaration.
-typedef void (*twofloat_callback_fcn)(void* handle, void* ctx, double a, double b);
-void ctwofloatcallback(void* handle, void* ctx, double a, double b);  // Forward declaration.
-typedef void (*threefloat_callback_fcn)(void* handle, void* ctx, double a, double b, double c);
-void cthreefloatcallback(void* handle, void* ctx, double a, double b, double c);  // Forward declaration.
+#include "phidgets.h"
 */
 import "C"
 import (
@@ -92,7 +84,7 @@ func (p *PhidgetGPS) SetOnPositionChangeHandler(f func(float64, float64, float64
 	pt.f = f
 	ctx := gopointer.Save(pt)
 	return p.phidgetError(C.PhidgetGPS_setOnPositionChangeHandler(
-		p.handle, (C.threefloat_callback_fcn)(unsafe.Pointer(C.cthreefloatcallback)), ctx))
+		p.handle, (C.phidget_threefloat_fcn)(unsafe.Pointer(C.cthreefloatcallback)), ctx))
 }
 
 // SetOnHeadingChangeHandler sets a callback that fires when the heading or velocity changes.
@@ -102,7 +94,7 @@ func (p *PhidgetGPS) SetOnHeadingChangeHandler(f func(float64, float64)) error {
 	pt.f = f
 	ctx := gopointer.Save(pt)
 	return p.phidgetError(C.PhidgetGPS_setOnHeadingChangeHandler(
-		p.handle, (C.twofloat_callback_fcn)(unsafe.Pointer(C.ctwofloatcallback)), ctx))
+		p.handle, (C.phidget_twofloat_fcn)(unsafe.Pointer(C.ctwofloatcallback)), ctx))
 }
 
 // SetOnPositionFixStateChangeHandler sets a callback that fires when the fix state changes.
@@ -112,7 +104,7 @@ func (p *PhidgetGPS) SetOnPositionFixStateChangeHandler(f func(float64)) error {
 	pt.f = f
 	ctx := gopointer.Save(pt)
 	return p.phidgetError(C.PhidgetGPS_setOnPositionFixStateChangeHandler(
-		p.handle, (C.callback_fcn)(unsafe.Pointer(C.ccallback)), ctx))
+		p.handle, (C.phidget_double_fcn)(unsafe.Pointer(C.ccallback)), ctx))
 }
 
 // Close closes the handle and deletes it

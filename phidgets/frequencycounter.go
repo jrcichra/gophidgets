@@ -1,14 +1,8 @@
 package phidgets
 
 /*
-#cgo CFLAGS: -g -Wall
-#cgo LDFLAGS: -lphidget22
-#include <stdlib.h>
 #include <phidget22.h>
-typedef void (*callback_fcn)(void* handle, void* ctx, double value);
-void ccallback(void* handle, void* ctx, double value);  // Forward declaration.
-typedef void (*count_callback_fcn)(void* handle, void* ctx, uint64_t counts, double timeChange);
-void ccountcallback(void* handle, void* ctx, uint64_t counts, double timeChange);  // Forward declaration.
+#include "phidgets.h"
 */
 import "C"
 import (
@@ -118,7 +112,7 @@ func (p *PhidgetFrequencyCounter) SetOnFrequencyChangeHandler(f func(float64)) e
 	pt.f = f
 	ctx := gopointer.Save(pt)
 	return p.phidgetError(C.PhidgetFrequencyCounter_setOnFrequencyChangeHandler(
-		p.handle, (C.callback_fcn)(unsafe.Pointer(C.ccallback)), ctx))
+		p.handle, (C.phidget_double_fcn)(unsafe.Pointer(C.ccallback)), ctx))
 }
 
 // SetOnCountChangeHandler sets a callback that fires when new pulses are counted.
@@ -128,7 +122,7 @@ func (p *PhidgetFrequencyCounter) SetOnCountChangeHandler(f func(uint64, float64
 	pt.f = f
 	ctx := gopointer.Save(pt)
 	return p.phidgetError(C.PhidgetFrequencyCounter_setOnCountChangeHandler(
-		p.handle, (C.count_callback_fcn)(unsafe.Pointer(C.ccountcallback)), ctx))
+		p.handle, (C.phidget_count_fcn)(unsafe.Pointer(C.ccountcallback)), ctx))
 }
 
 // Close closes the handle and deletes it

@@ -1,14 +1,7 @@
 package phidgets
 
 /*
-#cgo CFLAGS: -g -Wall
-#cgo LDFLAGS: -lphidget22
-#include <stdlib.h>
 #include <phidget22.h>
-typedef void (*distance_callback_fcn)(void* handle, void* ctx, uint32_t distance);
-void cdistancecallback(void* handle, void* ctx, uint32_t distance);  // Forward declaration.
-typedef void (*reflection_callback_fcn)(void* handle, void* ctx, const uint32_t distances[8], const uint32_t amplitudes[8], uint32_t count);
-void creflectioncallback(void* handle, void* ctx, const uint32_t distances[8], const uint32_t amplitudes[8], uint32_t count);  // Forward declaration.
 */
 import "C"
 import (

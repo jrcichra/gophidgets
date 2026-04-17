@@ -1,12 +1,8 @@
 package phidgets
 
 /*
-#cgo CFLAGS: -g -Wall
-#cgo LDFLAGS: -lphidget22
-#include <stdlib.h>
 #include <phidget22.h>
-typedef void (*callback_fcn)(void* handle, void* ctx, double value);
-void ccallback(void* handle, void* ctx, double value);  // Forward declaration.
+#include "phidgets.h"
 */
 import "C"
 import (
@@ -162,7 +158,7 @@ func (p *PhidgetBLDCMotor) SetOnVelocityUpdateHandler(f func(float64)) error {
 	pt.f = f
 	ctx := gopointer.Save(pt)
 	return p.phidgetError(C.PhidgetBLDCMotor_setOnVelocityUpdateHandler(
-		p.handle, (C.callback_fcn)(unsafe.Pointer(C.ccallback)), ctx))
+		p.handle, (C.phidget_double_fcn)(unsafe.Pointer(C.ccallback)), ctx))
 }
 
 // SetOnPositionChangeHandler sets a callback that fires when the position changes
@@ -171,7 +167,7 @@ func (p *PhidgetBLDCMotor) SetOnPositionChangeHandler(f func(float64)) error {
 	pt.f = f
 	ctx := gopointer.Save(pt)
 	return p.phidgetError(C.PhidgetBLDCMotor_setOnPositionChangeHandler(
-		p.handle, (C.callback_fcn)(unsafe.Pointer(C.ccallback)), ctx))
+		p.handle, (C.phidget_double_fcn)(unsafe.Pointer(C.ccallback)), ctx))
 }
 
 // SetOnBrakingStrengthChangeHandler sets a callback that fires when braking strength changes
@@ -180,7 +176,7 @@ func (p *PhidgetBLDCMotor) SetOnBrakingStrengthChangeHandler(f func(float64)) er
 	pt.f = f
 	ctx := gopointer.Save(pt)
 	return p.phidgetError(C.PhidgetBLDCMotor_setOnBrakingStrengthChangeHandler(
-		p.handle, (C.callback_fcn)(unsafe.Pointer(C.ccallback)), ctx))
+		p.handle, (C.phidget_double_fcn)(unsafe.Pointer(C.ccallback)), ctx))
 }
 
 // Close closes the handle and deletes it

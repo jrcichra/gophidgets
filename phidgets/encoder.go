@@ -1,12 +1,8 @@
 package phidgets
 
 /*
-#cgo CFLAGS: -g -Wall
-#cgo LDFLAGS: -lphidget22
-#include <stdlib.h>
 #include <phidget22.h>
-typedef void (*encoder_callback_fcn)(void* handle, void* ctx, int positionChange, double timeChange, int indexTriggered);
-void cencodercallback(void* handle, void* ctx, int positionChange, double timeChange, int indexTriggered);  // Forward declaration.
+#include "phidgets.h"
 */
 import "C"
 import (
@@ -99,7 +95,7 @@ func (p *PhidgetEncoder) SetOnPositionChangeHandler(f func(int, float64, bool)) 
 	pt.f = f
 	ctx := gopointer.Save(pt)
 	return p.phidgetError(C.PhidgetEncoder_setOnPositionChangeHandler(
-		p.handle, (C.encoder_callback_fcn)(unsafe.Pointer(C.cencodercallback)), ctx))
+		p.handle, (C.phidget_encoder_fcn)(unsafe.Pointer(C.cencodercallback)), ctx))
 }
 
 // Close closes the handle and deletes it

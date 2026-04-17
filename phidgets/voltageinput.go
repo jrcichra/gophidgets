@@ -1,12 +1,8 @@
 package phidgets
 
 /*
-#cgo CFLAGS: -g -Wall
-#cgo LDFLAGS: -lphidget22
-#include <stdlib.h>
 #include <phidget22.h>
-typedef void (*callback_fcn)(void* handle, void* ctx, double b);
-void ccallback(void* handle, void* ctx, double b);  // Forward declaration.
+#include "phidgets.h"
 */
 import "C"
 import (
@@ -92,7 +88,7 @@ func (p *PhidgetVoltageInput) SetOnVoltageChangeHandler(f func(float64)) error {
 	var passthrough Passthrough
 	passthrough.f = f
 	pt := gopointer.Save(passthrough)
-	cerr := C.PhidgetVoltageInput_setOnVoltageChangeHandler(p.handle, (C.callback_fcn)(unsafe.Pointer(C.ccallback)), pt)
+	cerr := C.PhidgetVoltageInput_setOnVoltageChangeHandler(p.handle, (C.phidget_double_fcn)(unsafe.Pointer(C.ccallback)), pt)
 	if cerr != C.EPHIDGET_OK {
 		return p.phidgetError(cerr)
 	}

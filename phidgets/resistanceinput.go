@@ -1,12 +1,8 @@
 package phidgets
 
 /*
-#cgo CFLAGS: -g -Wall
-#cgo LDFLAGS: -lphidget22
-#include <stdlib.h>
 #include <phidget22.h>
-typedef void (*callback_fcn)(void* handle, void* ctx, double value);
-void ccallback(void* handle, void* ctx, double value);  // Forward declaration.
+#include "phidgets.h"
 */
 import "C"
 import (
@@ -88,7 +84,7 @@ func (p *PhidgetResistanceInput) SetOnResistanceChangeHandler(f func(float64)) e
 	pt.f = f
 	ctx := gopointer.Save(pt)
 	return p.phidgetError(C.PhidgetResistanceInput_setOnResistanceChangeHandler(
-		p.handle, (C.callback_fcn)(unsafe.Pointer(C.ccallback)), ctx))
+		p.handle, (C.phidget_double_fcn)(unsafe.Pointer(C.ccallback)), ctx))
 }
 
 // Close closes the handle and deletes it
