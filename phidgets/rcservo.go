@@ -30,38 +30,22 @@ func (p *PhidgetRCServo) SetTargetPosition(degrees float64) error {
 
 // GetTargetPosition returns the currently set target position
 func (p *PhidgetRCServo) GetTargetPosition() (float64, error) {
-	var r C.double
-	if cerr := C.PhidgetRCServo_getTargetPosition(p.handle, &r); cerr != C.EPHIDGET_OK {
-		return 0, p.phidgetError(cerr)
-	}
-	return float64(r), nil
+	return getDouble(&p.phidget, func(r *C.double) C.PhidgetReturnCode { return C.PhidgetRCServo_getTargetPosition(p.handle, r) })
 }
 
 // GetPosition returns the current servo position in degrees
 func (p *PhidgetRCServo) GetPosition() (float64, error) {
-	var r C.double
-	if cerr := C.PhidgetRCServo_getPosition(p.handle, &r); cerr != C.EPHIDGET_OK {
-		return 0, p.phidgetError(cerr)
-	}
-	return float64(r), nil
+	return getDouble(&p.phidget, func(r *C.double) C.PhidgetReturnCode { return C.PhidgetRCServo_getPosition(p.handle, r) })
 }
 
 // GetMinPosition returns the minimum position limit
 func (p *PhidgetRCServo) GetMinPosition() (float64, error) {
-	var r C.double
-	if cerr := C.PhidgetRCServo_getMinPosition(p.handle, &r); cerr != C.EPHIDGET_OK {
-		return 0, p.phidgetError(cerr)
-	}
-	return float64(r), nil
+	return getDouble(&p.phidget, func(r *C.double) C.PhidgetReturnCode { return C.PhidgetRCServo_getMinPosition(p.handle, r) })
 }
 
 // GetMaxPosition returns the maximum position limit
 func (p *PhidgetRCServo) GetMaxPosition() (float64, error) {
-	var r C.double
-	if cerr := C.PhidgetRCServo_getMaxPosition(p.handle, &r); cerr != C.EPHIDGET_OK {
-		return 0, p.phidgetError(cerr)
-	}
-	return float64(r), nil
+	return getDouble(&p.phidget, func(r *C.double) C.PhidgetReturnCode { return C.PhidgetRCServo_getMaxPosition(p.handle, r) })
 }
 
 // SetMinPosition overrides the minimum position limit
@@ -81,20 +65,12 @@ func (p *PhidgetRCServo) SetEngaged(engaged bool) error {
 
 // GetEngaged returns whether the servo is engaged
 func (p *PhidgetRCServo) GetEngaged() (bool, error) {
-	var r C.int
-	if cerr := C.PhidgetRCServo_getEngaged(p.handle, &r); cerr != C.EPHIDGET_OK {
-		return false, p.phidgetError(cerr)
-	}
-	return r != 0, nil
+	return getBool(&p.phidget, func(r *C.int) C.PhidgetReturnCode { return C.PhidgetRCServo_getEngaged(p.handle, r) })
 }
 
 // GetIsMoving returns whether the servo is currently moving
 func (p *PhidgetRCServo) GetIsMoving() (bool, error) {
-	var r C.int
-	if cerr := C.PhidgetRCServo_getIsMoving(p.handle, &r); cerr != C.EPHIDGET_OK {
-		return false, p.phidgetError(cerr)
-	}
-	return r != 0, nil
+	return getBool(&p.phidget, func(r *C.int) C.PhidgetReturnCode { return C.PhidgetRCServo_getIsMoving(p.handle, r) })
 }
 
 // SetAcceleration sets the servo acceleration in degrees/s²
@@ -104,11 +80,7 @@ func (p *PhidgetRCServo) SetAcceleration(accel float64) error {
 
 // GetAcceleration returns the current acceleration setting
 func (p *PhidgetRCServo) GetAcceleration() (float64, error) {
-	var r C.double
-	if cerr := C.PhidgetRCServo_getAcceleration(p.handle, &r); cerr != C.EPHIDGET_OK {
-		return 0, p.phidgetError(cerr)
-	}
-	return float64(r), nil
+	return getDouble(&p.phidget, func(r *C.double) C.PhidgetReturnCode { return C.PhidgetRCServo_getAcceleration(p.handle, r) })
 }
 
 // SetVelocityLimit sets the maximum velocity in degrees/s
@@ -118,20 +90,12 @@ func (p *PhidgetRCServo) SetVelocityLimit(limit float64) error {
 
 // GetVelocityLimit returns the velocity limit
 func (p *PhidgetRCServo) GetVelocityLimit() (float64, error) {
-	var r C.double
-	if cerr := C.PhidgetRCServo_getVelocityLimit(p.handle, &r); cerr != C.EPHIDGET_OK {
-		return 0, p.phidgetError(cerr)
-	}
-	return float64(r), nil
+	return getDouble(&p.phidget, func(r *C.double) C.PhidgetReturnCode { return C.PhidgetRCServo_getVelocityLimit(p.handle, r) })
 }
 
 // GetVelocity returns the current servo velocity in degrees/s
 func (p *PhidgetRCServo) GetVelocity() (float64, error) {
-	var r C.double
-	if cerr := C.PhidgetRCServo_getVelocity(p.handle, &r); cerr != C.EPHIDGET_OK {
-		return 0, p.phidgetError(cerr)
-	}
-	return float64(r), nil
+	return getDouble(&p.phidget, func(r *C.double) C.PhidgetReturnCode { return C.PhidgetRCServo_getVelocity(p.handle, r) })
 }
 
 // SetTorque sets the torque limit (0.0–1.0)
@@ -141,11 +105,7 @@ func (p *PhidgetRCServo) SetTorque(torque float64) error {
 
 // GetTorque returns the torque limit
 func (p *PhidgetRCServo) GetTorque() (float64, error) {
-	var r C.double
-	if cerr := C.PhidgetRCServo_getTorque(p.handle, &r); cerr != C.EPHIDGET_OK {
-		return 0, p.phidgetError(cerr)
-	}
-	return float64(r), nil
+	return getDouble(&p.phidget, func(r *C.double) C.PhidgetReturnCode { return C.PhidgetRCServo_getTorque(p.handle, r) })
 }
 
 // SetSpeedRampingState enables or disables speed ramping
@@ -160,27 +120,21 @@ func (p *PhidgetRCServo) SetDataInterval(ms uint32) error {
 
 // SetOnPositionChangeHandler sets a callback that fires when the position changes
 func (p *PhidgetRCServo) SetOnPositionChangeHandler(f func(float64)) error {
-	var pt Passthrough
-	pt.f = f
-	ctx := gopointer.Save(pt)
+	ctx := gopointer.Save(Passthrough{f})
 	return p.phidgetError(C.PhidgetRCServo_setOnPositionChangeHandler(
 		p.handle, (C.phidget_double_fcn)(unsafe.Pointer(C.ccallback)), ctx))
 }
 
 // SetOnVelocityChangeHandler sets a callback that fires when the velocity changes
 func (p *PhidgetRCServo) SetOnVelocityChangeHandler(f func(float64)) error {
-	var pt Passthrough
-	pt.f = f
-	ctx := gopointer.Save(pt)
+	ctx := gopointer.Save(Passthrough{f})
 	return p.phidgetError(C.PhidgetRCServo_setOnVelocityChangeHandler(
 		p.handle, (C.phidget_double_fcn)(unsafe.Pointer(C.ccallback)), ctx))
 }
 
 // SetOnTargetPositionReachedHandler sets a callback that fires when the target position is reached
 func (p *PhidgetRCServo) SetOnTargetPositionReachedHandler(f func(float64)) error {
-	var pt Passthrough
-	pt.f = f
-	ctx := gopointer.Save(pt)
+	ctx := gopointer.Save(Passthrough{f})
 	return p.phidgetError(C.PhidgetRCServo_setOnTargetPositionReachedHandler(
 		p.handle, (C.phidget_double_fcn)(unsafe.Pointer(C.ccallback)), ctx))
 }

@@ -25,20 +25,12 @@ func (p *PhidgetFrequencyCounter) Create() {
 
 // GetFrequency returns the measured frequency in Hz
 func (p *PhidgetFrequencyCounter) GetFrequency() (float64, error) {
-	var r C.double
-	if cerr := C.PhidgetFrequencyCounter_getFrequency(p.handle, &r); cerr != C.EPHIDGET_OK {
-		return 0, p.phidgetError(cerr)
-	}
-	return float64(r), nil
+	return getDouble(&p.phidget, func(r *C.double) C.PhidgetReturnCode { return C.PhidgetFrequencyCounter_getFrequency(p.handle, r) })
 }
 
 // GetMaxFrequency returns the maximum measurable frequency
 func (p *PhidgetFrequencyCounter) GetMaxFrequency() (float64, error) {
-	var r C.double
-	if cerr := C.PhidgetFrequencyCounter_getMaxFrequency(p.handle, &r); cerr != C.EPHIDGET_OK {
-		return 0, p.phidgetError(cerr)
-	}
-	return float64(r), nil
+	return getDouble(&p.phidget, func(r *C.double) C.PhidgetReturnCode { return C.PhidgetFrequencyCounter_getMaxFrequency(p.handle, r) })
 }
 
 // GetCount returns the total number of pulses counted since the last reset
@@ -52,11 +44,7 @@ func (p *PhidgetFrequencyCounter) GetCount() (uint64, error) {
 
 // GetTimeElapsed returns the time elapsed since the last reset in seconds
 func (p *PhidgetFrequencyCounter) GetTimeElapsed() (float64, error) {
-	var r C.double
-	if cerr := C.PhidgetFrequencyCounter_getTimeElapsed(p.handle, &r); cerr != C.EPHIDGET_OK {
-		return 0, p.phidgetError(cerr)
-	}
-	return float64(r), nil
+	return getDouble(&p.phidget, func(r *C.double) C.PhidgetReturnCode { return C.PhidgetFrequencyCounter_getTimeElapsed(p.handle, r) })
 }
 
 // Reset resets the count and elapsed time to zero
@@ -71,11 +59,7 @@ func (p *PhidgetFrequencyCounter) SetEnabled(enabled bool) error {
 
 // GetEnabled returns whether counting is enabled
 func (p *PhidgetFrequencyCounter) GetEnabled() (bool, error) {
-	var r C.int
-	if cerr := C.PhidgetFrequencyCounter_getEnabled(p.handle, &r); cerr != C.EPHIDGET_OK {
-		return false, p.phidgetError(cerr)
-	}
-	return r != 0, nil
+	return getBool(&p.phidget, func(r *C.int) C.PhidgetReturnCode { return C.PhidgetFrequencyCounter_getEnabled(p.handle, r) })
 }
 
 // SetFrequencyCutoff sets the frequency below which the output is reported as zero
@@ -85,11 +69,9 @@ func (p *PhidgetFrequencyCounter) SetFrequencyCutoff(hz float64) error {
 
 // GetFrequencyCutoff returns the current frequency cutoff
 func (p *PhidgetFrequencyCounter) GetFrequencyCutoff() (float64, error) {
-	var r C.double
-	if cerr := C.PhidgetFrequencyCounter_getFrequencyCutoff(p.handle, &r); cerr != C.EPHIDGET_OK {
-		return 0, p.phidgetError(cerr)
-	}
-	return float64(r), nil
+	return getDouble(&p.phidget, func(r *C.double) C.PhidgetReturnCode {
+		return C.PhidgetFrequencyCounter_getFrequencyCutoff(p.handle, r)
+	})
 }
 
 // SetDataInterval sets the data interval in milliseconds
@@ -99,18 +81,12 @@ func (p *PhidgetFrequencyCounter) SetDataInterval(ms uint32) error {
 
 // GetDataInterval returns the current data interval in milliseconds
 func (p *PhidgetFrequencyCounter) GetDataInterval() (uint32, error) {
-	var r C.uint32_t
-	if cerr := C.PhidgetFrequencyCounter_getDataInterval(p.handle, &r); cerr != C.EPHIDGET_OK {
-		return 0, p.phidgetError(cerr)
-	}
-	return uint32(r), nil
+	return getUint32(&p.phidget, func(r *C.uint32_t) C.PhidgetReturnCode { return C.PhidgetFrequencyCounter_getDataInterval(p.handle, r) })
 }
 
 // SetOnFrequencyChangeHandler sets a callback that fires when the measured frequency changes
 func (p *PhidgetFrequencyCounter) SetOnFrequencyChangeHandler(f func(float64)) error {
-	var pt Passthrough
-	pt.f = f
-	ctx := gopointer.Save(pt)
+	ctx := gopointer.Save(Passthrough{f})
 	return p.phidgetError(C.PhidgetFrequencyCounter_setOnFrequencyChangeHandler(
 		p.handle, (C.phidget_double_fcn)(unsafe.Pointer(C.ccallback)), ctx))
 }
@@ -118,9 +94,7 @@ func (p *PhidgetFrequencyCounter) SetOnFrequencyChangeHandler(f func(float64)) e
 // SetOnCountChangeHandler sets a callback that fires when new pulses are counted.
 // The callback receives: counts (new pulses in this interval), timeChange (seconds).
 func (p *PhidgetFrequencyCounter) SetOnCountChangeHandler(f func(uint64, float64)) error {
-	var pt CountPassthrough
-	pt.f = f
-	ctx := gopointer.Save(pt)
+	ctx := gopointer.Save(f)
 	return p.phidgetError(C.PhidgetFrequencyCounter_setOnCountChangeHandler(
 		p.handle, (C.phidget_count_fcn)(unsafe.Pointer(C.ccountcallback)), ctx))
 }

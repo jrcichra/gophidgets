@@ -53,11 +53,7 @@ func (p *PhidgetEncoder) SetEnabled(enabled bool) error {
 
 // GetEnabled returns whether the encoder is enabled
 func (p *PhidgetEncoder) GetEnabled() (bool, error) {
-	var r C.int
-	if cerr := C.PhidgetEncoder_getEnabled(p.handle, &r); cerr != C.EPHIDGET_OK {
-		return false, p.phidgetError(cerr)
-	}
-	return r != 0, nil
+	return getBool(&p.phidget, func(r *C.int) C.PhidgetReturnCode { return C.PhidgetEncoder_getEnabled(p.handle, r) })
 }
 
 // SetPositionChangeTrigger sets the number of position ticks that must change before the callback fires
@@ -67,11 +63,7 @@ func (p *PhidgetEncoder) SetPositionChangeTrigger(trigger uint32) error {
 
 // GetPositionChangeTrigger returns the current position change trigger
 func (p *PhidgetEncoder) GetPositionChangeTrigger() (uint32, error) {
-	var r C.uint32_t
-	if cerr := C.PhidgetEncoder_getPositionChangeTrigger(p.handle, &r); cerr != C.EPHIDGET_OK {
-		return 0, p.phidgetError(cerr)
-	}
-	return uint32(r), nil
+	return getUint32(&p.phidget, func(r *C.uint32_t) C.PhidgetReturnCode { return C.PhidgetEncoder_getPositionChangeTrigger(p.handle, r) })
 }
 
 // SetDataInterval sets the data interval in milliseconds
@@ -81,19 +73,13 @@ func (p *PhidgetEncoder) SetDataInterval(ms uint32) error {
 
 // GetDataInterval returns the current data interval in milliseconds
 func (p *PhidgetEncoder) GetDataInterval() (uint32, error) {
-	var r C.uint32_t
-	if cerr := C.PhidgetEncoder_getDataInterval(p.handle, &r); cerr != C.EPHIDGET_OK {
-		return 0, p.phidgetError(cerr)
-	}
-	return uint32(r), nil
+	return getUint32(&p.phidget, func(r *C.uint32_t) C.PhidgetReturnCode { return C.PhidgetEncoder_getDataInterval(p.handle, r) })
 }
 
 // SetOnPositionChangeHandler sets a callback that fires on position change events.
 // The callback receives: positionChange (ticks since last event), timeChange (seconds), indexTriggered.
 func (p *PhidgetEncoder) SetOnPositionChangeHandler(f func(int, float64, bool)) error {
-	var pt EncoderPassthrough
-	pt.f = f
-	ctx := gopointer.Save(pt)
+	ctx := gopointer.Save(f)
 	return p.phidgetError(C.PhidgetEncoder_setOnPositionChangeHandler(
 		p.handle, (C.phidget_encoder_fcn)(unsafe.Pointer(C.cencodercallback)), ctx))
 }

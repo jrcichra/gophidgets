@@ -27,29 +27,17 @@ func (p *PhidgetVoltageOutput) SetVoltage(voltage float64) error {
 
 // GetVoltage returns the current output voltage setting
 func (p *PhidgetVoltageOutput) GetVoltage() (float64, error) {
-	var r C.double
-	if cerr := C.PhidgetVoltageOutput_getVoltage(p.handle, &r); cerr != C.EPHIDGET_OK {
-		return 0, p.phidgetError(cerr)
-	}
-	return float64(r), nil
+	return getDouble(&p.phidget, func(r *C.double) C.PhidgetReturnCode { return C.PhidgetVoltageOutput_getVoltage(p.handle, r) })
 }
 
 // GetMinVoltage returns the minimum settable voltage
 func (p *PhidgetVoltageOutput) GetMinVoltage() (float64, error) {
-	var r C.double
-	if cerr := C.PhidgetVoltageOutput_getMinVoltage(p.handle, &r); cerr != C.EPHIDGET_OK {
-		return 0, p.phidgetError(cerr)
-	}
-	return float64(r), nil
+	return getDouble(&p.phidget, func(r *C.double) C.PhidgetReturnCode { return C.PhidgetVoltageOutput_getMinVoltage(p.handle, r) })
 }
 
 // GetMaxVoltage returns the maximum settable voltage
 func (p *PhidgetVoltageOutput) GetMaxVoltage() (float64, error) {
-	var r C.double
-	if cerr := C.PhidgetVoltageOutput_getMaxVoltage(p.handle, &r); cerr != C.EPHIDGET_OK {
-		return 0, p.phidgetError(cerr)
-	}
-	return float64(r), nil
+	return getDouble(&p.phidget, func(r *C.double) C.PhidgetReturnCode { return C.PhidgetVoltageOutput_getMaxVoltage(p.handle, r) })
 }
 
 // SetEnabled enables or disables the voltage output
@@ -59,11 +47,7 @@ func (p *PhidgetVoltageOutput) SetEnabled(enabled bool) error {
 
 // GetEnabled returns whether the voltage output is enabled
 func (p *PhidgetVoltageOutput) GetEnabled() (bool, error) {
-	var r C.int
-	if cerr := C.PhidgetVoltageOutput_getEnabled(p.handle, &r); cerr != C.EPHIDGET_OK {
-		return false, p.phidgetError(cerr)
-	}
-	return r != 0, nil
+	return getBool(&p.phidget, func(r *C.int) C.PhidgetReturnCode { return C.PhidgetVoltageOutput_getEnabled(p.handle, r) })
 }
 
 // SetVoltageOutputRange sets the output voltage range (use PhidgetVoltageOutput_OutputRange constants)

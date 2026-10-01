@@ -48,11 +48,7 @@ func (p *PhidgetSpatial) SetDataInterval(ms uint32) error {
 
 // GetDataInterval returns the current data interval in milliseconds
 func (p *PhidgetSpatial) GetDataInterval() (uint32, error) {
-	var r C.uint32_t
-	if cerr := C.PhidgetSpatial_getDataInterval(p.handle, &r); cerr != C.EPHIDGET_OK {
-		return 0, p.phidgetError(cerr)
-	}
-	return uint32(r), nil
+	return getUint32(&p.phidget, func(r *C.uint32_t) C.PhidgetReturnCode { return C.PhidgetSpatial_getDataInterval(p.handle, r) })
 }
 
 // SetHeatingEnabled enables or disables the internal heater for temperature stability
@@ -62,11 +58,7 @@ func (p *PhidgetSpatial) SetHeatingEnabled(enabled bool) error {
 
 // GetHeatingEnabled returns whether the internal heater is enabled
 func (p *PhidgetSpatial) GetHeatingEnabled() (bool, error) {
-	var r C.int
-	if cerr := C.PhidgetSpatial_getHeatingEnabled(p.handle, &r); cerr != C.EPHIDGET_OK {
-		return false, p.phidgetError(cerr)
-	}
-	return r != 0, nil
+	return getBool(&p.phidget, func(r *C.int) C.PhidgetReturnCode { return C.PhidgetSpatial_getHeatingEnabled(p.handle, r) })
 }
 
 // ZeroGyro zeroes the gyroscope. The sensor must be stationary.
@@ -87,9 +79,7 @@ func (p *PhidgetSpatial) SetAlgorithm(algo C.Phidget_SpatialAlgorithm) error {
 // SetOnSpatialDataHandler sets a callback that fires on each spatial data update.
 // The callback receives: acceleration [x,y,z], angularRate [x,y,z], magneticField [x,y,z], timestamp.
 func (p *PhidgetSpatial) SetOnSpatialDataHandler(f func([]float64, []float64, []float64, float64)) error {
-	var pt SpatialPassthrough
-	pt.f = f
-	ctx := gopointer.Save(pt)
+	ctx := gopointer.Save(f)
 	return p.phidgetError(C.PhidgetSpatial_setOnSpatialDataHandler(
 		p.handle, (C.phidget_spatial_fcn)(unsafe.Pointer(C.cspatialcallback)), ctx))
 }
@@ -97,9 +87,7 @@ func (p *PhidgetSpatial) SetOnSpatialDataHandler(f func([]float64, []float64, []
 // SetOnAlgorithmDataHandler sets a callback that fires on each orientation algorithm update.
 // The callback receives: quaternion [w,x,y,z], timestamp.
 func (p *PhidgetSpatial) SetOnAlgorithmDataHandler(f func([]float64, float64)) error {
-	var pt MotionPassthrough
-	pt.f = f
-	ctx := gopointer.Save(pt)
+	ctx := gopointer.Save(MotionPassthrough{f})
 	return p.phidgetError(C.PhidgetSpatial_setOnAlgorithmDataHandler(
 		p.handle, (C.phidget_quaternion_fcn)(unsafe.Pointer(C.cquaternioncallback)), ctx))
 }

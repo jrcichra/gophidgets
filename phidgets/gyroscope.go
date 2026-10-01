@@ -52,20 +52,12 @@ func (p *PhidgetGyroscope) GetMaxAngularRate() ([]float64, error) {
 
 // GetAxisCount returns the number of axes
 func (p *PhidgetGyroscope) GetAxisCount() (int, error) {
-	var r C.int
-	if cerr := C.PhidgetGyroscope_getAxisCount(p.handle, &r); cerr != C.EPHIDGET_OK {
-		return 0, p.phidgetError(cerr)
-	}
-	return int(r), nil
+	return getInt(&p.phidget, func(r *C.int) C.PhidgetReturnCode { return C.PhidgetGyroscope_getAxisCount(p.handle, r) })
 }
 
 // GetTimestamp returns the timestamp of the most recent angular rate reading
 func (p *PhidgetGyroscope) GetTimestamp() (float64, error) {
-	var r C.double
-	if cerr := C.PhidgetGyroscope_getTimestamp(p.handle, &r); cerr != C.EPHIDGET_OK {
-		return 0, p.phidgetError(cerr)
-	}
-	return float64(r), nil
+	return getDouble(&p.phidget, func(r *C.double) C.PhidgetReturnCode { return C.PhidgetGyroscope_getTimestamp(p.handle, r) })
 }
 
 // SetDataInterval sets the data interval in milliseconds
@@ -75,11 +67,7 @@ func (p *PhidgetGyroscope) SetDataInterval(ms uint32) error {
 
 // GetDataInterval returns the current data interval in milliseconds
 func (p *PhidgetGyroscope) GetDataInterval() (uint32, error) {
-	var r C.uint32_t
-	if cerr := C.PhidgetGyroscope_getDataInterval(p.handle, &r); cerr != C.EPHIDGET_OK {
-		return 0, p.phidgetError(cerr)
-	}
-	return uint32(r), nil
+	return getUint32(&p.phidget, func(r *C.uint32_t) C.PhidgetReturnCode { return C.PhidgetGyroscope_getDataInterval(p.handle, r) })
 }
 
 // SetHeatingEnabled enables or disables the internal heater for temperature stability
@@ -89,11 +77,7 @@ func (p *PhidgetGyroscope) SetHeatingEnabled(enabled bool) error {
 
 // GetHeatingEnabled returns whether the internal heater is enabled
 func (p *PhidgetGyroscope) GetHeatingEnabled() (bool, error) {
-	var r C.int
-	if cerr := C.PhidgetGyroscope_getHeatingEnabled(p.handle, &r); cerr != C.EPHIDGET_OK {
-		return false, p.phidgetError(cerr)
-	}
-	return r != 0, nil
+	return getBool(&p.phidget, func(r *C.int) C.PhidgetReturnCode { return C.PhidgetGyroscope_getHeatingEnabled(p.handle, r) })
 }
 
 // Zero zeroes the gyroscope output. The sensor must be stationary for accurate calibration.
@@ -104,9 +88,7 @@ func (p *PhidgetGyroscope) Zero() error {
 // SetOnAngularRateUpdateHandler sets a callback that fires on each angular rate update.
 // The callback receives the angular rate as [x, y, z] and the timestamp in seconds.
 func (p *PhidgetGyroscope) SetOnAngularRateUpdateHandler(f func([]float64, float64)) error {
-	var pt MotionPassthrough
-	pt.f = f
-	ctx := gopointer.Save(pt)
+	ctx := gopointer.Save(MotionPassthrough{f})
 	return p.phidgetError(C.PhidgetGyroscope_setOnAngularRateUpdateHandler(
 		p.handle, (C.phidget_motion_fcn)(unsafe.Pointer(C.cmotioncallback)), ctx))
 }

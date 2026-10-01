@@ -25,29 +25,17 @@ func (p *PhidgetPressureSensor) Create() {
 
 // GetPressure returns the current pressure in kPa
 func (p *PhidgetPressureSensor) GetPressure() (float64, error) {
-	var r C.double
-	if cerr := C.PhidgetPressureSensor_getPressure(p.handle, &r); cerr != C.EPHIDGET_OK {
-		return 0, p.phidgetError(cerr)
-	}
-	return float64(r), nil
+	return getDouble(&p.phidget, func(r *C.double) C.PhidgetReturnCode { return C.PhidgetPressureSensor_getPressure(p.handle, r) })
 }
 
 // GetMinPressure returns the minimum measurable pressure
 func (p *PhidgetPressureSensor) GetMinPressure() (float64, error) {
-	var r C.double
-	if cerr := C.PhidgetPressureSensor_getMinPressure(p.handle, &r); cerr != C.EPHIDGET_OK {
-		return 0, p.phidgetError(cerr)
-	}
-	return float64(r), nil
+	return getDouble(&p.phidget, func(r *C.double) C.PhidgetReturnCode { return C.PhidgetPressureSensor_getMinPressure(p.handle, r) })
 }
 
 // GetMaxPressure returns the maximum measurable pressure
 func (p *PhidgetPressureSensor) GetMaxPressure() (float64, error) {
-	var r C.double
-	if cerr := C.PhidgetPressureSensor_getMaxPressure(p.handle, &r); cerr != C.EPHIDGET_OK {
-		return 0, p.phidgetError(cerr)
-	}
-	return float64(r), nil
+	return getDouble(&p.phidget, func(r *C.double) C.PhidgetReturnCode { return C.PhidgetPressureSensor_getMaxPressure(p.handle, r) })
 }
 
 // SetPressureChangeTrigger sets the change threshold that triggers the callback
@@ -57,11 +45,9 @@ func (p *PhidgetPressureSensor) SetPressureChangeTrigger(trigger float64) error 
 
 // GetPressureChangeTrigger returns the current change trigger
 func (p *PhidgetPressureSensor) GetPressureChangeTrigger() (float64, error) {
-	var r C.double
-	if cerr := C.PhidgetPressureSensor_getPressureChangeTrigger(p.handle, &r); cerr != C.EPHIDGET_OK {
-		return 0, p.phidgetError(cerr)
-	}
-	return float64(r), nil
+	return getDouble(&p.phidget, func(r *C.double) C.PhidgetReturnCode {
+		return C.PhidgetPressureSensor_getPressureChangeTrigger(p.handle, r)
+	})
 }
 
 // SetDataInterval sets the data interval in milliseconds
@@ -71,18 +57,12 @@ func (p *PhidgetPressureSensor) SetDataInterval(ms uint32) error {
 
 // GetDataInterval returns the current data interval in milliseconds
 func (p *PhidgetPressureSensor) GetDataInterval() (uint32, error) {
-	var r C.uint32_t
-	if cerr := C.PhidgetPressureSensor_getDataInterval(p.handle, &r); cerr != C.EPHIDGET_OK {
-		return 0, p.phidgetError(cerr)
-	}
-	return uint32(r), nil
+	return getUint32(&p.phidget, func(r *C.uint32_t) C.PhidgetReturnCode { return C.PhidgetPressureSensor_getDataInterval(p.handle, r) })
 }
 
 // SetOnPressureChangeHandler sets a callback that fires when pressure changes beyond the trigger
 func (p *PhidgetPressureSensor) SetOnPressureChangeHandler(f func(float64)) error {
-	var pt Passthrough
-	pt.f = f
-	ctx := gopointer.Save(pt)
+	ctx := gopointer.Save(Passthrough{f})
 	return p.phidgetError(C.PhidgetPressureSensor_setOnPressureChangeHandler(
 		p.handle, (C.phidget_double_fcn)(unsafe.Pointer(C.ccallback)), ctx))
 }

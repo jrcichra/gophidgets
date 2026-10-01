@@ -25,29 +25,17 @@ func (p *PhidgetPHSensor) Create() {
 
 // GetPH returns the current pH value (0–14)
 func (p *PhidgetPHSensor) GetPH() (float64, error) {
-	var r C.double
-	if cerr := C.PhidgetPHSensor_getPH(p.handle, &r); cerr != C.EPHIDGET_OK {
-		return 0, p.phidgetError(cerr)
-	}
-	return float64(r), nil
+	return getDouble(&p.phidget, func(r *C.double) C.PhidgetReturnCode { return C.PhidgetPHSensor_getPH(p.handle, r) })
 }
 
 // GetMinPH returns the minimum measurable pH
 func (p *PhidgetPHSensor) GetMinPH() (float64, error) {
-	var r C.double
-	if cerr := C.PhidgetPHSensor_getMinPH(p.handle, &r); cerr != C.EPHIDGET_OK {
-		return 0, p.phidgetError(cerr)
-	}
-	return float64(r), nil
+	return getDouble(&p.phidget, func(r *C.double) C.PhidgetReturnCode { return C.PhidgetPHSensor_getMinPH(p.handle, r) })
 }
 
 // GetMaxPH returns the maximum measurable pH
 func (p *PhidgetPHSensor) GetMaxPH() (float64, error) {
-	var r C.double
-	if cerr := C.PhidgetPHSensor_getMaxPH(p.handle, &r); cerr != C.EPHIDGET_OK {
-		return 0, p.phidgetError(cerr)
-	}
-	return float64(r), nil
+	return getDouble(&p.phidget, func(r *C.double) C.PhidgetReturnCode { return C.PhidgetPHSensor_getMaxPH(p.handle, r) })
 }
 
 // SetPHChangeTrigger sets the change threshold that triggers the callback
@@ -57,11 +45,7 @@ func (p *PhidgetPHSensor) SetPHChangeTrigger(trigger float64) error {
 
 // GetPHChangeTrigger returns the current change trigger
 func (p *PhidgetPHSensor) GetPHChangeTrigger() (float64, error) {
-	var r C.double
-	if cerr := C.PhidgetPHSensor_getPHChangeTrigger(p.handle, &r); cerr != C.EPHIDGET_OK {
-		return 0, p.phidgetError(cerr)
-	}
-	return float64(r), nil
+	return getDouble(&p.phidget, func(r *C.double) C.PhidgetReturnCode { return C.PhidgetPHSensor_getPHChangeTrigger(p.handle, r) })
 }
 
 // SetCorrectionTemperature sets the temperature used to compensate pH readings
@@ -71,11 +55,7 @@ func (p *PhidgetPHSensor) SetCorrectionTemperature(tempC float64) error {
 
 // GetCorrectionTemperature returns the current correction temperature
 func (p *PhidgetPHSensor) GetCorrectionTemperature() (float64, error) {
-	var r C.double
-	if cerr := C.PhidgetPHSensor_getCorrectionTemperature(p.handle, &r); cerr != C.EPHIDGET_OK {
-		return 0, p.phidgetError(cerr)
-	}
-	return float64(r), nil
+	return getDouble(&p.phidget, func(r *C.double) C.PhidgetReturnCode { return C.PhidgetPHSensor_getCorrectionTemperature(p.handle, r) })
 }
 
 // SetDataInterval sets the data interval in milliseconds
@@ -85,18 +65,12 @@ func (p *PhidgetPHSensor) SetDataInterval(ms uint32) error {
 
 // GetDataInterval returns the current data interval in milliseconds
 func (p *PhidgetPHSensor) GetDataInterval() (uint32, error) {
-	var r C.uint32_t
-	if cerr := C.PhidgetPHSensor_getDataInterval(p.handle, &r); cerr != C.EPHIDGET_OK {
-		return 0, p.phidgetError(cerr)
-	}
-	return uint32(r), nil
+	return getUint32(&p.phidget, func(r *C.uint32_t) C.PhidgetReturnCode { return C.PhidgetPHSensor_getDataInterval(p.handle, r) })
 }
 
 // SetOnPHChangeHandler sets a callback that fires when pH changes beyond the trigger
 func (p *PhidgetPHSensor) SetOnPHChangeHandler(f func(float64)) error {
-	var pt Passthrough
-	pt.f = f
-	ctx := gopointer.Save(pt)
+	ctx := gopointer.Save(Passthrough{f})
 	return p.phidgetError(C.PhidgetPHSensor_setOnPHChangeHandler(
 		p.handle, (C.phidget_double_fcn)(unsafe.Pointer(C.ccallback)), ctx))
 }

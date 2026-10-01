@@ -30,38 +30,22 @@ func (p *PhidgetStepper) SetTargetPosition(pos float64) error {
 
 // GetTargetPosition returns the currently set target position
 func (p *PhidgetStepper) GetTargetPosition() (float64, error) {
-	var r C.double
-	if cerr := C.PhidgetStepper_getTargetPosition(p.handle, &r); cerr != C.EPHIDGET_OK {
-		return 0, p.phidgetError(cerr)
-	}
-	return float64(r), nil
+	return getDouble(&p.phidget, func(r *C.double) C.PhidgetReturnCode { return C.PhidgetStepper_getTargetPosition(p.handle, r) })
 }
 
 // GetPosition returns the current motor position in steps
 func (p *PhidgetStepper) GetPosition() (float64, error) {
-	var r C.double
-	if cerr := C.PhidgetStepper_getPosition(p.handle, &r); cerr != C.EPHIDGET_OK {
-		return 0, p.phidgetError(cerr)
-	}
-	return float64(r), nil
+	return getDouble(&p.phidget, func(r *C.double) C.PhidgetReturnCode { return C.PhidgetStepper_getPosition(p.handle, r) })
 }
 
 // GetMinPosition returns the minimum position limit
 func (p *PhidgetStepper) GetMinPosition() (float64, error) {
-	var r C.double
-	if cerr := C.PhidgetStepper_getMinPosition(p.handle, &r); cerr != C.EPHIDGET_OK {
-		return 0, p.phidgetError(cerr)
-	}
-	return float64(r), nil
+	return getDouble(&p.phidget, func(r *C.double) C.PhidgetReturnCode { return C.PhidgetStepper_getMinPosition(p.handle, r) })
 }
 
 // GetMaxPosition returns the maximum position limit
 func (p *PhidgetStepper) GetMaxPosition() (float64, error) {
-	var r C.double
-	if cerr := C.PhidgetStepper_getMaxPosition(p.handle, &r); cerr != C.EPHIDGET_OK {
-		return 0, p.phidgetError(cerr)
-	}
-	return float64(r), nil
+	return getDouble(&p.phidget, func(r *C.double) C.PhidgetReturnCode { return C.PhidgetStepper_getMaxPosition(p.handle, r) })
 }
 
 // AddPositionOffset adds an offset to the current position counter without moving
@@ -76,20 +60,12 @@ func (p *PhidgetStepper) SetEngaged(engaged bool) error {
 
 // GetEngaged returns whether the stepper coils are engaged
 func (p *PhidgetStepper) GetEngaged() (bool, error) {
-	var r C.int
-	if cerr := C.PhidgetStepper_getEngaged(p.handle, &r); cerr != C.EPHIDGET_OK {
-		return false, p.phidgetError(cerr)
-	}
-	return r != 0, nil
+	return getBool(&p.phidget, func(r *C.int) C.PhidgetReturnCode { return C.PhidgetStepper_getEngaged(p.handle, r) })
 }
 
 // GetIsMoving returns whether the stepper is currently moving
 func (p *PhidgetStepper) GetIsMoving() (bool, error) {
-	var r C.int
-	if cerr := C.PhidgetStepper_getIsMoving(p.handle, &r); cerr != C.EPHIDGET_OK {
-		return false, p.phidgetError(cerr)
-	}
-	return r != 0, nil
+	return getBool(&p.phidget, func(r *C.int) C.PhidgetReturnCode { return C.PhidgetStepper_getIsMoving(p.handle, r) })
 }
 
 // SetAcceleration sets the motor acceleration in steps/s²
@@ -99,11 +75,7 @@ func (p *PhidgetStepper) SetAcceleration(accel float64) error {
 
 // GetAcceleration returns the current acceleration setting
 func (p *PhidgetStepper) GetAcceleration() (float64, error) {
-	var r C.double
-	if cerr := C.PhidgetStepper_getAcceleration(p.handle, &r); cerr != C.EPHIDGET_OK {
-		return 0, p.phidgetError(cerr)
-	}
-	return float64(r), nil
+	return getDouble(&p.phidget, func(r *C.double) C.PhidgetReturnCode { return C.PhidgetStepper_getAcceleration(p.handle, r) })
 }
 
 // SetVelocityLimit sets the maximum velocity in steps/s
@@ -113,20 +85,12 @@ func (p *PhidgetStepper) SetVelocityLimit(limit float64) error {
 
 // GetVelocityLimit returns the velocity limit
 func (p *PhidgetStepper) GetVelocityLimit() (float64, error) {
-	var r C.double
-	if cerr := C.PhidgetStepper_getVelocityLimit(p.handle, &r); cerr != C.EPHIDGET_OK {
-		return 0, p.phidgetError(cerr)
-	}
-	return float64(r), nil
+	return getDouble(&p.phidget, func(r *C.double) C.PhidgetReturnCode { return C.PhidgetStepper_getVelocityLimit(p.handle, r) })
 }
 
 // GetVelocity returns the current velocity in steps/s
 func (p *PhidgetStepper) GetVelocity() (float64, error) {
-	var r C.double
-	if cerr := C.PhidgetStepper_getVelocity(p.handle, &r); cerr != C.EPHIDGET_OK {
-		return 0, p.phidgetError(cerr)
-	}
-	return float64(r), nil
+	return getDouble(&p.phidget, func(r *C.double) C.PhidgetReturnCode { return C.PhidgetStepper_getVelocity(p.handle, r) })
 }
 
 // SetCurrentLimit sets the motor current limit in amps
@@ -136,11 +100,7 @@ func (p *PhidgetStepper) SetCurrentLimit(amps float64) error {
 
 // GetCurrentLimit returns the current limit setting
 func (p *PhidgetStepper) GetCurrentLimit() (float64, error) {
-	var r C.double
-	if cerr := C.PhidgetStepper_getCurrentLimit(p.handle, &r); cerr != C.EPHIDGET_OK {
-		return 0, p.phidgetError(cerr)
-	}
-	return float64(r), nil
+	return getDouble(&p.phidget, func(r *C.double) C.PhidgetReturnCode { return C.PhidgetStepper_getCurrentLimit(p.handle, r) })
 }
 
 // SetHoldingCurrentLimit sets the current limit when the motor is holding position
@@ -155,11 +115,7 @@ func (p *PhidgetStepper) SetRescaleFactor(factor float64) error {
 
 // GetRescaleFactor returns the current rescale factor
 func (p *PhidgetStepper) GetRescaleFactor() (float64, error) {
-	var r C.double
-	if cerr := C.PhidgetStepper_getRescaleFactor(p.handle, &r); cerr != C.EPHIDGET_OK {
-		return 0, p.phidgetError(cerr)
-	}
-	return float64(r), nil
+	return getDouble(&p.phidget, func(r *C.double) C.PhidgetReturnCode { return C.PhidgetStepper_getRescaleFactor(p.handle, r) })
 }
 
 // SetDataInterval sets the data interval in milliseconds
@@ -169,36 +125,26 @@ func (p *PhidgetStepper) SetDataInterval(ms uint32) error {
 
 // GetDataInterval returns the current data interval in milliseconds
 func (p *PhidgetStepper) GetDataInterval() (uint32, error) {
-	var r C.uint32_t
-	if cerr := C.PhidgetStepper_getDataInterval(p.handle, &r); cerr != C.EPHIDGET_OK {
-		return 0, p.phidgetError(cerr)
-	}
-	return uint32(r), nil
+	return getUint32(&p.phidget, func(r *C.uint32_t) C.PhidgetReturnCode { return C.PhidgetStepper_getDataInterval(p.handle, r) })
 }
 
 // SetOnPositionChangeHandler sets a callback that fires when the position changes
 func (p *PhidgetStepper) SetOnPositionChangeHandler(f func(float64)) error {
-	var pt Passthrough
-	pt.f = f
-	ctx := gopointer.Save(pt)
+	ctx := gopointer.Save(Passthrough{f})
 	return p.phidgetError(C.PhidgetStepper_setOnPositionChangeHandler(
 		p.handle, (C.phidget_double_fcn)(unsafe.Pointer(C.ccallback)), ctx))
 }
 
 // SetOnVelocityChangeHandler sets a callback that fires when the velocity changes
 func (p *PhidgetStepper) SetOnVelocityChangeHandler(f func(float64)) error {
-	var pt Passthrough
-	pt.f = f
-	ctx := gopointer.Save(pt)
+	ctx := gopointer.Save(Passthrough{f})
 	return p.phidgetError(C.PhidgetStepper_setOnVelocityChangeHandler(
 		p.handle, (C.phidget_double_fcn)(unsafe.Pointer(C.ccallback)), ctx))
 }
 
 // SetOnStoppedHandler sets a callback that fires when the stepper has stopped moving
 func (p *PhidgetStepper) SetOnStoppedHandler(f func()) error {
-	var pt VoidPassthrough
-	pt.f = f
-	ctx := gopointer.Save(pt)
+	ctx := gopointer.Save(f)
 	return p.phidgetError(C.PhidgetStepper_setOnStoppedHandler(
 		p.handle, (C.phidget_void_fcn)(unsafe.Pointer(C.cvoidcallback)), ctx))
 }

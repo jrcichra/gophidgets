@@ -35,140 +35,59 @@ func attach_handler(man C.PhidgetManagerHandle, ctx unsafe.Pointer, channel C.Ph
 
 	switch class {
 	case C.PHIDCHCLASS_ACCELEROMETER:
-		p := &PhidgetAccelerometer{}
-		p.phidget.handle = channel
-		p.handle = (C.PhidgetAccelerometerHandle)(unsafe.Pointer(channel))
-		m.handles = append(m.handles, p)
+		m.handles = append(m.handles, &PhidgetAccelerometer{phidget{channel}, C.PhidgetAccelerometerHandle(unsafe.Pointer(channel))})
 	case C.PHIDCHCLASS_BLDCMOTOR:
-		p := &PhidgetBLDCMotor{}
-		p.phidget.handle = channel
-		p.handle = (C.PhidgetBLDCMotorHandle)(unsafe.Pointer(channel))
-		m.handles = append(m.handles, p)
+		m.handles = append(m.handles, &PhidgetBLDCMotor{phidget{channel}, C.PhidgetBLDCMotorHandle(unsafe.Pointer(channel))})
 	case C.PHIDCHCLASS_CAPACITIVETOUCH:
-		p := &PhidgetCapacitiveTouch{}
-		p.phidget.handle = channel
-		p.handle = (C.PhidgetCapacitiveTouchHandle)(unsafe.Pointer(channel))
-		m.handles = append(m.handles, p)
+		m.handles = append(m.handles, &PhidgetCapacitiveTouch{phidget{channel}, C.PhidgetCapacitiveTouchHandle(unsafe.Pointer(channel))})
 	case C.PHIDCHCLASS_CURRENTINPUT:
-		p := &PhidgetCurrentInput{}
-		p.phidget.handle = channel
-		p.handle = (C.PhidgetCurrentInputHandle)(unsafe.Pointer(channel))
-		m.handles = append(m.handles, p)
+		m.handles = append(m.handles, &PhidgetCurrentInput{phidget{channel}, C.PhidgetCurrentInputHandle(unsafe.Pointer(channel))})
 	case C.PHIDCHCLASS_DCMOTOR:
-		p := &PhidgetDCMotor{}
-		p.phidget.handle = channel
-		p.handle = (C.PhidgetDCMotorHandle)(unsafe.Pointer(channel))
-		m.handles = append(m.handles, p)
+		m.handles = append(m.handles, &PhidgetDCMotor{phidget{channel}, C.PhidgetDCMotorHandle(unsafe.Pointer(channel))})
 	case C.PHIDCHCLASS_DIGITALINPUT:
-		p := &PhidgetDigitalInput{}
-		p.phidget.handle = channel
-		p.handle = (C.PhidgetDigitalInputHandle)(unsafe.Pointer(channel))
-		m.handles = append(m.handles, p)
+		m.handles = append(m.handles, &PhidgetDigitalInput{phidget{channel}, C.PhidgetDigitalInputHandle(unsafe.Pointer(channel))})
 	case C.PHIDCHCLASS_DIGITALOUTPUT:
-		p := &PhidgetDigitalOutput{}
-		p.phidget.handle = channel
-		p.handle = (C.PhidgetDigitalOutputHandle)(unsafe.Pointer(channel))
-		m.handles = append(m.handles, p)
+		m.handles = append(m.handles, &PhidgetDigitalOutput{phidget{channel}, C.PhidgetDigitalOutputHandle(unsafe.Pointer(channel))})
 	case C.PHIDCHCLASS_DISTANCESENSOR:
-		p := &PhidgetDistanceSensor{}
-		p.phidget.handle = channel
-		p.handle = (C.PhidgetDistanceSensorHandle)(unsafe.Pointer(channel))
-		m.handles = append(m.handles, p)
+		m.handles = append(m.handles, &PhidgetDistanceSensor{phidget{channel}, C.PhidgetDistanceSensorHandle(unsafe.Pointer(channel))})
 	case C.PHIDCHCLASS_ENCODER:
-		p := &PhidgetEncoder{}
-		p.phidget.handle = channel
-		p.handle = (C.PhidgetEncoderHandle)(unsafe.Pointer(channel))
-		m.handles = append(m.handles, p)
+		m.handles = append(m.handles, &PhidgetEncoder{phidget{channel}, C.PhidgetEncoderHandle(unsafe.Pointer(channel))})
 	case C.PHIDCHCLASS_FREQUENCYCOUNTER:
-		p := &PhidgetFrequencyCounter{}
-		p.phidget.handle = channel
-		p.handle = (C.PhidgetFrequencyCounterHandle)(unsafe.Pointer(channel))
-		m.handles = append(m.handles, p)
+		m.handles = append(m.handles, &PhidgetFrequencyCounter{phidget{channel}, C.PhidgetFrequencyCounterHandle(unsafe.Pointer(channel))})
 	case C.PHIDCHCLASS_GPS:
-		p := &PhidgetGPS{}
-		p.phidget.handle = channel
-		p.handle = (C.PhidgetGPSHandle)(unsafe.Pointer(channel))
-		m.handles = append(m.handles, p)
+		m.handles = append(m.handles, &PhidgetGPS{phidget{channel}, C.PhidgetGPSHandle(unsafe.Pointer(channel))})
 	case C.PHIDCHCLASS_GYROSCOPE:
-		p := &PhidgetGyroscope{}
-		p.phidget.handle = channel
-		p.handle = (C.PhidgetGyroscopeHandle)(unsafe.Pointer(channel))
-		m.handles = append(m.handles, p)
+		m.handles = append(m.handles, &PhidgetGyroscope{phidget{channel}, C.PhidgetGyroscopeHandle(unsafe.Pointer(channel))})
 	case C.PHIDCHCLASS_HUMIDITYSENSOR:
-		p := &PhidgetHumiditySensor{}
-		p.phidget.handle = channel
-		p.handle = (C.PhidgetHumiditySensorHandle)(unsafe.Pointer(channel))
-		m.handles = append(m.handles, p)
+		m.handles = append(m.handles, &PhidgetHumiditySensor{phidget{channel}, C.PhidgetHumiditySensorHandle(unsafe.Pointer(channel))})
 	case C.PHIDCHCLASS_LCD:
-		p := &PhidgetLCD{}
-		p.phidget.handle = channel
-		p.handle = (C.PhidgetLCDHandle)(unsafe.Pointer(channel))
-		m.handles = append(m.handles, p)
+		m.handles = append(m.handles, &PhidgetLCD{phidget{channel}, C.PhidgetLCDHandle(unsafe.Pointer(channel))})
 	case C.PHIDCHCLASS_LIGHTSENSOR:
-		p := &PhidgetLightSensor{}
-		p.phidget.handle = channel
-		p.handle = (C.PhidgetLightSensorHandle)(unsafe.Pointer(channel))
-		m.handles = append(m.handles, p)
+		m.handles = append(m.handles, &PhidgetLightSensor{phidget{channel}, C.PhidgetLightSensorHandle(unsafe.Pointer(channel))})
 	case C.PHIDCHCLASS_MAGNETOMETER:
-		p := &PhidgetMagnetometer{}
-		p.phidget.handle = channel
-		p.handle = (C.PhidgetMagnetometerHandle)(unsafe.Pointer(channel))
-		m.handles = append(m.handles, p)
+		m.handles = append(m.handles, &PhidgetMagnetometer{phidget{channel}, C.PhidgetMagnetometerHandle(unsafe.Pointer(channel))})
 	case C.PHIDCHCLASS_PHSENSOR:
-		p := &PhidgetPHSensor{}
-		p.phidget.handle = channel
-		p.handle = (C.PhidgetPHSensorHandle)(unsafe.Pointer(channel))
-		m.handles = append(m.handles, p)
+		m.handles = append(m.handles, &PhidgetPHSensor{phidget{channel}, C.PhidgetPHSensorHandle(unsafe.Pointer(channel))})
 	case C.PHIDCHCLASS_PRESSURESENSOR:
-		p := &PhidgetPressureSensor{}
-		p.phidget.handle = channel
-		p.handle = (C.PhidgetPressureSensorHandle)(unsafe.Pointer(channel))
-		m.handles = append(m.handles, p)
+		m.handles = append(m.handles, &PhidgetPressureSensor{phidget{channel}, C.PhidgetPressureSensorHandle(unsafe.Pointer(channel))})
 	case C.PHIDCHCLASS_RCSERVO:
-		p := &PhidgetRCServo{}
-		p.phidget.handle = channel
-		p.handle = (C.PhidgetRCServoHandle)(unsafe.Pointer(channel))
-		m.handles = append(m.handles, p)
+		m.handles = append(m.handles, &PhidgetRCServo{phidget{channel}, C.PhidgetRCServoHandle(unsafe.Pointer(channel))})
 	case C.PHIDCHCLASS_RESISTANCEINPUT:
-		p := &PhidgetResistanceInput{}
-		p.phidget.handle = channel
-		p.handle = (C.PhidgetResistanceInputHandle)(unsafe.Pointer(channel))
-		m.handles = append(m.handles, p)
+		m.handles = append(m.handles, &PhidgetResistanceInput{phidget{channel}, C.PhidgetResistanceInputHandle(unsafe.Pointer(channel))})
 	case C.PHIDCHCLASS_SOUNDSENSOR:
-		p := &PhidgetSoundSensor{}
-		p.phidget.handle = channel
-		p.handle = (C.PhidgetSoundSensorHandle)(unsafe.Pointer(channel))
-		m.handles = append(m.handles, p)
+		m.handles = append(m.handles, &PhidgetSoundSensor{phidget{channel}, C.PhidgetSoundSensorHandle(unsafe.Pointer(channel))})
 	case C.PHIDCHCLASS_SPATIAL:
-		p := &PhidgetSpatial{}
-		p.phidget.handle = channel
-		p.handle = (C.PhidgetSpatialHandle)(unsafe.Pointer(channel))
-		m.handles = append(m.handles, p)
+		m.handles = append(m.handles, &PhidgetSpatial{phidget{channel}, C.PhidgetSpatialHandle(unsafe.Pointer(channel))})
 	case C.PHIDCHCLASS_STEPPER:
-		p := &PhidgetStepper{}
-		p.phidget.handle = channel
-		p.handle = (C.PhidgetStepperHandle)(unsafe.Pointer(channel))
-		m.handles = append(m.handles, p)
+		m.handles = append(m.handles, &PhidgetStepper{phidget{channel}, C.PhidgetStepperHandle(unsafe.Pointer(channel))})
 	case C.PHIDCHCLASS_TEMPERATURESENSOR:
-		p := &PhidgetTemperatureSensor{}
-		p.phidget.handle = channel
-		p.handle = (C.PhidgetTemperatureSensorHandle)(unsafe.Pointer(channel))
-		m.handles = append(m.handles, p)
+		m.handles = append(m.handles, &PhidgetTemperatureSensor{phidget{channel}, C.PhidgetTemperatureSensorHandle(unsafe.Pointer(channel))})
 	case C.PHIDCHCLASS_VOLTAGEINPUT:
-		p := &PhidgetVoltageInput{}
-		p.phidget.handle = channel
-		p.handle = (C.PhidgetVoltageInputHandle)(unsafe.Pointer(channel))
-		m.handles = append(m.handles, p)
+		m.handles = append(m.handles, &PhidgetVoltageInput{phidget{channel}, C.PhidgetVoltageInputHandle(unsafe.Pointer(channel))})
 	case C.PHIDCHCLASS_VOLTAGEOUTPUT:
-		p := &PhidgetVoltageOutput{}
-		p.phidget.handle = channel
-		p.handle = (C.PhidgetVoltageOutputHandle)(unsafe.Pointer(channel))
-		m.handles = append(m.handles, p)
+		m.handles = append(m.handles, &PhidgetVoltageOutput{phidget{channel}, C.PhidgetVoltageOutputHandle(unsafe.Pointer(channel))})
 	case C.PHIDCHCLASS_VOLTAGERATIOINPUT:
-		p := &PhidgetVoltageRatioInput{}
-		p.phidget.handle = channel
-		p.handle = (C.PhidgetVoltageRatioInputHandle)(unsafe.Pointer(channel))
-		m.handles = append(m.handles, p)
+		m.handles = append(m.handles, &PhidgetVoltageRatioInput{phidget{channel}, C.PhidgetVoltageRatioInputHandle(unsafe.Pointer(channel))})
 	default:
 		fmt.Printf("unsupported phidget discovered: 0x%x\n", class)
 		return
