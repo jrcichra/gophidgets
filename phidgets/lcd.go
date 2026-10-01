@@ -29,12 +29,9 @@ func (p *PhidgetLCD) WriteText(font C.PhidgetLCD_Font, x, y int, text string) er
 	return p.phidgetError(C.PhidgetLCD_writeText(p.handle, font, C.int(x), C.int(y), str))
 }
 
-// SetText is a convenience wrapper that writes text at position (0, 0) using FONT_6x12 and flushes.
+// SetText writes text at (40, 25) using FONT_6x12 (kept as-is for existing callers; use WriteText for control).
 func (p *PhidgetLCD) SetText(text string) error {
-	if err := p.WriteText(C.FONT_6x12, 0, 0, text); err != nil {
-		return err
-	}
-	return p.Flush()
+	return p.WriteText(C.FONT_6x12, 40, 25, text)
 }
 
 // Flush pushes the current framebuffer contents to the screen.
@@ -48,7 +45,7 @@ func (p *PhidgetLCD) Clear() error {
 }
 
 // SetBacklight sets the backlight brightness (0.0–1.0).
-func (p *PhidgetLCD) SetBacklight(brightness float64) error {
+func (p *PhidgetLCD) SetBacklight(brightness float32) error {
 	return p.phidgetError(C.PhidgetLCD_setBacklight(p.handle, C.double(brightness)))
 }
 
