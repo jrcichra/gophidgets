@@ -22,12 +22,7 @@ func (p *PhidgetDigitalOutput) Create() {
 
 // GetValue gets the state from a phidget digital output
 func (p *PhidgetDigitalOutput) GetState() (bool, error) {
-	var r C.int
-	cerr := C.PhidgetDigitalOutput_getState(p.handle, &r)
-	if cerr != C.EPHIDGET_OK {
-		return false, p.phidgetError(cerr)
-	}
-	return r != 0, nil
+	return getBool(&p.phidget, func(r *C.int) C.PhidgetReturnCode { return C.PhidgetDigitalOutput_getState(p.handle, r) })
 }
 
 // SetValue gets the state from a phidget digital output

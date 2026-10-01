@@ -25,29 +25,17 @@ func (p *PhidgetGyroscope) Create() {
 
 // GetAngularRate returns the current angular rate in degrees/second as [x, y, z]
 func (p *PhidgetGyroscope) GetAngularRate() ([]float64, error) {
-	var r [3]C.double
-	if cerr := C.PhidgetGyroscope_getAngularRate(p.handle, &r); cerr != C.EPHIDGET_OK {
-		return nil, p.phidgetError(cerr)
-	}
-	return []float64{float64(r[0]), float64(r[1]), float64(r[2])}, nil
+	return getVec3(&p.phidget, func(r *[3]C.double) C.PhidgetReturnCode { return C.PhidgetGyroscope_getAngularRate(p.handle, r) })
 }
 
 // GetMinAngularRate returns the minimum measurable angular rate as [x, y, z]
 func (p *PhidgetGyroscope) GetMinAngularRate() ([]float64, error) {
-	var r [3]C.double
-	if cerr := C.PhidgetGyroscope_getMinAngularRate(p.handle, &r); cerr != C.EPHIDGET_OK {
-		return nil, p.phidgetError(cerr)
-	}
-	return []float64{float64(r[0]), float64(r[1]), float64(r[2])}, nil
+	return getVec3(&p.phidget, func(r *[3]C.double) C.PhidgetReturnCode { return C.PhidgetGyroscope_getMinAngularRate(p.handle, r) })
 }
 
 // GetMaxAngularRate returns the maximum measurable angular rate as [x, y, z]
 func (p *PhidgetGyroscope) GetMaxAngularRate() ([]float64, error) {
-	var r [3]C.double
-	if cerr := C.PhidgetGyroscope_getMaxAngularRate(p.handle, &r); cerr != C.EPHIDGET_OK {
-		return nil, p.phidgetError(cerr)
-	}
-	return []float64{float64(r[0]), float64(r[1]), float64(r[2])}, nil
+	return getVec3(&p.phidget, func(r *[3]C.double) C.PhidgetReturnCode { return C.PhidgetGyroscope_getMaxAngularRate(p.handle, r) })
 }
 
 // GetAxisCount returns the number of axes
@@ -88,7 +76,7 @@ func (p *PhidgetGyroscope) Zero() error {
 // SetOnAngularRateUpdateHandler sets a callback that fires on each angular rate update.
 // The callback receives the angular rate as [x, y, z] and the timestamp in seconds.
 func (p *PhidgetGyroscope) SetOnAngularRateUpdateHandler(f func([]float64, float64)) error {
-	ctx := gopointer.Save(MotionPassthrough{f})
+	ctx := gopointer.Save(f)
 	return p.phidgetError(C.PhidgetGyroscope_setOnAngularRateUpdateHandler(
 		p.handle, (C.phidget_motion_fcn)(unsafe.Pointer(C.cmotioncallback)), ctx))
 }

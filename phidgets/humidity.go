@@ -25,20 +25,13 @@ func (p *PhidgetHumiditySensor) Create() {
 
 // GetValue gets the humidity from a phidget humidity sensor
 func (p *PhidgetHumiditySensor) GetValue() (float64, error) {
-	var r C.double
-	cerr := C.PhidgetHumiditySensor_getHumidity(p.handle, &r)
-	if cerr != C.EPHIDGET_OK {
-		return 0, p.phidgetError(cerr)
-	}
-	return float64(r), nil
+	return getDouble(&p.phidget, func(r *C.double) C.PhidgetReturnCode { return C.PhidgetHumiditySensor_getHumidity(p.handle, r) })
 }
 
 // SetOnHumidityChangeHandler - interrupt for humdity changes calls a function
 func (p *PhidgetHumiditySensor) SetOnHumidityChangeHandler(f func(float64)) error {
 	//make a c function pointer to a go function pointer and pass it through the phidget context
-	var passthrough Passthrough
-	passthrough.f = f
-	pt := gopointer.Save(passthrough)
+	pt := gopointer.Save(f)
 	cerr := C.PhidgetHumiditySensor_setOnHumidityChangeHandler(p.handle, (C.phidget_double_fcn)(unsafe.Pointer(C.ccallback)), pt)
 	if cerr != C.EPHIDGET_OK {
 		return p.phidgetError(cerr)

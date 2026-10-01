@@ -110,21 +110,21 @@ func (p *PhidgetDCMotor) GetDataInterval() (uint32, error) {
 
 // SetOnVelocityUpdateHandler sets a callback that fires on each velocity update
 func (p *PhidgetDCMotor) SetOnVelocityUpdateHandler(f func(float64)) error {
-	ctx := gopointer.Save(Passthrough{f})
+	ctx := gopointer.Save(f)
 	return p.phidgetError(C.PhidgetDCMotor_setOnVelocityUpdateHandler(
 		p.handle, (C.phidget_double_fcn)(unsafe.Pointer(C.ccallback)), ctx))
 }
 
 // SetOnBackEMFChangeHandler sets a callback that fires when back-EMF changes
 func (p *PhidgetDCMotor) SetOnBackEMFChangeHandler(f func(float64)) error {
-	ctx := gopointer.Save(Passthrough{f})
+	ctx := gopointer.Save(f)
 	return p.phidgetError(C.PhidgetDCMotor_setOnBackEMFChangeHandler(
 		p.handle, (C.phidget_double_fcn)(unsafe.Pointer(C.ccallback)), ctx))
 }
 
 // SetOnBrakingStrengthChangeHandler sets a callback that fires when braking strength changes
 func (p *PhidgetDCMotor) SetOnBrakingStrengthChangeHandler(f func(float64)) error {
-	ctx := gopointer.Save(Passthrough{f})
+	ctx := gopointer.Save(f)
 	return p.phidgetError(C.PhidgetDCMotor_setOnBrakingStrengthChangeHandler(
 		p.handle, (C.phidget_double_fcn)(unsafe.Pointer(C.ccallback)), ctx))
 }

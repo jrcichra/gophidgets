@@ -90,11 +90,7 @@ func (p *phidget) SetHubPort(port int) error {
 
 // GetHubPort gets a phidget's hub port
 func (p *phidget) GetHubPort() (int, error) {
-	var r C.int
-	if cerr := C.Phidget_getHubPort(p.handle, &r); cerr != C.EPHIDGET_OK {
-		return 0, p.phidgetError(cerr)
-	}
-	return int(r), nil
+	return getInt(p, func(r *C.int) C.PhidgetReturnCode { return C.Phidget_getHubPort(p.handle, r) })
 }
 
 // SetChannel sets a phidget motion sensor's channel port
@@ -104,21 +100,12 @@ func (p *phidget) SetChannel(port int) error {
 
 // GetIsRemote gets a phidget's remote status
 func (p *phidget) GetIsRemote() (bool, error) {
-	var r C.int
-	if cerr := C.Phidget_getIsRemote(p.handle, &r); cerr != C.EPHIDGET_OK {
-		return false, p.phidgetError(cerr)
-	}
-	return r != 0, nil
+	return getBool(p, func(r *C.int) C.PhidgetReturnCode { return C.Phidget_getIsRemote(p.handle, r) })
 }
 
 // GetDeviceSerialNumber gets a phidget motion sensor's serial number
 func (p *phidget) GetDeviceSerialNumber() (int, error) {
-	var r C.int
-	cerr := C.Phidget_getDeviceSerialNumber(p.handle, &r)
-	if cerr != C.EPHIDGET_OK {
-		return 0, p.phidgetError(cerr)
-	}
-	return int(r), nil
+	return getInt(p, func(r *C.int) C.PhidgetReturnCode { return C.Phidget_getDeviceSerialNumber(p.handle, r) })
 }
 
 // Close - close the handle and delete it
@@ -161,12 +148,7 @@ func (p *phidget) GetChannelName() (string, error) {
 
 // GetAttached returns whether the Phidget device is attached
 func (p *phidget) GetAttached() (bool, error) {
-	var r C.int
-	cerr := C.Phidget_getAttached(p.handle, &r)
-	if cerr != C.EPHIDGET_OK {
-		return false, p.phidgetError(cerr)
-	}
-	return r != 0, nil
+	return getBool(p, func(r *C.int) C.PhidgetReturnCode { return C.Phidget_getAttached(p.handle, r) })
 }
 
 // GetChannel retrives which channel this handle is attached to

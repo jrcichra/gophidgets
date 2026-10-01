@@ -62,7 +62,7 @@ func (p *PhidgetPressureSensor) GetDataInterval() (uint32, error) {
 
 // SetOnPressureChangeHandler sets a callback that fires when pressure changes beyond the trigger
 func (p *PhidgetPressureSensor) SetOnPressureChangeHandler(f func(float64)) error {
-	ctx := gopointer.Save(Passthrough{f})
+	ctx := gopointer.Save(f)
 	return p.phidgetError(C.PhidgetPressureSensor_setOnPressureChangeHandler(
 		p.handle, (C.phidget_double_fcn)(unsafe.Pointer(C.ccallback)), ctx))
 }

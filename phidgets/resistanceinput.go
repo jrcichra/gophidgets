@@ -62,7 +62,7 @@ func (p *PhidgetResistanceInput) GetDataInterval() (uint32, error) {
 
 // SetOnResistanceChangeHandler sets a callback that fires when resistance changes beyond the trigger
 func (p *PhidgetResistanceInput) SetOnResistanceChangeHandler(f func(float64)) error {
-	ctx := gopointer.Save(Passthrough{f})
+	ctx := gopointer.Save(f)
 	return p.phidgetError(C.PhidgetResistanceInput_setOnResistanceChangeHandler(
 		p.handle, (C.phidget_double_fcn)(unsafe.Pointer(C.ccallback)), ctx))
 }

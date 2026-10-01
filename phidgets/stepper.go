@@ -130,14 +130,14 @@ func (p *PhidgetStepper) GetDataInterval() (uint32, error) {
 
 // SetOnPositionChangeHandler sets a callback that fires when the position changes
 func (p *PhidgetStepper) SetOnPositionChangeHandler(f func(float64)) error {
-	ctx := gopointer.Save(Passthrough{f})
+	ctx := gopointer.Save(f)
 	return p.phidgetError(C.PhidgetStepper_setOnPositionChangeHandler(
 		p.handle, (C.phidget_double_fcn)(unsafe.Pointer(C.ccallback)), ctx))
 }
 
 // SetOnVelocityChangeHandler sets a callback that fires when the velocity changes
 func (p *PhidgetStepper) SetOnVelocityChangeHandler(f func(float64)) error {
-	ctx := gopointer.Save(Passthrough{f})
+	ctx := gopointer.Save(f)
 	return p.phidgetError(C.PhidgetStepper_setOnVelocityChangeHandler(
 		p.handle, (C.phidget_double_fcn)(unsafe.Pointer(C.ccallback)), ctx))
 }

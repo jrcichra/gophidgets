@@ -23,15 +23,10 @@ func (p *PhidgetLCD) Create() {
 
 // WriteText writes text to the display at the given font, x, and y position.
 // Call Flush afterward (or enable AutoFlush) to push the framebuffer to the screen.
-func (p *PhidgetLCD) WriteText(font C.PhidgetLCD_Font, x, y int, text string) error {
+func (p *PhidgetLCD) WriteText(font, x, y int, text string) error {
 	str := C.CString(text)
 	defer C.free(unsafe.Pointer(str))
-	return p.phidgetError(C.PhidgetLCD_writeText(p.handle, font, C.int(x), C.int(y), str))
-}
-
-// SetText writes text at (40, 25) using FONT_6x12 (kept as-is for existing callers; use WriteText for control).
-func (p *PhidgetLCD) SetText(text string) error {
-	return p.WriteText(C.FONT_6x12, 40, 25, text)
+	return p.phidgetError(C.PhidgetLCD_writeText(p.handle, C.PhidgetLCD_Font(font), C.int(x), C.int(y), str))
 }
 
 // Flush pushes the current framebuffer contents to the screen.
@@ -45,17 +40,13 @@ func (p *PhidgetLCD) Clear() error {
 }
 
 // SetBacklight sets the backlight brightness (0.0–1.0).
-func (p *PhidgetLCD) SetBacklight(brightness float32) error {
+func (p *PhidgetLCD) SetBacklight(brightness float64) error {
 	return p.phidgetError(C.PhidgetLCD_setBacklight(p.handle, C.double(brightness)))
 }
 
 // GetBacklight returns the current backlight brightness.
 func (p *PhidgetLCD) GetBacklight() (float64, error) {
-	var r C.double
-	if cerr := C.PhidgetLCD_getBacklight(p.handle, &r); cerr != C.EPHIDGET_OK {
-		return 0, p.phidgetError(cerr)
-	}
-	return float64(r), nil
+	return getDouble(&p.phidget, func(r *C.double) C.PhidgetReturnCode { return C.PhidgetLCD_getBacklight(p.handle, r) })
 }
 
 // SetContrast sets the display contrast (0.0–1.0).
@@ -65,11 +56,7 @@ func (p *PhidgetLCD) SetContrast(contrast float64) error {
 
 // GetContrast returns the current display contrast.
 func (p *PhidgetLCD) GetContrast() (float64, error) {
-	var r C.double
-	if cerr := C.PhidgetLCD_getContrast(p.handle, &r); cerr != C.EPHIDGET_OK {
-		return 0, p.phidgetError(cerr)
-	}
-	return float64(r), nil
+	return getDouble(&p.phidget, func(r *C.double) C.PhidgetReturnCode { return C.PhidgetLCD_getContrast(p.handle, r) })
 }
 
 // SetAutoFlush enables or disables automatic flushing after each draw/write call.
@@ -79,11 +66,7 @@ func (p *PhidgetLCD) SetAutoFlush(autoFlush bool) error {
 
 // GetAutoFlush returns whether automatic flushing is enabled.
 func (p *PhidgetLCD) GetAutoFlush() (bool, error) {
-	var r C.int
-	if cerr := C.PhidgetLCD_getAutoFlush(p.handle, &r); cerr != C.EPHIDGET_OK {
-		return false, p.phidgetError(cerr)
-	}
-	return r != 0, nil
+	return getBool(&p.phidget, func(r *C.int) C.PhidgetReturnCode { return C.PhidgetLCD_getAutoFlush(p.handle, r) })
 }
 
 // SetCursorOn shows or hides the cursor.
@@ -103,25 +86,17 @@ func (p *PhidgetLCD) SetSleeping(sleeping bool) error {
 
 // GetWidth returns the display width in pixels.
 func (p *PhidgetLCD) GetWidth() (int, error) {
-	var r C.int
-	if cerr := C.PhidgetLCD_getWidth(p.handle, &r); cerr != C.EPHIDGET_OK {
-		return 0, p.phidgetError(cerr)
-	}
-	return int(r), nil
+	return getInt(&p.phidget, func(r *C.int) C.PhidgetReturnCode { return C.PhidgetLCD_getWidth(p.handle, r) })
 }
 
 // GetHeight returns the display height in pixels.
 func (p *PhidgetLCD) GetHeight() (int, error) {
-	var r C.int
-	if cerr := C.PhidgetLCD_getHeight(p.handle, &r); cerr != C.EPHIDGET_OK {
-		return 0, p.phidgetError(cerr)
-	}
-	return int(r), nil
+	return getInt(&p.phidget, func(r *C.int) C.PhidgetReturnCode { return C.PhidgetLCD_getHeight(p.handle, r) })
 }
 
-// DrawPixel draws a single pixel at (x, y). Use PhidgetLCD_Pixel_ON or PhidgetLCD_Pixel_OFF.
-func (p *PhidgetLCD) DrawPixel(x, y int, pixelState C.PhidgetLCD_PixelState) error {
-	return p.phidgetError(C.PhidgetLCD_drawPixel(p.handle, C.int(x), C.int(y), pixelState))
+// DrawPixel draws a single pixel at (x, y). Use LCDPixelOn, LCDPixelOff or LCDPixelInvert.
+func (p *PhidgetLCD) DrawPixel(x, y int, pixelState int) error {
+	return p.phidgetError(C.PhidgetLCD_drawPixel(p.handle, C.int(x), C.int(y), C.PhidgetLCD_PixelState(pixelState)))
 }
 
 // DrawLine draws a line from (x1, y1) to (x2, y2).
@@ -141,18 +116,14 @@ func (p *PhidgetLCD) Initialize() error {
 	return p.phidgetError(C.PhidgetLCD_initialize(p.handle))
 }
 
-// SetScreenSize sets the screen size (use PhidgetLCD_ScreenSize constants).
-func (p *PhidgetLCD) SetScreenSize(size C.PhidgetLCD_ScreenSize) error {
-	return p.phidgetError(C.PhidgetLCD_setScreenSize(p.handle, size))
+// SetScreenSize sets the screen size (use the LCDScreen constants).
+func (p *PhidgetLCD) SetScreenSize(size int) error {
+	return p.phidgetError(C.PhidgetLCD_setScreenSize(p.handle, C.PhidgetLCD_ScreenSize(size)))
 }
 
 // GetScreenSize returns the current screen size.
-func (p *PhidgetLCD) GetScreenSize() (C.PhidgetLCD_ScreenSize, error) {
-	var r C.PhidgetLCD_ScreenSize
-	if cerr := C.PhidgetLCD_getScreenSize(p.handle, &r); cerr != C.EPHIDGET_OK {
-		return 0, p.phidgetError(cerr)
-	}
-	return r, nil
+func (p *PhidgetLCD) GetScreenSize() (int, error) {
+	return get(&p.phidget, func(r *C.PhidgetLCD_ScreenSize) C.PhidgetReturnCode { return C.PhidgetLCD_getScreenSize(p.handle, r) }, func(r C.PhidgetLCD_ScreenSize) int { return int(r) })
 }
 
 // Close closes the handle and deletes it.

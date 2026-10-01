@@ -13,44 +13,19 @@ import (
 	gopointer "github.com/mattn/go-pointer"
 )
 
-// Passthrough - Go struct that passes through the phidget context callback, giving us a Go phidget pointer and the function we should callback to
-type Passthrough struct {
-	f func(float64)
-}
-
-// MotionPassthrough - has more than one float64 value as a parameter
-type MotionPassthrough struct {
-	f func([]float64, float64)
-}
-
-// SoundPassthrough - has more than one float64 value as a parameter
-type SoundPassthrough struct {
-	f func(float64, float64, float64, []float64)
-}
-
-// DistancePassthrough
-type DistancePassthrough struct {
-	f func(uint32)
-}
-
-// ReflectionPassthrough
-type ReflectionPassthrough struct {
-	f func([8]uint32, [8]uint32, uint32)
-}
-
 //export callback
 func callback(handle unsafe.Pointer, ctx unsafe.Pointer, value C.double) {
-	gopointer.Restore(ctx).(Passthrough).f(float64(value))
+	gopointer.Restore(ctx).(func(float64))(float64(value))
 }
 
 //export motioncallback
 func motioncallback(handle unsafe.Pointer, ctx unsafe.Pointer, arr *C.double, timestamp C.double) {
-	gopointer.Restore(ctx).(MotionPassthrough).f(cDoubles(arr, 3), float64(timestamp))
+	gopointer.Restore(ctx).(func([]float64, float64))(cDoubles(arr, 3), float64(timestamp))
 }
 
 //export quaternioncallback
 func quaternioncallback(handle unsafe.Pointer, ctx unsafe.Pointer, arr *C.double, timestamp C.double) {
-	gopointer.Restore(ctx).(MotionPassthrough).f(cDoubles(arr, 4), float64(timestamp))
+	gopointer.Restore(ctx).(func([]float64, float64))(cDoubles(arr, 4), float64(timestamp))
 }
 
 //export voidcallback
@@ -86,7 +61,7 @@ func spatialcallback(handle unsafe.Pointer, ctx unsafe.Pointer, accel *C.double,
 
 //export soundcallback
 func soundcallback(handle unsafe.Pointer, ctx unsafe.Pointer, dB C.double, dBA C.double, dBC C.double, octaves *C.double) {
-	gopointer.Restore(ctx).(SoundPassthrough).f(float64(dB), float64(dBA), float64(dBC), cDoubles(octaves, 10))
+	gopointer.Restore(ctx).(func(float64, float64, float64, []float64))(float64(dB), float64(dBA), float64(dBC), cDoubles(octaves, 10))
 }
 
 // cDoubles copies n C doubles into a Go slice (the C buffer is only valid during the callback).
@@ -96,6 +71,10 @@ func cDoubles(arr *C.double, n int) []float64 {
 		out[i] = float64(v)
 	}
 	return out
+}
+
+func getVec3(p *phidget, f func(*[3]C.double) C.PhidgetReturnCode) ([]float64, error) {
+	return get(p, f, func(r [3]C.double) []float64 { return []float64{float64(r[0]), float64(r[1]), float64(r[2])} })
 }
 
 // get runs a C getter and converts its result, wrapping any error.

@@ -67,7 +67,7 @@ func (p *PhidgetCapacitiveTouch) GetDataInterval() (uint32, error) {
 
 // SetOnTouchHandler sets a callback that fires when the sensor is touched; receives the touch value
 func (p *PhidgetCapacitiveTouch) SetOnTouchHandler(f func(float64)) error {
-	ctx := gopointer.Save(Passthrough{f})
+	ctx := gopointer.Save(f)
 	return p.phidgetError(C.PhidgetCapacitiveTouch_setOnTouchHandler(
 		p.handle, (C.phidget_double_fcn)(unsafe.Pointer(C.ccallback)), ctx))
 }

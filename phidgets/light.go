@@ -25,20 +25,13 @@ func (p *PhidgetLightSensor) Create() {
 
 // GetValue gets the lumenance from a phidget lumenance sensor
 func (p *PhidgetLightSensor) GetValue() (float64, error) {
-	var r C.double
-	cerr := C.PhidgetLightSensor_getIlluminance(p.handle, &r)
-	if cerr != C.EPHIDGET_OK {
-		return 0, p.phidgetError(cerr)
-	}
-	return float64(r), nil
+	return getDouble(&p.phidget, func(r *C.double) C.PhidgetReturnCode { return C.PhidgetLightSensor_getIlluminance(p.handle, r) })
 }
 
 // SetOnIlluminanceChangeHandler - interrupt for illumiance changes calls a function
 func (p *PhidgetLightSensor) SetOnIlluminanceChangeHandler(f func(float64)) error {
 	//make a c function pointer to a go function pointer and pass it through the phidget context
-	var passthrough Passthrough
-	passthrough.f = f
-	pt := gopointer.Save(passthrough)
+	pt := gopointer.Save(f)
 	cerr := C.PhidgetLightSensor_setOnIlluminanceChangeHandler(p.handle, (C.phidget_double_fcn)(unsafe.Pointer(C.ccallback)), pt)
 	if cerr != C.EPHIDGET_OK {
 		return p.phidgetError(cerr)

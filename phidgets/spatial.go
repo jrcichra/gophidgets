@@ -71,9 +71,9 @@ func (p *PhidgetSpatial) ZeroAlgorithm() error {
 	return p.phidgetError(C.PhidgetSpatial_zeroAlgorithm(p.handle))
 }
 
-// SetAlgorithm sets the orientation algorithm (use Phidget_SpatialAlgorithm constants)
-func (p *PhidgetSpatial) SetAlgorithm(algo C.Phidget_SpatialAlgorithm) error {
-	return p.phidgetError(C.PhidgetSpatial_setAlgorithm(p.handle, algo))
+// SetAlgorithm sets the orientation algorithm (use the SpatialAlgorithm constants)
+func (p *PhidgetSpatial) SetAlgorithm(algo int) error {
+	return p.phidgetError(C.PhidgetSpatial_setAlgorithm(p.handle, C.Phidget_SpatialAlgorithm(algo)))
 }
 
 // SetOnSpatialDataHandler sets a callback that fires on each spatial data update.
@@ -87,7 +87,7 @@ func (p *PhidgetSpatial) SetOnSpatialDataHandler(f func([]float64, []float64, []
 // SetOnAlgorithmDataHandler sets a callback that fires on each orientation algorithm update.
 // The callback receives: quaternion [w,x,y,z], timestamp.
 func (p *PhidgetSpatial) SetOnAlgorithmDataHandler(f func([]float64, float64)) error {
-	ctx := gopointer.Save(MotionPassthrough{f})
+	ctx := gopointer.Save(f)
 	return p.phidgetError(C.PhidgetSpatial_setOnAlgorithmDataHandler(
 		p.handle, (C.phidget_quaternion_fcn)(unsafe.Pointer(C.cquaternioncallback)), ctx))
 }

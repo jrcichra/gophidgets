@@ -22,12 +22,7 @@ func (p *PhidgetDigitalInput) Create() {
 
 // GetValue gets the input from a phidget input sensor
 func (p *PhidgetDigitalInput) GetState() (bool, error) {
-	var r C.int
-	cerr := C.PhidgetDigitalInput_getState(p.handle, &r)
-	if cerr != C.EPHIDGET_OK {
-		return false, p.phidgetError(cerr)
-	}
-	return r != 0, nil
+	return getBool(&p.phidget, func(r *C.int) C.PhidgetReturnCode { return C.PhidgetDigitalInput_getState(p.handle, r) })
 }
 
 // Close - close the handle and delete it

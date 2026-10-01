@@ -25,19 +25,13 @@ func (p *PhidgetTemperatureSensor) Create() {
 
 // GetValue gets the temperature from a phidget temperature sensor
 func (p *PhidgetTemperatureSensor) GetValue() (float64, error) {
-	var r C.double
-	if cerr := C.PhidgetTemperatureSensor_getTemperature(p.handle, &r); cerr != C.EPHIDGET_OK {
-		return 0, p.phidgetError(cerr)
-	}
-	return float64(r), nil
+	return getDouble(&p.phidget, func(r *C.double) C.PhidgetReturnCode { return C.PhidgetTemperatureSensor_getTemperature(p.handle, r) })
 }
 
 // SetOnTemperatureChangeHandler - interrupt for temperature changes calls a function
 func (p *PhidgetTemperatureSensor) SetOnTemperatureChangeHandler(f func(float64)) error {
 	//make a c function pointer to a go function pointer and pass it through the phidget context
-	var passthrough Passthrough
-	passthrough.f = f
-	pt := gopointer.Save(passthrough)
+	pt := gopointer.Save(f)
 	cerr := C.PhidgetTemperatureSensor_setOnTemperatureChangeHandler(p.handle, (C.phidget_double_fcn)(unsafe.Pointer(C.ccallback)), pt)
 	return p.phidgetError(cerr)
 }

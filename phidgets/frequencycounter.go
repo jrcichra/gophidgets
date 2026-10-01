@@ -86,7 +86,7 @@ func (p *PhidgetFrequencyCounter) GetDataInterval() (uint32, error) {
 
 // SetOnFrequencyChangeHandler sets a callback that fires when the measured frequency changes
 func (p *PhidgetFrequencyCounter) SetOnFrequencyChangeHandler(f func(float64)) error {
-	ctx := gopointer.Save(Passthrough{f})
+	ctx := gopointer.Save(f)
 	return p.phidgetError(C.PhidgetFrequencyCounter_setOnFrequencyChangeHandler(
 		p.handle, (C.phidget_double_fcn)(unsafe.Pointer(C.ccallback)), ctx))
 }

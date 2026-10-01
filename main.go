@@ -108,7 +108,7 @@ func main() {
 				val, _ := s.GetValue()
 				val = val*9.0/5.0 + 32
 				fmt.Printf("Temperature is %f Fahrenheit\n", val)
-				lcd.SetText(fmt.Sprintf("Justin: %f", val))
+				lcd.WriteText(phidgets.LCDFont6x12, 40, 25, fmt.Sprintf("Justin: %f", val))
 			case *phidgets.PhidgetHumiditySensor:
 				hum, _ := s.GetValue()
 				fmt.Println("Humidity is", hum)
