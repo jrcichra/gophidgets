@@ -7,8 +7,6 @@ package phidgets
 import "C"
 import (
 	"unsafe"
-
-	gopointer "github.com/mattn/go-pointer"
 )
 
 // PhidgetGPS wraps a Phidget GPS receiver
@@ -56,7 +54,7 @@ func (p *PhidgetGPS) GetPositionFixState() (bool, error) {
 // SetOnPositionChangeHandler sets a callback that fires when the GPS position changes.
 // The callback receives latitude, longitude, and altitude.
 func (p *PhidgetGPS) SetOnPositionChangeHandler(f func(float64, float64, float64)) error {
-	ctx := gopointer.Save(f)
+	ctx := p.save(f)
 	return p.phidgetError(C.PhidgetGPS_setOnPositionChangeHandler(
 		p.handle, (C.phidget_threefloat_fcn)(unsafe.Pointer(C.cthreefloatcallback)), ctx))
 }
@@ -64,7 +62,7 @@ func (p *PhidgetGPS) SetOnPositionChangeHandler(f func(float64, float64, float64
 // SetOnHeadingChangeHandler sets a callback that fires when the heading or velocity changes.
 // The callback receives heading (degrees) and velocity (km/h).
 func (p *PhidgetGPS) SetOnHeadingChangeHandler(f func(float64, float64)) error {
-	ctx := gopointer.Save(f)
+	ctx := p.save(f)
 	return p.phidgetError(C.PhidgetGPS_setOnHeadingChangeHandler(
 		p.handle, (C.phidget_twofloat_fcn)(unsafe.Pointer(C.ctwofloatcallback)), ctx))
 }
@@ -72,7 +70,7 @@ func (p *PhidgetGPS) SetOnHeadingChangeHandler(f func(float64, float64)) error {
 // SetOnPositionFixStateChangeHandler sets a callback that fires when the fix state changes.
 // The callback receives 1 for fix acquired, 0 for fix lost.
 func (p *PhidgetGPS) SetOnPositionFixStateChangeHandler(f func(float64)) error {
-	ctx := gopointer.Save(f)
+	ctx := p.save(f)
 	return p.phidgetError(C.PhidgetGPS_setOnPositionFixStateChangeHandler(
 		p.handle, (C.phidget_double_fcn)(unsafe.Pointer(C.ccallback)), ctx))
 }

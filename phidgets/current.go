@@ -7,8 +7,6 @@ package phidgets
 import "C"
 import (
 	"unsafe"
-
-	gopointer "github.com/mattn/go-pointer"
 )
 
 // PhidgetCurrentInput is the struct that is a phidget current sensor
@@ -31,7 +29,7 @@ func (p *PhidgetCurrentInput) GetValue() (float64, error) {
 // SetOnCurrentChangeHandler - interrupt for current changes calls a function
 func (p *PhidgetCurrentInput) SetOnCurrentChangeHandler(f func(float64)) error {
 	//make a c function pointer to a go function pointer and pass it through the phidget context
-	pt := gopointer.Save(f)
+	pt := p.save(f)
 	cerr := C.PhidgetCurrentInput_setOnCurrentChangeHandler(p.handle, (C.phidget_double_fcn)(unsafe.Pointer(C.ccallback)), pt)
 	if cerr != C.EPHIDGET_OK {
 		return p.phidgetError(cerr)

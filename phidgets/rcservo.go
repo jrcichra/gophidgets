@@ -7,8 +7,6 @@ package phidgets
 import "C"
 import (
 	"unsafe"
-
-	gopointer "github.com/mattn/go-pointer"
 )
 
 // PhidgetRCServo wraps a Phidget RC servo controller channel
@@ -120,21 +118,21 @@ func (p *PhidgetRCServo) SetDataInterval(ms uint32) error {
 
 // SetOnPositionChangeHandler sets a callback that fires when the position changes
 func (p *PhidgetRCServo) SetOnPositionChangeHandler(f func(float64)) error {
-	ctx := gopointer.Save(f)
+	ctx := p.save(f)
 	return p.phidgetError(C.PhidgetRCServo_setOnPositionChangeHandler(
 		p.handle, (C.phidget_double_fcn)(unsafe.Pointer(C.ccallback)), ctx))
 }
 
 // SetOnVelocityChangeHandler sets a callback that fires when the velocity changes
 func (p *PhidgetRCServo) SetOnVelocityChangeHandler(f func(float64)) error {
-	ctx := gopointer.Save(f)
+	ctx := p.save(f)
 	return p.phidgetError(C.PhidgetRCServo_setOnVelocityChangeHandler(
 		p.handle, (C.phidget_double_fcn)(unsafe.Pointer(C.ccallback)), ctx))
 }
 
 // SetOnTargetPositionReachedHandler sets a callback that fires when the target position is reached
 func (p *PhidgetRCServo) SetOnTargetPositionReachedHandler(f func(float64)) error {
-	ctx := gopointer.Save(f)
+	ctx := p.save(f)
 	return p.phidgetError(C.PhidgetRCServo_setOnTargetPositionReachedHandler(
 		p.handle, (C.phidget_double_fcn)(unsafe.Pointer(C.ccallback)), ctx))
 }

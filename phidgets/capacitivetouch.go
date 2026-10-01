@@ -7,8 +7,6 @@ package phidgets
 import "C"
 import (
 	"unsafe"
-
-	gopointer "github.com/mattn/go-pointer"
 )
 
 // PhidgetCapacitiveTouch wraps a Phidget capacitive touch sensor
@@ -67,14 +65,14 @@ func (p *PhidgetCapacitiveTouch) GetDataInterval() (uint32, error) {
 
 // SetOnTouchHandler sets a callback that fires when the sensor is touched; receives the touch value
 func (p *PhidgetCapacitiveTouch) SetOnTouchHandler(f func(float64)) error {
-	ctx := gopointer.Save(f)
+	ctx := p.save(f)
 	return p.phidgetError(C.PhidgetCapacitiveTouch_setOnTouchHandler(
 		p.handle, (C.phidget_double_fcn)(unsafe.Pointer(C.ccallback)), ctx))
 }
 
 // SetOnTouchEndHandler sets a callback that fires when touch ends
 func (p *PhidgetCapacitiveTouch) SetOnTouchEndHandler(f func()) error {
-	ctx := gopointer.Save(f)
+	ctx := p.save(f)
 	return p.phidgetError(C.PhidgetCapacitiveTouch_setOnTouchEndHandler(
 		p.handle, (C.phidget_void_fcn)(unsafe.Pointer(C.cvoidcallback)), ctx))
 }

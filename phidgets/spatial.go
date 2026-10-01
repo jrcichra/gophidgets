@@ -7,8 +7,6 @@ package phidgets
 import "C"
 import (
 	"unsafe"
-
-	gopointer "github.com/mattn/go-pointer"
 )
 
 // PhidgetSpatial wraps a Phidget spatial sensor (combined accel + gyro + magnetometer)
@@ -79,7 +77,7 @@ func (p *PhidgetSpatial) SetAlgorithm(algo int) error {
 // SetOnSpatialDataHandler sets a callback that fires on each spatial data update.
 // The callback receives: acceleration [x,y,z], angularRate [x,y,z], magneticField [x,y,z], timestamp.
 func (p *PhidgetSpatial) SetOnSpatialDataHandler(f func([]float64, []float64, []float64, float64)) error {
-	ctx := gopointer.Save(f)
+	ctx := p.save(f)
 	return p.phidgetError(C.PhidgetSpatial_setOnSpatialDataHandler(
 		p.handle, (C.phidget_spatial_fcn)(unsafe.Pointer(C.cspatialcallback)), ctx))
 }
@@ -87,7 +85,7 @@ func (p *PhidgetSpatial) SetOnSpatialDataHandler(f func([]float64, []float64, []
 // SetOnAlgorithmDataHandler sets a callback that fires on each orientation algorithm update.
 // The callback receives: quaternion [w,x,y,z], timestamp.
 func (p *PhidgetSpatial) SetOnAlgorithmDataHandler(f func([]float64, float64)) error {
-	ctx := gopointer.Save(f)
+	ctx := p.save(f)
 	return p.phidgetError(C.PhidgetSpatial_setOnAlgorithmDataHandler(
 		p.handle, (C.phidget_quaternion_fcn)(unsafe.Pointer(C.cquaternioncallback)), ctx))
 }

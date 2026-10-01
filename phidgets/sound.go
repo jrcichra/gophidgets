@@ -7,8 +7,6 @@ package phidgets
 import "C"
 import (
 	"unsafe"
-
-	gopointer "github.com/mattn/go-pointer"
 )
 
 // PhidgetSoundSensor is the struct that is a phidget sound sensor
@@ -36,7 +34,7 @@ func (p *PhidgetSoundSensor) SetSPLChangeTrigger(dBs float64) error {
 // SetOnSPLChangeHandler - interrupt for sound changes calls a function
 func (p *PhidgetSoundSensor) SetOnSPLChangeHandler(f func(float64, float64, float64, []float64)) error {
 	//make a c function pointer to a go function pointer and pass it through the phidget context
-	pt := gopointer.Save(f)
+	pt := p.save(f)
 	cerr := C.PhidgetSoundSensor_setOnSPLChangeHandler(p.handle, (C.phidget_sound_fcn)(unsafe.Pointer(C.csoundcallback)), pt)
 	if cerr != C.EPHIDGET_OK {
 		return p.phidgetError(cerr)

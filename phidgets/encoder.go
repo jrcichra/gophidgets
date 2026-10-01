@@ -7,8 +7,6 @@ package phidgets
 import "C"
 import (
 	"unsafe"
-
-	gopointer "github.com/mattn/go-pointer"
 )
 
 // PhidgetEncoder wraps a Phidget encoder (quadrature or simple)
@@ -79,7 +77,7 @@ func (p *PhidgetEncoder) GetDataInterval() (uint32, error) {
 // SetOnPositionChangeHandler sets a callback that fires on position change events.
 // The callback receives: positionChange (ticks since last event), timeChange (seconds), indexTriggered.
 func (p *PhidgetEncoder) SetOnPositionChangeHandler(f func(int, float64, bool)) error {
-	ctx := gopointer.Save(f)
+	ctx := p.save(f)
 	return p.phidgetError(C.PhidgetEncoder_setOnPositionChangeHandler(
 		p.handle, (C.phidget_encoder_fcn)(unsafe.Pointer(C.cencodercallback)), ctx))
 }

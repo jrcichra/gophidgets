@@ -7,8 +7,6 @@ package phidgets
 import "C"
 import (
 	"unsafe"
-
-	gopointer "github.com/mattn/go-pointer"
 )
 
 // PhidgetTemperatureSensor is the struct that is a phidget temperature sensor
@@ -31,7 +29,7 @@ func (p *PhidgetTemperatureSensor) GetValue() (float64, error) {
 // SetOnTemperatureChangeHandler - interrupt for temperature changes calls a function
 func (p *PhidgetTemperatureSensor) SetOnTemperatureChangeHandler(f func(float64)) error {
 	//make a c function pointer to a go function pointer and pass it through the phidget context
-	pt := gopointer.Save(f)
+	pt := p.save(f)
 	cerr := C.PhidgetTemperatureSensor_setOnTemperatureChangeHandler(p.handle, (C.phidget_double_fcn)(unsafe.Pointer(C.ccallback)), pt)
 	return p.phidgetError(cerr)
 }

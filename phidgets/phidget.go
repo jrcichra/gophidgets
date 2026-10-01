@@ -9,11 +9,21 @@ import (
 	"fmt"
 	"time"
 	"unsafe"
+
+	gopointer "github.com/mattn/go-pointer"
 )
 
 // Phidget - general phidget interface that all phidgets are derived from (for ease of type management)
 type phidget struct {
 	handle C.PhidgetHandle
+	ctxs   []unsafe.Pointer // gopointer contexts handed to C handlers; released on Close
+}
+
+// save registers f as a C handler context and remembers it so Close can release it
+func (p *phidget) save(f interface{}) unsafe.Pointer {
+	ctx := gopointer.Save(f)
+	p.ctxs = append(p.ctxs, ctx)
+	return ctx
 }
 
 type Phidget interface {
@@ -110,7 +120,15 @@ func (p *phidget) GetDeviceSerialNumber() (int, error) {
 
 // Close - close the handle and delete it
 func (p *phidget) Close() error {
-	return p.phidgetError(C.Phidget_close(p.handle))
+	if err := p.phidgetError(C.Phidget_close(p.handle)); err != nil {
+		return err
+	}
+	// Phidget_close waits for in-flight handlers, so the contexts are safe to release
+	for _, ctx := range p.ctxs {
+		gopointer.Unref(ctx)
+	}
+	p.ctxs = nil
+	return nil
 }
 
 // GetChannelClassName gets the name of the channel class the channel belongs to.

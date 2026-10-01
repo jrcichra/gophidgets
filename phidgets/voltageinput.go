@@ -8,8 +8,6 @@ import "C"
 import (
 	"errors"
 	"unsafe"
-
-	gopointer "github.com/mattn/go-pointer"
 )
 
 var voltageInputSensorTypeMap map[string]C.PhidgetVoltageInput_SensorType = map[string]C.PhidgetVoltageInput_SensorType{
@@ -75,7 +73,7 @@ func (p *PhidgetVoltageInput) GetSensorValue() (float64, error) {
 // SetOnVoltageChangeHandler - voltage input for temperature changes calls a function
 func (p *PhidgetVoltageInput) SetOnVoltageChangeHandler(f func(float64)) error {
 	//make a c function pointer to a go function pointer and pass it through the phidget context
-	pt := gopointer.Save(f)
+	pt := p.save(f)
 	cerr := C.PhidgetVoltageInput_setOnVoltageChangeHandler(p.handle, (C.phidget_double_fcn)(unsafe.Pointer(C.ccallback)), pt)
 	if cerr != C.EPHIDGET_OK {
 		return p.phidgetError(cerr)

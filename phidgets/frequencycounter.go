@@ -7,8 +7,6 @@ package phidgets
 import "C"
 import (
 	"unsafe"
-
-	gopointer "github.com/mattn/go-pointer"
 )
 
 // PhidgetFrequencyCounter wraps a Phidget frequency counter
@@ -86,7 +84,7 @@ func (p *PhidgetFrequencyCounter) GetDataInterval() (uint32, error) {
 
 // SetOnFrequencyChangeHandler sets a callback that fires when the measured frequency changes
 func (p *PhidgetFrequencyCounter) SetOnFrequencyChangeHandler(f func(float64)) error {
-	ctx := gopointer.Save(f)
+	ctx := p.save(f)
 	return p.phidgetError(C.PhidgetFrequencyCounter_setOnFrequencyChangeHandler(
 		p.handle, (C.phidget_double_fcn)(unsafe.Pointer(C.ccallback)), ctx))
 }
@@ -94,7 +92,7 @@ func (p *PhidgetFrequencyCounter) SetOnFrequencyChangeHandler(f func(float64)) e
 // SetOnCountChangeHandler sets a callback that fires when new pulses are counted.
 // The callback receives: counts (new pulses in this interval), timeChange (seconds).
 func (p *PhidgetFrequencyCounter) SetOnCountChangeHandler(f func(uint64, float64)) error {
-	ctx := gopointer.Save(f)
+	ctx := p.save(f)
 	return p.phidgetError(C.PhidgetFrequencyCounter_setOnCountChangeHandler(
 		p.handle, (C.phidget_count_fcn)(unsafe.Pointer(C.ccountcallback)), ctx))
 }

@@ -7,8 +7,6 @@ package phidgets
 import "C"
 import (
 	"unsafe"
-
-	gopointer "github.com/mattn/go-pointer"
 )
 
 // PhidgetPressureSensor wraps a Phidget pressure sensor
@@ -62,7 +60,7 @@ func (p *PhidgetPressureSensor) GetDataInterval() (uint32, error) {
 
 // SetOnPressureChangeHandler sets a callback that fires when pressure changes beyond the trigger
 func (p *PhidgetPressureSensor) SetOnPressureChangeHandler(f func(float64)) error {
-	ctx := gopointer.Save(f)
+	ctx := p.save(f)
 	return p.phidgetError(C.PhidgetPressureSensor_setOnPressureChangeHandler(
 		p.handle, (C.phidget_double_fcn)(unsafe.Pointer(C.ccallback)), ctx))
 }

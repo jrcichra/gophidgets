@@ -7,8 +7,6 @@ package phidgets
 import "C"
 import (
 	"unsafe"
-
-	gopointer "github.com/mattn/go-pointer"
 )
 
 // PhidgetStepper wraps a Phidget stepper motor controller
@@ -130,21 +128,21 @@ func (p *PhidgetStepper) GetDataInterval() (uint32, error) {
 
 // SetOnPositionChangeHandler sets a callback that fires when the position changes
 func (p *PhidgetStepper) SetOnPositionChangeHandler(f func(float64)) error {
-	ctx := gopointer.Save(f)
+	ctx := p.save(f)
 	return p.phidgetError(C.PhidgetStepper_setOnPositionChangeHandler(
 		p.handle, (C.phidget_double_fcn)(unsafe.Pointer(C.ccallback)), ctx))
 }
 
 // SetOnVelocityChangeHandler sets a callback that fires when the velocity changes
 func (p *PhidgetStepper) SetOnVelocityChangeHandler(f func(float64)) error {
-	ctx := gopointer.Save(f)
+	ctx := p.save(f)
 	return p.phidgetError(C.PhidgetStepper_setOnVelocityChangeHandler(
 		p.handle, (C.phidget_double_fcn)(unsafe.Pointer(C.ccallback)), ctx))
 }
 
 // SetOnStoppedHandler sets a callback that fires when the stepper has stopped moving
 func (p *PhidgetStepper) SetOnStoppedHandler(f func()) error {
-	ctx := gopointer.Save(f)
+	ctx := p.save(f)
 	return p.phidgetError(C.PhidgetStepper_setOnStoppedHandler(
 		p.handle, (C.phidget_void_fcn)(unsafe.Pointer(C.cvoidcallback)), ctx))
 }

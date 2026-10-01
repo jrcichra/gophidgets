@@ -7,8 +7,6 @@ package phidgets
 import "C"
 import (
 	"unsafe"
-
-	gopointer "github.com/mattn/go-pointer"
 )
 
 // PhidgetPHSensor wraps a Phidget pH sensor
@@ -70,7 +68,7 @@ func (p *PhidgetPHSensor) GetDataInterval() (uint32, error) {
 
 // SetOnPHChangeHandler sets a callback that fires when pH changes beyond the trigger
 func (p *PhidgetPHSensor) SetOnPHChangeHandler(f func(float64)) error {
-	ctx := gopointer.Save(f)
+	ctx := p.save(f)
 	return p.phidgetError(C.PhidgetPHSensor_setOnPHChangeHandler(
 		p.handle, (C.phidget_double_fcn)(unsafe.Pointer(C.ccallback)), ctx))
 }

@@ -113,13 +113,3 @@ func boolToCInt(b bool) C.int {
 	}
 	return r
 }
-
-func intToBool(i int) bool {
-	var b bool
-	if i > 0 {
-		b = true
-	} else {
-		b = false
-	}
-	return b
-}

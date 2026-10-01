@@ -7,8 +7,6 @@ package phidgets
 import "C"
 import (
 	"unsafe"
-
-	gopointer "github.com/mattn/go-pointer"
 )
 
 // PhidgetAccelerometer is the struct that is a phidget motion sensor
@@ -111,7 +109,7 @@ func (p *PhidgetAccelerometer) GetMaxDataInterval() (uint32, error) {
 // SetOnAccelerationChangeHandler - interrupt for motion changes calls a function
 func (p *PhidgetAccelerometer) SetOnAccelerationChangeHandler(f func([]float64, float64)) error {
 	//make a c function pointer to a go function pointer and pass it through the phidget context
-	pt := gopointer.Save(f)
+	pt := p.save(f)
 	cerr := C.PhidgetAccelerometer_setOnAccelerationChangeHandler(p.handle, (C.phidget_motion_fcn)(unsafe.Pointer(C.cmotioncallback)), pt)
 	if cerr != C.EPHIDGET_OK {
 		return p.phidgetError(cerr)

@@ -7,8 +7,6 @@ package phidgets
 import "C"
 import (
 	"unsafe"
-
-	gopointer "github.com/mattn/go-pointer"
 )
 
 // PhidgetMagnetometer wraps a Phidget magnetometer (compass)
@@ -87,7 +85,7 @@ func (p *PhidgetMagnetometer) GetHeatingEnabled() (bool, error) {
 // SetOnMagneticFieldChangeHandler sets a callback that fires when the magnetic field changes.
 // The callback receives the field as [x, y, z] and the timestamp in seconds.
 func (p *PhidgetMagnetometer) SetOnMagneticFieldChangeHandler(f func([]float64, float64)) error {
-	ctx := gopointer.Save(f)
+	ctx := p.save(f)
 	return p.phidgetError(C.PhidgetMagnetometer_setOnMagneticFieldChangeHandler(
 		p.handle, (C.phidget_motion_fcn)(unsafe.Pointer(C.cmotioncallback)), ctx))
 }
