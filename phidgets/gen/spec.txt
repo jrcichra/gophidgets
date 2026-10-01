@@ -1,0 +1,4 @@
+# Input for gen/main.go. Classes to generate from phidget22.h (Go type = Phidget<Class>).
+classes BLDCMotor CapacitiveTouch DCMotor Encoder FrequencyCounter GPS Gyroscope Magnetometer PHSensor PressureSensor RCServo ResistanceInput Spatial Stepper VoltageOutput
+# The header types every boolean as int; these property names become Go bool.
+bool IsTouched BackEMFSensingState Enabled HeatingEnabled PositionFixState Engaged IsMoving SpeedRampingState

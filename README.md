@@ -29,3 +29,10 @@ for {
     time.Sleep(time.Duration(5) * time.Second)
 }
 ```
+
+## Adding a channel class
+
+Most classes are generated from `/usr/include/phidget22.h` (the `*_gen.go` files). To add one, append its
+name to `phidgets/gen/spec.txt` and run `go generate ./...` in `phidgets/` (the header must be installed).
+Functions the generator can't express (struct or string outputs, unsupported callbacks) are listed on
+stderr; wrap those by hand in a normal `.go` file. Commit the regenerated files.

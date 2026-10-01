@@ -95,6 +95,14 @@ func getUint32(p *phidget, f func(*C.uint32_t) C.PhidgetReturnCode) (uint32, err
 	return get(p, f, func(r C.uint32_t) uint32 { return uint32(r) })
 }
 
+func getInt64(p *phidget, f func(*C.int64_t) C.PhidgetReturnCode) (int64, error) {
+	return get(p, f, func(r C.int64_t) int64 { return int64(r) })
+}
+
+func getUint64(p *phidget, f func(*C.uint64_t) C.PhidgetReturnCode) (uint64, error) {
+	return get(p, f, func(r C.uint64_t) uint64 { return uint64(r) })
+}
+
 func getInt(p *phidget, f func(*C.int) C.PhidgetReturnCode) (int, error) {
 	return get(p, f, func(r C.int) int { return int(r) })
 }

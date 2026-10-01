@@ -37,16 +37,3 @@ const (
 	LCDScreen4x40   = C.SCREEN_SIZE_4x40
 	LCDScreen64x128 = C.SCREEN_SIZE_64x128
 )
-
-// SpatialAlgorithm values, for use with the methods that take them as int.
-const (
-	SpatialAlgorithmNone = C.SPATIAL_ALGORITHM_NONE
-	SpatialAlgorithmAHRS = C.SPATIAL_ALGORITHM_AHRS
-	SpatialAlgorithmIMU  = C.SPATIAL_ALGORITHM_IMU
-)
-
-// VoltageOutputRange values, for use with the methods that take them as int.
-const (
-	VoltageOutputRange10V = C.VOLTAGE_OUTPUT_RANGE_10V
-	VoltageOutputRange5V  = C.VOLTAGE_OUTPUT_RANGE_5V
-)
