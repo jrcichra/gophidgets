@@ -50,3 +50,17 @@ const (
 	VoltageOutputRange10V = C.VOLTAGE_OUTPUT_RANGE_10V
 	VoltageOutputRange5V  = C.VOLTAGE_OUTPUT_RANGE_5V
 )
+
+// PositionType values, for use with the motor velocity controller
+// SetPositionType/GetPositionType.
+const (
+	PositionTypeEncoder    = C.POSITION_TYPE_ENCODER
+	PositionTypeHallSensor = C.POSITION_TYPE_HALL_SENSOR
+)
+
+// RFIDProtocol values, for use with the methods that take them as int.
+const (
+	RFIDProtocolEM4100      = C.PROTOCOL_EM4100
+	RFIDProtocolISO11785FDX = C.PROTOCOL_ISO11785_FDX_B
+	RFIDProtocolPhidget     = C.PROTOCOL_PHIDGETS
+)

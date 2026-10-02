@@ -64,11 +64,6 @@ func statecallback(handle unsafe.Pointer, ctx unsafe.Pointer, state C.int) {
 	gopointer.Restore(ctx).(func(bool))(state != 0)
 }
 
-//export intcallback
-func intcallback(handle unsafe.Pointer, ctx unsafe.Pointer, value C.int) {
-	gopointer.Restore(ctx).(func(int))(int(value))
-}
-
 //export uint32callback
 func uint32callback(handle unsafe.Pointer, ctx unsafe.Pointer, value C.uint32_t) {
 	gopointer.Restore(ctx).(func(uint32))(uint32(value))

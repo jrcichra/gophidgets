@@ -27,7 +27,10 @@ type PhidgetManager struct {
 
 //export attach_handler
 func attach_handler(man C.PhidgetManagerHandle, ctx unsafe.Pointer, channel C.PhidgetHandle) {
-	m := gopointer.Restore(ctx).(*PhidgetManager)
+	m, _ := gopointer.Restore(ctx).(*PhidgetManager)
+	if m == nil {
+		return
+	}
 
 	var class C.Phidget_ChannelClass
 	if cerr := C.Phidget_getChannelClass(channel, &class); cerr != C.EPHIDGET_OK {
@@ -113,7 +116,10 @@ func attach_handler(man C.PhidgetManagerHandle, ctx unsafe.Pointer, channel C.Ph
 
 //export manager_detach_handler
 func manager_detach_handler(man C.PhidgetManagerHandle, ctx unsafe.Pointer, channel C.PhidgetHandle) {
-	m := gopointer.Restore(ctx).(*PhidgetManager)
+	m, _ := gopointer.Restore(ctx).(*PhidgetManager)
+	if m == nil {
+		return
+	}
 
 	m.Lock()
 	var removed Phidget
@@ -173,10 +179,7 @@ func NewPhidgetManager() (*PhidgetManager, error) {
 }
 
 func managerError(cerr C.PhidgetReturnCode) error {
-	if cerr == C.EPHIDGET_OK {
-		return nil
-	}
-	return newPhidgetError(cerr, "")
+	return newPhidgetError(cerr)
 }
 
 // ListPhidgets returns a list of phidgets that have been discovered

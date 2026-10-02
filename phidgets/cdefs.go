@@ -71,12 +71,6 @@ void cstatecallback(void* handle, void* ctx, int state) {
   statecallback(handle, ctx, state);
 }
 
-// Int callback: raw int value (GPS position fix state, ...)
-void intcallback(void*, void*, int);
-void cintcallback(void* handle, void* ctx, int value) {
-  intcallback(handle, ctx, value);
-}
-
 // Uint32 callback: raw uint32 value (distance sensor distance, ...)
 void uint32callback(void*, void*, uint32_t);
 void cuint32callback(void* handle, void* ctx, uint32_t value) {

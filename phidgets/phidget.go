@@ -137,28 +137,26 @@ func (e *PhidgetError) Is(target error) bool {
 	return false
 }
 
-func newPhidgetError(code C.PhidgetReturnCode, message string) *PhidgetError {
-	var errString *C.char
-	C.Phidget_getErrorDescription(code, &errString)
+func newPhidgetError(code C.PhidgetReturnCode) *PhidgetError {
 	if code == C.EPHIDGET_OK {
 		return nil
 	}
-	if message == "" {
-		message = C.GoString(errString)
-	}
+	var errString *C.char
+	C.Phidget_getErrorDescription(code, &errString)
+	message := C.GoString(errString)
 	return &PhidgetError{code: int32(code), message: message}
 }
 
 func (p *phidget) phidgetError(cerr C.PhidgetReturnCode) error {
-	if cerr == C.EPHIDGET_OK {
+	err := newPhidgetError(cerr)
+	if err == nil {
 		return nil
 	}
-	message := ""
 	var className *C.char
 	if C.Phidget_getChannelClassName(p.handle, &className) == C.EPHIDGET_OK {
-		message = C.GoString(className) + ": "
+		err.message = C.GoString(className) + ": " + err.message
 	}
-	return newPhidgetError(cerr, message)
+	return err
 }
 
 // SetOnAttachHandler sets a callback that is called when the channel attaches

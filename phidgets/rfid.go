@@ -17,13 +17,6 @@ type PhidgetRFID struct {
 	handle C.PhidgetRFIDHandle
 }
 
-// RFIDProtocol values, for use with the methods that take them as int.
-const (
-	RFIDProtocolEM4100      = C.PROTOCOL_EM4100
-	RFIDProtocolISO11785FDX = C.PROTOCOL_ISO11785_FDX_B
-	RFIDProtocolPhidget     = C.PROTOCOL_PHIDGETS
-)
-
 // Create creates a PhidgetRFID handle
 func (p *PhidgetRFID) Create() {
 	C.PhidgetRFID_create(&p.handle)
@@ -33,9 +26,8 @@ func (p *PhidgetRFID) Create() {
 // GetLastTag returns the tag data most recently read by the reader and the
 // protocol the tag was written in.
 //
-// length is the expected tag data length in bytes; it depends on the tag
-// protocol (for example 10 for EM4100), and the returned slice has exactly
-// that length.
+// length is the expected tag data length in bytes, which depends on the tag
+// protocol; the returned slice has exactly that length.
 func (p *PhidgetRFID) GetLastTag(length int) ([]byte, int, error) {
 	if length <= 0 {
 		return nil, 0, errors.New("gophidgets: tag length must be positive")

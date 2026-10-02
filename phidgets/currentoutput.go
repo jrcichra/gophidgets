@@ -20,9 +20,8 @@ func (p *PhidgetCurrentOutput) Create() {
 	p.rawHandle(unsafe.Pointer(p.handle))
 }
 
-// SetCurrent sets the output current in amps. A negative value drives current
-// out of the device (sourcing into a load connected between the sensor input
-// and the current output).
+// SetCurrent sets the output current in amps, bounded by the device's
+// minimum and maximum current limits.
 func (p *PhidgetCurrentOutput) SetCurrent(amps float64) error {
 	return p.phidgetError(C.PhidgetCurrentOutput_setCurrent(p.handle, C.double(amps)))
 }
