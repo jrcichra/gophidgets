@@ -126,6 +126,103 @@ func (p *PhidgetLCD) GetScreenSize() (int, error) {
 	return get(&p.phidget, func(r *C.PhidgetLCD_ScreenSize) C.PhidgetReturnCode { return C.PhidgetLCD_getScreenSize(p.handle, r) }, func(r C.PhidgetLCD_ScreenSize) int { return int(r) })
 }
 
+// GetMinBacklight returns the minimum backlight brightness.
+func (p *PhidgetLCD) GetMinBacklight() (float64, error) {
+	return getDouble(&p.phidget, func(r *C.double) C.PhidgetReturnCode { return C.PhidgetLCD_getMinBacklight(p.handle, r) })
+}
+
+// GetMaxBacklight returns the maximum backlight brightness.
+func (p *PhidgetLCD) GetMaxBacklight() (float64, error) {
+	return getDouble(&p.phidget, func(r *C.double) C.PhidgetReturnCode { return C.PhidgetLCD_getMaxBacklight(p.handle, r) })
+}
+
+// GetMinContrast returns the minimum contrast.
+func (p *PhidgetLCD) GetMinContrast() (float64, error) {
+	return getDouble(&p.phidget, func(r *C.double) C.PhidgetReturnCode { return C.PhidgetLCD_getMinContrast(p.handle, r) })
+}
+
+// GetMaxContrast returns the maximum contrast.
+func (p *PhidgetLCD) GetMaxContrast() (float64, error) {
+	return getDouble(&p.phidget, func(r *C.double) C.PhidgetReturnCode { return C.PhidgetLCD_getMaxContrast(p.handle, r) })
+}
+
+// GetCursorOn returns whether the cursor is visible.
+func (p *PhidgetLCD) GetCursorOn() (bool, error) {
+	return getBool(&p.phidget, func(r *C.int) C.PhidgetReturnCode { return C.PhidgetLCD_getCursorOn(p.handle, r) })
+}
+
+// GetCursorBlink returns whether cursor blinking is enabled.
+func (p *PhidgetLCD) GetCursorBlink() (bool, error) {
+	return getBool(&p.phidget, func(r *C.int) C.PhidgetReturnCode { return C.PhidgetLCD_getCursorBlink(p.handle, r) })
+}
+
+// GetSleeping returns whether the display is sleeping.
+func (p *PhidgetLCD) GetSleeping() (bool, error) {
+	return getBool(&p.phidget, func(r *C.int) C.PhidgetReturnCode { return C.PhidgetLCD_getSleeping(p.handle, r) })
+}
+
+// GetFrameBuffer returns the frame buffer that is currently used for drawing.
+func (p *PhidgetLCD) GetFrameBuffer() (int, error) {
+	return getInt(&p.phidget, func(r *C.int) C.PhidgetReturnCode { return C.PhidgetLCD_getFrameBuffer(p.handle, r) })
+}
+
+// SetFrameBuffer selects the frame buffer to use for drawing.
+func (p *PhidgetLCD) SetFrameBuffer(frameBuffer int) error {
+	return p.phidgetError(C.PhidgetLCD_setFrameBuffer(p.handle, C.int(frameBuffer)))
+}
+
+// SaveFrameBuffer saves the specified frame buffer to flash memory.
+func (p *PhidgetLCD) SaveFrameBuffer(frameBuffer int) error {
+	return p.phidgetError(C.PhidgetLCD_saveFrameBuffer(p.handle, C.int(frameBuffer)))
+}
+
+// Copy copies a rectangular region from one frame buffer to another using
+// sourceFrameBuffer as the source, destFrameBuffer as the destination.
+func (p *PhidgetLCD) Copy(sourceFrameBuffer, destFrameBuffer, sourceX1, sourceY1, sourceX2, sourceY2, destX, destY int, inverted bool) error {
+	return p.phidgetError(C.PhidgetLCD_copy(p.handle,
+		C.int(sourceFrameBuffer), C.int(destFrameBuffer),
+		C.int(sourceX1), C.int(sourceY1), C.int(sourceX2), C.int(sourceY2),
+		C.int(destX), C.int(destY), boolToCInt(inverted)))
+}
+
+// GetFontSize returns the current character width and height for the given font
+// (an LCDFont constant).
+func (p *PhidgetLCD) GetFontSize(font int) (width, height int, err error) {
+	var cw, ch C.int
+	if cerr := C.PhidgetLCD_getFontSize(p.handle, C.PhidgetLCD_Font(font), &cw, &ch); cerr != C.EPHIDGET_OK {
+		return 0, 0, p.phidgetError(cerr)
+	}
+	return int(cw), int(ch), nil
+}
+
+// SetFontSize sets the character width and height to use with the given font
+// (an LCDFont constant).
+func (p *PhidgetLCD) SetFontSize(font, width, height int) error {
+	return p.phidgetError(C.PhidgetLCD_setFontSize(p.handle, C.PhidgetLCD_Font(font), C.int(width), C.int(height)))
+}
+
+// WriteBitmap writes a bitmap (bitmap) to the screen at the given position
+// with the specified dimensions.
+func (p *PhidgetLCD) WriteBitmap(x, y, xSize, ySize int, bitmap []byte) error {
+	if len(bitmap) == 0 {
+		return p.phidgetError(C.EPHIDGET_INVALIDARG)
+	}
+	ptr := (*C.uint8_t)(unsafe.Pointer(&bitmap[0]))
+	return p.phidgetError(C.PhidgetLCD_writeBitmap(p.handle, C.int(x), C.int(y), C.int(xSize), C.int(ySize), ptr))
+}
+
+// SetCharacterBitmap sets the bitmap for a single ASCII character in the
+// specified font (an LCDFont constant).
+func (p *PhidgetLCD) SetCharacterBitmap(font int, character byte, bitmap []byte) error {
+	if len(bitmap) == 0 {
+		return p.phidgetError(C.EPHIDGET_INVALIDARG)
+	}
+	cchar := C.CString(string(rune(character)))
+	defer C.free(unsafe.Pointer(cchar))
+	ptr := (*C.uint8_t)(unsafe.Pointer(&bitmap[0]))
+	return p.phidgetError(C.PhidgetLCD_setCharacterBitmap(p.handle, C.PhidgetLCD_Font(font), cchar, ptr))
+}
+
 // Close closes the handle and deletes it.
 func (p *PhidgetLCD) Close() error {
 	if err := p.phidget.Close(); err != nil {

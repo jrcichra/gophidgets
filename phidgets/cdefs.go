@@ -119,6 +119,12 @@ void cirlearncallback(void* handle, void* ctx, const char* code, PhidgetIR_CodeI
   irlearncallback(handle, ctx, code, info);
 }
 
+// Base event handlers
+void propcallback(void*, void*, const char*);
+void cpropcallback(void* handle, void* ctx, const char* name) {
+  propcallback(handle, ctx, name);
+}
+
 // Manager detach callback
 void manager_detach_handler(PhidgetManagerHandle man, void *ctx, PhidgetHandle channel);
 void cmanager_detach_callback(PhidgetManagerHandle man, void *ctx, PhidgetHandle channel) {

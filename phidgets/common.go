@@ -109,6 +109,11 @@ func irlearncallback(handle unsafe.Pointer, ctx unsafe.Pointer, code *C.char, in
 	gopointer.Restore(ctx).(func(string, IRCodeInfo))(C.GoString(code), irCodeInfoFromC((*C.PhidgetIR_CodeInfo)(info)))
 }
 
+//export propcallback
+func propcallback(handle unsafe.Pointer, ctx unsafe.Pointer, name *C.char) {
+	gopointer.Restore(ctx).(func(string))(C.GoString(name))
+}
+
 //export soundcallback
 func soundcallback(handle unsafe.Pointer, ctx unsafe.Pointer, dB C.double, dBA C.double, dBC C.double, octaves *C.double) {
 	gopointer.Restore(ctx).(func(float64, float64, float64, []float64))(float64(dB), float64(dBA), float64(dBC), cDoubles(octaves, 10))

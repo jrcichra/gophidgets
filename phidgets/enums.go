@@ -72,6 +72,11 @@ const (
 	FanModeAuto = C.FAN_MODE_AUTO
 )
 
+// HubPortSpeed values for PhidgetHubPortSpeed / VINT port-speed methods (bps).
+const (
+	HubPortSpeedAuto = C.PHIDGET_HUBPORTSPEED_AUTO
+)
+
 // HubPortMode values, for use with the PhidgetHub port-mode methods.
 const (
 	HubPortModeVintPort          = C.PORT_MODE_VINT_PORT

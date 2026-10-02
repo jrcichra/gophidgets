@@ -27,6 +27,7 @@ typedef void (*phidget_key_fcn)    (void*, void*, const char*);
 typedef void (*phidget_ircode_fcn) (void*, void*, const char*, uint32_t, int);
 typedef void (*phidget_irraw_fcn)  (void*, void*, const uint32_t*, size_t);
 typedef void (*phidget_irlearn_fcn)(void*, void*, const char*, void*);
+typedef void (*phidget_prop_fcn)   (void*, void*, const char*);
 
 /*
  * Forward declarations of C shim functions defined in cdefs.go.
@@ -51,6 +52,7 @@ void cdictkeycallback(void*, void*, const char*);
 void circodecallback(void*, void*, const char*, uint32_t, int);
 void cirrawcallback(void*, void*, const uint32_t*, size_t);
 void cirlearncallback(void*, void*, const char*, PhidgetIR_CodeInfo*);
+void cpropcallback(void*, void*, const char*);
 void cmanager_detach_callback(PhidgetManagerHandle, void*, PhidgetHandle);
 
 #endif /* GOPHIDGETS_H */
