@@ -7,7 +7,7 @@ package phidgets
 */
 import "C"
 import (
-	"errors"
+	"strings"
 	"unsafe"
 )
 
@@ -32,21 +32,6 @@ func (p *PhidgetDictionary) withKV(key, value string, f func(k, v *C.char) C.Phi
 	return p.phidgetError(f(ckey, cvalue))
 }
 
-// read runs f with arg as a C string and a maxLen-byte result buffer
-func (p *PhidgetDictionary) read(arg string, maxLen int, f func(arg, buf *C.char, n C.size_t) C.PhidgetReturnCode) (string, error) {
-	if maxLen <= 0 {
-		return "", errors.New("gophidgets: buffer length must be positive")
-	}
-	carg := C.CString(arg)
-	defer C.free(unsafe.Pointer(carg))
-	buf := C.malloc(C.size_t(maxLen))
-	defer C.free(buf)
-	if cerr := f(carg, (*C.char)(buf), C.size_t(maxLen)); cerr != C.EPHIDGET_OK {
-		return "", p.phidgetError(cerr)
-	}
-	return string(C.GoBytes(buf, C.int(maxLen))), nil
-}
-
 // Add adds a key/value pair to the dictionary
 func (p *PhidgetDictionary) Add(key, value string) error {
 	return p.withKV(key, value, func(k, v *C.char) C.PhidgetReturnCode { return C.PhidgetDictionary_add(p.handle, k, v) })
@@ -62,11 +47,13 @@ func (p *PhidgetDictionary) Update(key, value string) error {
 	return p.withKV(key, value, func(k, v *C.char) C.PhidgetReturnCode { return C.PhidgetDictionary_update(p.handle, k, v) })
 }
 
-// Get returns the value associated with key. maxLen is the size in bytes of
-// the buffer the value is read into; longer values are truncated.
-func (p *PhidgetDictionary) Get(key string, maxLen int) (string, error) {
-	return p.read(key, maxLen, func(k, buf *C.char, n C.size_t) C.PhidgetReturnCode {
-		return C.PhidgetDictionary_get(p.handle, k, buf, n)
+// Get returns the value associated with key
+func (p *PhidgetDictionary) Get(key string) (string, error) {
+	ckey := C.CString(key)
+	defer C.free(unsafe.Pointer(ckey))
+	// dictionary values are at most 64 KiB
+	return readString(&p.phidget, 1<<16+1, func(buf *C.char, n C.size_t) C.PhidgetReturnCode {
+		return C.PhidgetDictionary_get(p.handle, ckey, buf, n)
 	})
 }
 
@@ -82,12 +69,19 @@ func (p *PhidgetDictionary) RemoveAll() error {
 	return p.phidgetError(C.PhidgetDictionary_removeAll(p.handle))
 }
 
-// Scan returns keys in the dictionary that start with the given prefix.
-// maxLen is the size in bytes of the buffer the key list is read into.
-func (p *PhidgetDictionary) Scan(prefix string, maxLen int) (string, error) {
-	return p.read(prefix, maxLen, func(k, buf *C.char, n C.size_t) C.PhidgetReturnCode {
-		return C.PhidgetDictionary_scan(p.handle, k, buf, n)
+// Scan returns the next page of keys after start ("" for the first page).
+// A page may not hold every key: call Scan again with the last key returned
+// to continue. An empty result means all keys have been scanned.
+func (p *PhidgetDictionary) Scan(start string) ([]string, error) {
+	cstart := C.CString(start)
+	defer C.free(unsafe.Pointer(cstart))
+	list, err := readString(&p.phidget, 1<<16, func(buf *C.char, n C.size_t) C.PhidgetReturnCode {
+		return C.PhidgetDictionary_scan(p.handle, cstart, buf, n)
 	})
+	if err != nil || list == "" {
+		return nil, err
+	}
+	return strings.Split(strings.TrimSuffix(list, "\n"), "\n"), nil
 }
 
 // SetOnAddHandler sets a callback that fires when a key is added

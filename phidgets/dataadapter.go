@@ -24,14 +24,14 @@ func (p *PhidgetDataAdapter) Create() {
 }
 
 // GetDataAdapterVoltage returns the adapter I/O voltage (Phidget_DataAdapterVoltage)
-func (p *PhidgetDataAdapter) GetDataAdapterVoltage() (int, error) {
+func (p *PhidgetDataAdapter) GetDataAdapterVoltage() (DataAdapterVoltage, error) {
 	return get(&p.phidget, func(r *C.Phidget_DataAdapterVoltage) C.PhidgetReturnCode {
 		return C.PhidgetDataAdapter_getDataAdapterVoltage(p.handle, r)
-	}, func(r C.Phidget_DataAdapterVoltage) int { return int(r) })
+	}, func(r C.Phidget_DataAdapterVoltage) DataAdapterVoltage { return DataAdapterVoltage(r) })
 }
 
 // SetDataAdapterVoltage sets the adapter I/O voltage (Phidget_DataAdapterVoltage)
-func (p *PhidgetDataAdapter) SetDataAdapterVoltage(voltage int) error {
+func (p *PhidgetDataAdapter) SetDataAdapterVoltage(voltage DataAdapterVoltage) error {
 	return p.phidgetError(C.PhidgetDataAdapter_setDataAdapterVoltage(p.handle, C.Phidget_DataAdapterVoltage(voltage)))
 }
 
@@ -56,50 +56,52 @@ func (p *PhidgetDataAdapter) GetMaxDataBits() (uint32, error) {
 }
 
 // GetEndianness returns the data endianness (PhidgetDataAdapter_Endianness)
-func (p *PhidgetDataAdapter) GetEndianness() (int, error) {
+func (p *PhidgetDataAdapter) GetEndianness() (DataAdapterEndianness, error) {
 	return get(&p.phidget, func(r *C.PhidgetDataAdapter_Endianness) C.PhidgetReturnCode {
 		return C.PhidgetDataAdapter_getEndianness(p.handle, r)
-	}, func(r C.PhidgetDataAdapter_Endianness) int { return int(r) })
+	}, func(r C.PhidgetDataAdapter_Endianness) DataAdapterEndianness { return DataAdapterEndianness(r) })
 }
 
 // SetEndianness sets the data endianness (PhidgetDataAdapter_Endianness)
-func (p *PhidgetDataAdapter) SetEndianness(order int) error {
+func (p *PhidgetDataAdapter) SetEndianness(order DataAdapterEndianness) error {
 	return p.phidgetError(C.PhidgetDataAdapter_setEndianness(p.handle, C.PhidgetDataAdapter_Endianness(order)))
 }
 
 // GetFrequency returns the bus frequency (PhidgetDataAdapter_Frequency)
-func (p *PhidgetDataAdapter) GetFrequency() (int, error) {
+func (p *PhidgetDataAdapter) GetFrequency() (DataAdapterFrequency, error) {
 	return get(&p.phidget, func(r *C.PhidgetDataAdapter_Frequency) C.PhidgetReturnCode {
 		return C.PhidgetDataAdapter_getFrequency(p.handle, r)
-	}, func(r C.PhidgetDataAdapter_Frequency) int { return int(r) })
+	}, func(r C.PhidgetDataAdapter_Frequency) DataAdapterFrequency { return DataAdapterFrequency(r) })
 }
 
 // SetFrequency sets the bus frequency (PhidgetDataAdapter_Frequency)
-func (p *PhidgetDataAdapter) SetFrequency(freq int) error {
+func (p *PhidgetDataAdapter) SetFrequency(freq DataAdapterFrequency) error {
 	return p.phidgetError(C.PhidgetDataAdapter_setFrequency(p.handle, C.PhidgetDataAdapter_Frequency(freq)))
 }
 
 // GetSPIChipSelect returns the SPI chip select configuration (PhidgetDataAdapter_SPIChipSelect)
-func (p *PhidgetDataAdapter) GetSPIChipSelect() (int, error) {
+func (p *PhidgetDataAdapter) GetSPIChipSelect() (DataAdapterSPIChipSelect, error) {
 	return get(&p.phidget, func(r *C.PhidgetDataAdapter_SPIChipSelect) C.PhidgetReturnCode {
 		return C.PhidgetDataAdapter_getSPIChipSelect(p.handle, r)
-	}, func(r C.PhidgetDataAdapter_SPIChipSelect) int { return int(r) })
+	}, func(r C.PhidgetDataAdapter_SPIChipSelect) DataAdapterSPIChipSelect {
+		return DataAdapterSPIChipSelect(r)
+	})
 }
 
 // SetSPIChipSelect sets the SPI chip select configuration (PhidgetDataAdapter_SPIChipSelect)
-func (p *PhidgetDataAdapter) SetSPIChipSelect(sel int) error {
+func (p *PhidgetDataAdapter) SetSPIChipSelect(sel DataAdapterSPIChipSelect) error {
 	return p.phidgetError(C.PhidgetDataAdapter_setSPIChipSelect(p.handle, C.PhidgetDataAdapter_SPIChipSelect(sel)))
 }
 
 // GetSPIMode returns the SPI mode (PhidgetDataAdapter_SPIMode)
-func (p *PhidgetDataAdapter) GetSPIMode() (int, error) {
+func (p *PhidgetDataAdapter) GetSPIMode() (DataAdapterSPIMode, error) {
 	return get(&p.phidget, func(r *C.PhidgetDataAdapter_SPIMode) C.PhidgetReturnCode {
 		return C.PhidgetDataAdapter_getSPIMode(p.handle, r)
-	}, func(r C.PhidgetDataAdapter_SPIMode) int { return int(r) })
+	}, func(r C.PhidgetDataAdapter_SPIMode) DataAdapterSPIMode { return DataAdapterSPIMode(r) })
 }
 
 // SetSPIMode sets the SPI mode (PhidgetDataAdapter_SPIMode)
-func (p *PhidgetDataAdapter) SetSPIMode(mode int) error {
+func (p *PhidgetDataAdapter) SetSPIMode(mode DataAdapterSPIMode) error {
 	return p.phidgetError(C.PhidgetDataAdapter_setSPIMode(p.handle, C.PhidgetDataAdapter_SPIMode(mode)))
 }
 
@@ -126,15 +128,15 @@ func (p *PhidgetDataAdapter) SendPacket(data []byte) error {
 	return p.phidgetError(C.PhidgetDataAdapter_sendPacket(p.handle, ptr, C.size_t(len(data))))
 }
 
-// SendPacketWaitResponse sends data and waits for a response. maxReceive is
-// the size in bytes of the response buffer; the returned slice holds the
-// number of bytes actually received.
-func (p *PhidgetDataAdapter) SendPacketWaitResponse(data []byte, maxReceive int) ([]byte, error) {
+// SendPacketWaitResponse sends data and waits for a response, returning the
+// bytes received.
+func (p *PhidgetDataAdapter) SendPacketWaitResponse(data []byte) ([]byte, error) {
 	if len(data) == 0 {
 		return nil, errors.New("gophidgets: packet data must not be empty")
 	}
-	if maxReceive <= 0 {
-		return nil, errors.New("gophidgets: receive length must be positive")
+	maxReceive, err := p.GetMaxReceivePacketLength()
+	if err != nil {
+		return nil, err
 	}
 	dptr := (*C.uint8_t)(unsafe.Pointer(&data[0]))
 	buf := C.malloc(C.size_t(maxReceive))
@@ -147,30 +149,31 @@ func (p *PhidgetDataAdapter) SendPacketWaitResponse(data []byte, maxReceive int)
 	return C.GoBytes(unsafe.Pointer(buf), C.int(recvLen)), nil
 }
 
-// I2CSendReceive sends data to an I2C device and receives up to maxReceive bytes
-func (p *PhidgetDataAdapter) I2CSendReceive(address int32, data []byte, maxReceive int) ([]byte, error) {
+// I2CSendReceive sends data to an I2C device, then reads receiveLen bytes from it
+func (p *PhidgetDataAdapter) I2CSendReceive(address int32, data []byte, receiveLen int) ([]byte, error) {
 	if len(data) == 0 {
 		return nil, errors.New("gophidgets: I2C data must not be empty")
 	}
-	if maxReceive <= 0 {
+	if receiveLen <= 0 {
 		return nil, errors.New("gophidgets: receive length must be positive")
 	}
 	dptr := (*C.uint8_t)(unsafe.Pointer(&data[0]))
-	buf := C.malloc(C.size_t(maxReceive))
+	buf := C.malloc(C.size_t(receiveLen))
 	defer C.free(buf)
 	if cerr := C.PhidgetDataAdapter_i2cSendReceive(
-		p.handle, C.int32_t(address), dptr, C.size_t(len(data)), (*C.uint8_t)(buf), C.size_t(maxReceive)); cerr != C.EPHIDGET_OK {
+		p.handle, C.int32_t(address), dptr, C.size_t(len(data)), (*C.uint8_t)(buf), C.size_t(receiveLen)); cerr != C.EPHIDGET_OK {
 		return nil, p.phidgetError(cerr)
 	}
-	return C.GoBytes(unsafe.Pointer(buf), C.int(maxReceive)), nil
+	return C.GoBytes(unsafe.Pointer(buf), C.int(receiveLen)), nil
 }
 
 // I2CComplexTransaction performs a complex I2C transaction described by
 // packetString ('s' = start, 'R' = receive, etc.). data holds the bytes to
-// send, in order; the receive bytes are returned, up to maxReceive bytes.
-func (p *PhidgetDataAdapter) I2CComplexTransaction(address int32, packetString string, data []byte, maxReceive int) ([]byte, error) {
-	if maxReceive <= 0 {
-		return nil, errors.New("gophidgets: receive length must be positive")
+// send, in order; the received bytes are returned.
+func (p *PhidgetDataAdapter) I2CComplexTransaction(address int32, packetString string, data []byte) ([]byte, error) {
+	maxReceive, err := p.GetMaxReceivePacketLength()
+	if err != nil {
+		return nil, err
 	}
 	ckey := C.CString(packetString)
 	defer C.free(unsafe.Pointer(ckey))

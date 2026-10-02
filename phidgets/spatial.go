@@ -70,7 +70,7 @@ func (p *PhidgetSpatial) ZeroAlgorithm() error {
 }
 
 // SetAlgorithm sets the orientation algorithm (use the SpatialAlgorithm constants)
-func (p *PhidgetSpatial) SetAlgorithm(algo int) error {
+func (p *PhidgetSpatial) SetAlgorithm(algo SpatialAlgorithm) error {
 	return p.phidgetError(C.PhidgetSpatial_setAlgorithm(p.handle, C.Phidget_SpatialAlgorithm(algo)))
 }
 

@@ -50,7 +50,7 @@ type Phidget interface {
 	// Channel-level event handlers
 	SetOnAttachHandler(f func()) error
 	SetOnDetachHandler(f func()) error
-	SetOnErrorHandler(f func(code int, message string)) error
+	SetOnErrorHandler(f func(code ErrorEvent, message string)) error
 
 	// Unexported function for internal management
 	getRawHandle() *C.PhidgetHandle
@@ -170,7 +170,7 @@ func (p *phidget) SetOnDetachHandler(f func()) error {
 
 // SetOnErrorHandler sets a callback that is called when the channel reports an error.
 // The callback receives the EEPHIDGET_* error event code and the error message.
-func (p *phidget) SetOnErrorHandler(f func(code int, message string)) error {
+func (p *phidget) SetOnErrorHandler(f func(code ErrorEvent, message string)) error {
 	ctx := p.save(f)
 	return p.phidgetError(C.Phidget_setOnErrorHandler(
 		p.handle, (C.phidget_error_fcn)(unsafe.Pointer(C.errorcallback)), ctx))
@@ -246,8 +246,8 @@ func (p *phidget) GetDeviceVINTID() (uint32, error) {
 }
 
 // GetDeviceClass returns the device class of the attached device
-func (p *phidget) GetDeviceClass() (int, error) {
-	return get(p, func(r *C.Phidget_DeviceClass) C.PhidgetReturnCode { return C.Phidget_getDeviceClass(p.handle, r) }, func(r C.Phidget_DeviceClass) int { return int(r) })
+func (p *phidget) GetDeviceClass() (DeviceClass, error) {
+	return get(p, func(r *C.Phidget_DeviceClass) C.PhidgetReturnCode { return C.Phidget_getDeviceClass(p.handle, r) }, func(r C.Phidget_DeviceClass) DeviceClass { return DeviceClass(r) })
 }
 
 // GetDeviceClassName returns the class name of the attached device
@@ -256,8 +256,9 @@ func (p *phidget) GetDeviceClassName() (string, error) {
 }
 
 // GetDeviceChannelCount returns the number of channels of the given class
-// (a PHIDGETCHCLASS_* value) that the attached device has
-func (p *phidget) GetDeviceChannelCount(cls int) (uint32, error) {
+//
+//	that the attached device has
+func (p *phidget) GetDeviceChannelCount(cls ChannelClass) (uint32, error) {
 	return getUint32(p, func(r *C.uint32_t) C.PhidgetReturnCode {
 		return C.Phidget_getDeviceChannelCount(p.handle, C.Phidget_ChannelClass(cls), r)
 	})
@@ -269,16 +270,16 @@ func (p *phidget) GetDeviceFirmwareUpgradeString() (string, error) {
 	return getString(p, func(r **C.char) C.PhidgetReturnCode { return C.Phidget_getDeviceFirmwareUpgradeString(p.handle, r) })
 }
 
-// GetChannelClass returns the class of this channel (a PHIDGETCHCLASS_* value)
-func (p *phidget) GetChannelClass() (int, error) {
-	return get(p, func(r *C.Phidget_ChannelClass) C.PhidgetReturnCode { return C.Phidget_getChannelClass(p.handle, r) }, func(r C.Phidget_ChannelClass) int { return int(r) })
+// GetChannelClass returns the class of this channel
+func (p *phidget) GetChannelClass() (ChannelClass, error) {
+	return get(p, func(r *C.Phidget_ChannelClass) C.PhidgetReturnCode { return C.Phidget_getChannelClass(p.handle, r) }, func(r C.Phidget_ChannelClass) ChannelClass { return ChannelClass(r) })
 }
 
 // GetChannelSubclass returns the subclass of this channel
-func (p *phidget) GetChannelSubclass() (int, error) {
+func (p *phidget) GetChannelSubclass() (ChannelSubclass, error) {
 	return get(p, func(r *C.Phidget_ChannelSubclass) C.PhidgetReturnCode {
 		return C.Phidget_getChannelSubclass(p.handle, r)
-	}, func(r C.Phidget_ChannelSubclass) int { return int(r) })
+	}, func(r C.Phidget_ChannelSubclass) ChannelSubclass { return ChannelSubclass(r) })
 }
 
 // GetChannelPersistence returns the hub-port channel persistence state

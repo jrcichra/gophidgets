@@ -28,7 +28,7 @@ type LEDAnimation struct {
 	StartAddress uint32
 	EndAddress   uint32
 	Time         uint32 // time between changes (ms)
-	Type         int    // PhidgetLEDArray_AnimationType
+	Type         LEDAnimationType
 }
 
 func ledColorToC(c LEDColor) C.PhidgetLEDArray_Color {
@@ -171,14 +171,14 @@ func (p *PhidgetLEDArray) GetMaxGamma() (float64, error) {
 }
 
 // GetColorOrder returns the LED color order (PhidgetLEDArray_ColorOrder)
-func (p *PhidgetLEDArray) GetColorOrder() (int, error) {
+func (p *PhidgetLEDArray) GetColorOrder() (LEDColorOrder, error) {
 	return get(&p.phidget, func(r *C.PhidgetLEDArray_ColorOrder) C.PhidgetReturnCode {
 		return C.PhidgetLEDArray_getColorOrder(p.handle, r)
-	}, func(r C.PhidgetLEDArray_ColorOrder) int { return int(r) })
+	}, func(r C.PhidgetLEDArray_ColorOrder) LEDColorOrder { return LEDColorOrder(r) })
 }
 
 // SetColorOrder sets the LED color order (PhidgetLEDArray_ColorOrder)
-func (p *PhidgetLEDArray) SetColorOrder(order int) error {
+func (p *PhidgetLEDArray) SetColorOrder(order LEDColorOrder) error {
 	return p.phidgetError(C.PhidgetLEDArray_setColorOrder(p.handle, C.PhidgetLEDArray_ColorOrder(order)))
 }
 

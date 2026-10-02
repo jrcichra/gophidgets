@@ -7,7 +7,6 @@ package phidgets
 */
 import "C"
 import (
-	"errors"
 	"unsafe"
 )
 
@@ -23,28 +22,18 @@ func (p *PhidgetRFID) Create() {
 	p.rawHandle(unsafe.Pointer(p.handle))
 }
 
-// GetLastTag returns the tag data most recently read by the reader and the
-// protocol the tag was written in.
-//
-// length is the expected tag data length in bytes, which depends on the tag
-// protocol; the returned slice has exactly that length.
-func (p *PhidgetRFID) GetLastTag(length int) ([]byte, int, error) {
-	if length <= 0 {
-		return nil, 0, errors.New("gophidgets: tag length must be positive")
-	}
-	buf := C.malloc(C.size_t(length))
-	defer C.free(buf)
+// GetLastTag returns the most recently read tag's data and protocol, even if
+// the tag is no longer in range.
+func (p *PhidgetRFID) GetLastTag() (string, RFIDProtocol, error) {
 	var protocol C.PhidgetRFID_Protocol
-	if cerr := C.PhidgetRFID_getLastTag(p.handle, (*C.char)(buf), C.size_t(length), &protocol); cerr != C.EPHIDGET_OK {
-		return nil, 0, p.phidgetError(cerr)
-	}
-	tag := make([]byte, length)
-	copy(tag, C.GoBytes(buf, C.int(length)))
-	return tag, int(protocol), nil
+	tag, err := readString(&p.phidget, 256, func(buf *C.char, n C.size_t) C.PhidgetReturnCode {
+		return C.PhidgetRFID_getLastTag(p.handle, buf, n, &protocol)
+	})
+	return tag, RFIDProtocol(protocol), err
 }
 
 // Write writes data to the tag currently being read by the reader.
-func (p *PhidgetRFID) Write(tag string, protocol int, lock bool) error {
+func (p *PhidgetRFID) Write(tag string, protocol RFIDProtocol, lock bool) error {
 	cstr := C.CString(tag)
 	defer C.free(unsafe.Pointer(cstr))
 	return p.phidgetError(C.PhidgetRFID_write(p.handle, cstr, C.PhidgetRFID_Protocol(protocol), boolToCInt(lock)))
@@ -67,7 +56,7 @@ func (p *PhidgetRFID) GetTagPresent() (bool, error) {
 
 // SetOnTagHandler sets a callback that fires when a tag is detected.
 // The callback receives the tag data and the protocol it was written in.
-func (p *PhidgetRFID) SetOnTagHandler(f func(tag string, protocol int)) error {
+func (p *PhidgetRFID) SetOnTagHandler(f func(tag string, protocol RFIDProtocol)) error {
 	ctx := p.save(f)
 	return p.phidgetError(C.PhidgetRFID_setOnTagHandler(
 		p.handle, (C.phidget_rfid_fcn)(unsafe.Pointer(C.rfidtagcallback)), ctx))
@@ -75,7 +64,7 @@ func (p *PhidgetRFID) SetOnTagHandler(f func(tag string, protocol int)) error {
 
 // SetOnTagLostHandler sets a callback that fires when a detected tag is lost.
 // The callback receives the tag data and the protocol it was written in.
-func (p *PhidgetRFID) SetOnTagLostHandler(f func(tag string, protocol int)) error {
+func (p *PhidgetRFID) SetOnTagLostHandler(f func(tag string, protocol RFIDProtocol)) error {
 	ctx := p.save(f)
 	return p.phidgetError(C.PhidgetRFID_setOnTagLostHandler(
 		p.handle, (C.phidget_rfid_fcn)(unsafe.Pointer(C.rfidtagcallback)), ctx))

@@ -52,13 +52,13 @@ func (p *PhidgetPowerGuard) GetMaxOverVoltage() (float64, error) {
 }
 
 // SetFanMode sets the fan mode (Phidget_FanMode)
-func (p *PhidgetPowerGuard) SetFanMode(mode int) error {
+func (p *PhidgetPowerGuard) SetFanMode(mode FanMode) error {
 	return p.phidgetError(C.PhidgetPowerGuard_setFanMode(p.handle, C.Phidget_FanMode(mode)))
 }
 
 // GetFanMode returns the fan mode (Phidget_FanMode)
-func (p *PhidgetPowerGuard) GetFanMode() (int, error) {
-	return get(&p.phidget, func(r *C.Phidget_FanMode) C.PhidgetReturnCode { return C.PhidgetPowerGuard_getFanMode(p.handle, r) }, func(r C.Phidget_FanMode) int { return int(r) })
+func (p *PhidgetPowerGuard) GetFanMode() (FanMode, error) {
+	return get(&p.phidget, func(r *C.Phidget_FanMode) C.PhidgetReturnCode { return C.PhidgetPowerGuard_getFanMode(p.handle, r) }, func(r C.Phidget_FanMode) FanMode { return FanMode(r) })
 }
 
 // GetMinFailsafeTime returns the minimum settable failsafe time in milliseconds

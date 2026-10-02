@@ -210,15 +210,15 @@ func (p *PhidgetMotorVelocityController) GetDataRate() (float64, error) {
 }
 
 // SetPositionType selects the position measurement source (Phidget_PositionType)
-func (p *PhidgetMotorVelocityController) SetPositionType(positionType int) error {
+func (p *PhidgetMotorVelocityController) SetPositionType(positionType PositionType) error {
 	return p.phidgetError(C.PhidgetMotorVelocityController_setPositionType(p.handle, C.Phidget_PositionType(positionType)))
 }
 
 // GetPositionType returns the position measurement source (Phidget_PositionType)
-func (p *PhidgetMotorVelocityController) GetPositionType() (int, error) {
+func (p *PhidgetMotorVelocityController) GetPositionType() (PositionType, error) {
 	return get(&p.phidget, func(r *C.Phidget_PositionType) C.PhidgetReturnCode {
 		return C.PhidgetMotorVelocityController_getPositionType(p.handle, r)
-	}, func(r C.Phidget_PositionType) int { return int(r) })
+	}, func(r C.Phidget_PositionType) PositionType { return PositionType(r) })
 }
 
 // SetFailsafeBrakingEnabled sets whether to hold the motor in place when the failsafe triggers

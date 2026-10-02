@@ -29,16 +29,16 @@ func (p *PhidgetHub) GetPortMaxSpeed(port int) (uint32, error) {
 }
 
 // GetPortMode returns the mode of the given port (PhidgetHub_PortMode)
-func (p *PhidgetHub) GetPortMode(port int) (int, error) {
+func (p *PhidgetHub) GetPortMode(port int) (HubPortMode, error) {
 	var r C.PhidgetHub_PortMode
 	if cerr := C.PhidgetHub_getPortMode(p.handle, C.int(port), &r); cerr != C.EPHIDGET_OK {
 		return 0, p.phidgetError(cerr)
 	}
-	return int(r), nil
+	return HubPortMode(r), nil
 }
 
 // SetPortMode sets the mode of the given port (PhidgetHub_PortMode)
-func (p *PhidgetHub) SetPortMode(port int, mode int) error {
+func (p *PhidgetHub) SetPortMode(port int, mode HubPortMode) error {
 	return p.phidgetError(C.PhidgetHub_setPortMode(p.handle, C.int(port), C.PhidgetHub_PortMode(mode)))
 }
 

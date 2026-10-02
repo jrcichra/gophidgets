@@ -73,12 +73,12 @@ func uint32callback(handle unsafe.Pointer, ctx unsafe.Pointer, value C.uint32_t)
 
 //export errorcallback
 func errorcallback(handle unsafe.Pointer, ctx unsafe.Pointer, code C.int, message *C.char) {
-	restore(ctx).(func(int, string))(int(code), C.GoString(message))
+	restore(ctx).(func(ErrorEvent, string))(ErrorEvent(code), C.GoString(message))
 }
 
 //export rfidtagcallback
 func rfidtagcallback(handle unsafe.Pointer, ctx unsafe.Pointer, tag *C.char, protocol C.int) {
-	restore(ctx).(func(string, int))(C.GoString(tag), int(protocol))
+	restore(ctx).(func(string, RFIDProtocol))(C.GoString(tag), RFIDProtocol(protocol))
 }
 
 //export dictkvcallback
@@ -158,6 +158,25 @@ func getInt(p *phidget, f func(*C.int) C.PhidgetReturnCode) (int, error) {
 
 func getString(p *phidget, f func(**C.char) C.PhidgetReturnCode) (string, error) {
 	return get(p, f, func(r *C.char) string { return C.GoString(r) })
+}
+
+// readString calls f with a C string buffer of the given size, doubling it
+// while libphidget22 reports EPHIDGET_NOSPC, and returns the NUL-terminated result.
+func readString(p *phidget, size int, f func(buf *C.char, n C.size_t) C.PhidgetReturnCode) (string, error) {
+	for {
+		buf := C.malloc(C.size_t(size))
+		cerr := f((*C.char)(buf), C.size_t(size))
+		if cerr == C.EPHIDGET_OK {
+			s := C.GoString((*C.char)(buf))
+			C.free(buf)
+			return s, nil
+		}
+		C.free(buf)
+		if cerr != C.EPHIDGET_NOSPC || size >= 1<<20 {
+			return "", p.phidgetError(cerr)
+		}
+		size *= 2
+	}
 }
 
 func getBool(p *phidget, f func(*C.int) C.PhidgetReturnCode) (bool, error) {

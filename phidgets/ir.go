@@ -8,7 +8,6 @@ package phidgets
 */
 import "C"
 import (
-	"errors"
 	"unsafe"
 )
 
@@ -20,8 +19,8 @@ type PhidgetIR struct {
 
 // IRCodeInfo describes an IR code's transmission parameters
 type IRCodeInfo struct {
-	Encoding         int        // PhidgetIR_Encoding
-	Length           int        // PhidgetIR_Length
+	Encoding         IREncoding
+	Length           IRLength
 	Gap              uint32     // gap time (us)
 	Trail            uint32     // trail time (us); 0 for none
 	Header           [2]uint32  // header pulse and space (us)
@@ -80,8 +79,8 @@ func irCodeInfoFromC(c *C.PhidgetIR_CodeInfo) IRCodeInfo {
 	re := [26]uint32{}
 	uint32FromC(&c.repeat[0], re[:])
 	return IRCodeInfo{
-		Encoding:         int(c.encoding),
-		Length:           int(c.length),
+		Encoding:         IREncoding(c.encoding),
+		Length:           IRLength(c.length),
 		Gap:              uint32(c.gap),
 		Trail:            uint32(c.trail),
 		Header:           h,
@@ -101,38 +100,27 @@ func (p *PhidgetIR) Create() {
 	p.rawHandle(unsafe.Pointer(p.handle))
 }
 
-// GetLastCode returns the most recently received IR code as a string and
-// its bit count. maxLen is the size in bytes of the buffer the code is
-// read into; longer codes are truncated.
-func (p *PhidgetIR) GetLastCode(maxLen int) (string, uint32, error) {
-	if maxLen <= 0 {
-		return "", 0, errors.New("gophidgets: code length must be positive")
-	}
-	buf := C.malloc(C.size_t(maxLen))
-	defer C.free(buf)
+// GetLastCode returns the most recently received IR code (a hex string) and
+// its bit count.
+func (p *PhidgetIR) GetLastCode() (string, uint32, error) {
 	var bitCount C.uint32_t
-	cerr := C.PhidgetIR_getLastCode(p.handle, (*C.char)(buf), C.size_t(maxLen), &bitCount)
-	if cerr != C.EPHIDGET_OK {
-		return "", 0, p.phidgetError(cerr)
-	}
-	return string(C.GoBytes(buf, C.int(maxLen))), uint32(bitCount), nil
+	code, err := readString(&p.phidget, C.IR_MAX_CODE_STR_LENGTH, func(buf *C.char, n C.size_t) C.PhidgetReturnCode {
+		return C.PhidgetIR_getLastCode(p.handle, buf, n, &bitCount)
+	})
+	return code, uint32(bitCount), err
 }
 
 // GetLastLearnedCode returns the most recently learned IR code and its
-// transmission parameters. maxLen is the size in bytes of the buffer the
-// code is read into.
-func (p *PhidgetIR) GetLastLearnedCode(maxLen int) (string, IRCodeInfo, error) {
-	if maxLen <= 0 {
-		return "", IRCodeInfo{}, errors.New("gophidgets: code length must be positive")
-	}
-	buf := C.malloc(C.size_t(maxLen))
-	defer C.free(buf)
+// transmission parameters.
+func (p *PhidgetIR) GetLastLearnedCode() (string, IRCodeInfo, error) {
 	var info C.PhidgetIR_CodeInfo
-	cerr := C.PhidgetIR_getLastLearnedCode(p.handle, (*C.char)(buf), C.size_t(maxLen), &info)
-	if cerr != C.EPHIDGET_OK {
-		return "", IRCodeInfo{}, p.phidgetError(cerr)
+	code, err := readString(&p.phidget, C.IR_MAX_CODE_STR_LENGTH, func(buf *C.char, n C.size_t) C.PhidgetReturnCode {
+		return C.PhidgetIR_getLastLearnedCode(p.handle, buf, n, &info)
+	})
+	if err != nil {
+		return "", IRCodeInfo{}, err
 	}
-	return string(C.GoBytes(buf, C.int(maxLen))), irCodeInfoFromC(&info), nil
+	return code, irCodeInfoFromC(&info), nil
 }
 
 // Transmit sends an IR code with the given transmission parameters

@@ -51,13 +51,13 @@ func (p *PhidgetVoltageOutput) GetEnabled() (bool, error) {
 }
 
 // SetVoltageOutputRange sets the output voltage range (use the VoltageOutputRange constants)
-func (p *PhidgetVoltageOutput) SetVoltageOutputRange(outputRange int) error {
+func (p *PhidgetVoltageOutput) SetVoltageOutputRange(outputRange VoltageOutputRange) error {
 	return p.phidgetError(C.PhidgetVoltageOutput_setVoltageOutputRange(p.handle, C.PhidgetVoltageOutput_VoltageOutputRange(outputRange)))
 }
 
 // GetVoltageOutputRange returns the current output voltage range
-func (p *PhidgetVoltageOutput) GetVoltageOutputRange() (int, error) {
+func (p *PhidgetVoltageOutput) GetVoltageOutputRange() (VoltageOutputRange, error) {
 	return get(&p.phidget, func(r *C.PhidgetVoltageOutput_VoltageOutputRange) C.PhidgetReturnCode {
 		return C.PhidgetVoltageOutput_getVoltageOutputRange(p.handle, r)
-	}, func(r C.PhidgetVoltageOutput_VoltageOutputRange) int { return int(r) })
+	}, func(r C.PhidgetVoltageOutput_VoltageOutputRange) VoltageOutputRange { return VoltageOutputRange(r) })
 }

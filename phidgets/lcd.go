@@ -23,7 +23,7 @@ func (p *PhidgetLCD) Create() {
 
 // WriteText writes text to the display at the given font, x, and y position.
 // Call Flush afterward (or enable AutoFlush) to push the framebuffer to the screen.
-func (p *PhidgetLCD) WriteText(font, x, y int, text string) error {
+func (p *PhidgetLCD) WriteText(font LCDFont, x, y int, text string) error {
 	str := C.CString(text)
 	defer C.free(unsafe.Pointer(str))
 	return p.phidgetError(C.PhidgetLCD_writeText(p.handle, C.PhidgetLCD_Font(font), C.int(x), C.int(y), str))
@@ -95,7 +95,7 @@ func (p *PhidgetLCD) GetHeight() (int, error) {
 }
 
 // DrawPixel draws a single pixel at (x, y). Use LCDPixelOn, LCDPixelOff or LCDPixelInvert.
-func (p *PhidgetLCD) DrawPixel(x, y int, pixelState int) error {
+func (p *PhidgetLCD) DrawPixel(x, y int, pixelState LCDPixelState) error {
 	return p.phidgetError(C.PhidgetLCD_drawPixel(p.handle, C.int(x), C.int(y), C.PhidgetLCD_PixelState(pixelState)))
 }
 
@@ -117,13 +117,13 @@ func (p *PhidgetLCD) Initialize() error {
 }
 
 // SetScreenSize sets the screen size (use the LCDScreen constants).
-func (p *PhidgetLCD) SetScreenSize(size int) error {
+func (p *PhidgetLCD) SetScreenSize(size LCDScreenSize) error {
 	return p.phidgetError(C.PhidgetLCD_setScreenSize(p.handle, C.PhidgetLCD_ScreenSize(size)))
 }
 
 // GetScreenSize returns the current screen size.
-func (p *PhidgetLCD) GetScreenSize() (int, error) {
-	return get(&p.phidget, func(r *C.PhidgetLCD_ScreenSize) C.PhidgetReturnCode { return C.PhidgetLCD_getScreenSize(p.handle, r) }, func(r C.PhidgetLCD_ScreenSize) int { return int(r) })
+func (p *PhidgetLCD) GetScreenSize() (LCDScreenSize, error) {
+	return get(&p.phidget, func(r *C.PhidgetLCD_ScreenSize) C.PhidgetReturnCode { return C.PhidgetLCD_getScreenSize(p.handle, r) }, func(r C.PhidgetLCD_ScreenSize) LCDScreenSize { return LCDScreenSize(r) })
 }
 
 // GetMinBacklight returns the minimum backlight brightness.
@@ -187,7 +187,7 @@ func (p *PhidgetLCD) Copy(sourceFrameBuffer, destFrameBuffer, sourceX1, sourceY1
 
 // GetFontSize returns the current character width and height for the given font
 // (an LCDFont constant).
-func (p *PhidgetLCD) GetFontSize(font int) (width, height int, err error) {
+func (p *PhidgetLCD) GetFontSize(font LCDFont) (width, height int, err error) {
 	var cw, ch C.int
 	if cerr := C.PhidgetLCD_getFontSize(p.handle, C.PhidgetLCD_Font(font), &cw, &ch); cerr != C.EPHIDGET_OK {
 		return 0, 0, p.phidgetError(cerr)
@@ -197,7 +197,7 @@ func (p *PhidgetLCD) GetFontSize(font int) (width, height int, err error) {
 
 // SetFontSize sets the character width and height to use with the given font
 // (an LCDFont constant).
-func (p *PhidgetLCD) SetFontSize(font, width, height int) error {
+func (p *PhidgetLCD) SetFontSize(font LCDFont, width, height int) error {
 	return p.phidgetError(C.PhidgetLCD_setFontSize(p.handle, C.PhidgetLCD_Font(font), C.int(width), C.int(height)))
 }
 
@@ -213,7 +213,7 @@ func (p *PhidgetLCD) WriteBitmap(x, y, xSize, ySize int, bitmap []byte) error {
 
 // SetCharacterBitmap sets the bitmap for a single ASCII character in the
 // specified font (an LCDFont constant).
-func (p *PhidgetLCD) SetCharacterBitmap(font int, character byte, bitmap []byte) error {
+func (p *PhidgetLCD) SetCharacterBitmap(font LCDFont, character byte, bitmap []byte) error {
 	if len(bitmap) == 0 {
 		return p.phidgetError(C.EPHIDGET_INVALIDARG)
 	}
