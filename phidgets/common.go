@@ -8,90 +8,92 @@ package phidgets
 */
 import "C"
 import (
+	"runtime/cgo"
 	"unsafe"
-
-	gopointer "github.com/mattn/go-pointer"
 )
+
+// restore returns the Go value behind a handler context made by phidget.save
+func restore(ctx unsafe.Pointer) any { return cgo.Handle(uintptr(ctx)).Value() }
 
 //export callback
 func callback(handle unsafe.Pointer, ctx unsafe.Pointer, value C.double) {
-	gopointer.Restore(ctx).(func(float64))(float64(value))
+	restore(ctx).(func(float64))(float64(value))
 }
 
 //export motioncallback
 func motioncallback(handle unsafe.Pointer, ctx unsafe.Pointer, arr *C.double, timestamp C.double) {
-	gopointer.Restore(ctx).(func([]float64, float64))(cDoubles(arr, 3), float64(timestamp))
+	restore(ctx).(func([]float64, float64))(cDoubles(arr, 3), float64(timestamp))
 }
 
 //export quaternioncallback
 func quaternioncallback(handle unsafe.Pointer, ctx unsafe.Pointer, arr *C.double, timestamp C.double) {
-	gopointer.Restore(ctx).(func([]float64, float64))(cDoubles(arr, 4), float64(timestamp))
+	restore(ctx).(func([]float64, float64))(cDoubles(arr, 4), float64(timestamp))
 }
 
 //export voidcallback
 func voidcallback(handle unsafe.Pointer, ctx unsafe.Pointer) {
-	gopointer.Restore(ctx).(func())()
+	restore(ctx).(func())()
 }
 
 //export encodercallback
 func encodercallback(handle unsafe.Pointer, ctx unsafe.Pointer, positionChange C.int, timeChange C.double, indexTriggered C.int) {
-	gopointer.Restore(ctx).(func(int, float64, bool))(int(positionChange), float64(timeChange), indexTriggered != 0)
+	restore(ctx).(func(int, float64, bool))(int(positionChange), float64(timeChange), indexTriggered != 0)
 }
 
 //export countcallback
 func countcallback(handle unsafe.Pointer, ctx unsafe.Pointer, counts C.uint64_t, timeChange C.double) {
-	gopointer.Restore(ctx).(func(uint64, float64))(uint64(counts), float64(timeChange))
+	restore(ctx).(func(uint64, float64))(uint64(counts), float64(timeChange))
 }
 
 //export twofloatcallback
 func twofloatcallback(handle unsafe.Pointer, ctx unsafe.Pointer, a C.double, b C.double) {
-	gopointer.Restore(ctx).(func(float64, float64))(float64(a), float64(b))
+	restore(ctx).(func(float64, float64))(float64(a), float64(b))
 }
 
 //export threefloatcallback
 func threefloatcallback(handle unsafe.Pointer, ctx unsafe.Pointer, a C.double, b C.double, c C.double) {
-	gopointer.Restore(ctx).(func(float64, float64, float64))(float64(a), float64(b), float64(c))
+	restore(ctx).(func(float64, float64, float64))(float64(a), float64(b), float64(c))
 }
 
 //export spatialcallback
 func spatialcallback(handle unsafe.Pointer, ctx unsafe.Pointer, accel *C.double, angularRate *C.double, magneticField *C.double, timestamp C.double) {
-	gopointer.Restore(ctx).(func([]float64, []float64, []float64, float64))(
+	restore(ctx).(func([]float64, []float64, []float64, float64))(
 		cDoubles(accel, 3), cDoubles(angularRate, 3), cDoubles(magneticField, 3), float64(timestamp))
 }
 
 //export statecallback
 func statecallback(handle unsafe.Pointer, ctx unsafe.Pointer, state C.int) {
-	gopointer.Restore(ctx).(func(bool))(state != 0)
+	restore(ctx).(func(bool))(state != 0)
 }
 
 //export uint32callback
 func uint32callback(handle unsafe.Pointer, ctx unsafe.Pointer, value C.uint32_t) {
-	gopointer.Restore(ctx).(func(uint32))(uint32(value))
+	restore(ctx).(func(uint32))(uint32(value))
 }
 
 //export errorcallback
 func errorcallback(handle unsafe.Pointer, ctx unsafe.Pointer, code C.int, message *C.char) {
-	gopointer.Restore(ctx).(func(int, string))(int(code), C.GoString(message))
+	restore(ctx).(func(int, string))(int(code), C.GoString(message))
 }
 
 //export rfidtagcallback
 func rfidtagcallback(handle unsafe.Pointer, ctx unsafe.Pointer, tag *C.char, protocol C.int) {
-	gopointer.Restore(ctx).(func(string, int))(C.GoString(tag), int(protocol))
+	restore(ctx).(func(string, int))(C.GoString(tag), int(protocol))
 }
 
 //export dictkvcallback
 func dictkvcallback(handle unsafe.Pointer, ctx unsafe.Pointer, key, value *C.char) {
-	gopointer.Restore(ctx).(func(string, string))(C.GoString(key), C.GoString(value))
+	restore(ctx).(func(string, string))(C.GoString(key), C.GoString(value))
 }
 
 //export dictkeycallback
 func dictkeycallback(handle unsafe.Pointer, ctx unsafe.Pointer, key *C.char) {
-	gopointer.Restore(ctx).(func(string))(C.GoString(key))
+	restore(ctx).(func(string))(C.GoString(key))
 }
 
 //export ircodecallback
 func ircodecallback(handle unsafe.Pointer, ctx unsafe.Pointer, code *C.char, bitCount C.uint32_t, isRepeat C.int) {
-	gopointer.Restore(ctx).(func(string, uint32, bool))(C.GoString(code), uint32(bitCount), isRepeat != 0)
+	restore(ctx).(func(string, uint32, bool))(C.GoString(code), uint32(bitCount), isRepeat != 0)
 }
 
 //export irrawcallback
@@ -101,22 +103,22 @@ func irrawcallback(handle unsafe.Pointer, ctx unsafe.Pointer, data *C.uint32_t, 
 	for i, v := range unsafe.Slice(data, n) {
 		out[i] = uint32(v)
 	}
-	gopointer.Restore(ctx).(func([]uint32))(out)
+	restore(ctx).(func([]uint32))(out)
 }
 
 //export irlearncallback
 func irlearncallback(handle unsafe.Pointer, ctx unsafe.Pointer, code *C.char, info unsafe.Pointer) {
-	gopointer.Restore(ctx).(func(string, IRCodeInfo))(C.GoString(code), irCodeInfoFromC((*C.PhidgetIR_CodeInfo)(info)))
+	restore(ctx).(func(string, IRCodeInfo))(C.GoString(code), irCodeInfoFromC((*C.PhidgetIR_CodeInfo)(info)))
 }
 
 //export propcallback
 func propcallback(handle unsafe.Pointer, ctx unsafe.Pointer, name *C.char) {
-	gopointer.Restore(ctx).(func(string))(C.GoString(name))
+	restore(ctx).(func(string))(C.GoString(name))
 }
 
 //export soundcallback
 func soundcallback(handle unsafe.Pointer, ctx unsafe.Pointer, dB C.double, dBA C.double, dBC C.double, octaves *C.double) {
-	gopointer.Restore(ctx).(func(float64, float64, float64, []float64))(float64(dB), float64(dBA), float64(dBC), cDoubles(octaves, 10))
+	restore(ctx).(func(float64, float64, float64, []float64))(float64(dB), float64(dBA), float64(dBC), cDoubles(octaves, 10))
 }
 
 // cDoubles copies n C doubles into a Go slice (the C buffer is only valid during the callback).
@@ -154,17 +156,18 @@ func getInt(p *phidget, f func(*C.int) C.PhidgetReturnCode) (int, error) {
 	return get(p, f, func(r C.int) int { return int(r) })
 }
 
+func getString(p *phidget, f func(**C.char) C.PhidgetReturnCode) (string, error) {
+	return get(p, f, func(r *C.char) string { return C.GoString(r) })
+}
+
 func getBool(p *phidget, f func(*C.int) C.PhidgetReturnCode) (bool, error) {
 	return get(p, f, func(r C.int) bool { return r != 0 })
 }
 
 // Common functions that convert different types for this package
 func boolToCInt(b bool) C.int {
-	var r C.int
 	if b {
-		r = 1
-	} else {
-		r = 0
+		return 1
 	}
-	return r
+	return 0
 }

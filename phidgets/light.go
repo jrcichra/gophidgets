@@ -30,17 +30,9 @@ func (p *PhidgetLightSensor) GetValue() (float64, error) {
 func (p *PhidgetLightSensor) SetOnIlluminanceChangeHandler(f func(float64)) error {
 	//make a c function pointer to a go function pointer and pass it through the phidget context
 	pt := p.save(f)
-	cerr := C.PhidgetLightSensor_setOnIlluminanceChangeHandler(p.handle, (C.phidget_double_fcn)(unsafe.Pointer(C.ccallback)), pt)
+	cerr := C.PhidgetLightSensor_setOnIlluminanceChangeHandler(p.handle, (C.phidget_double_fcn)(unsafe.Pointer(C.callback)), pt)
 	if cerr != C.EPHIDGET_OK {
 		return p.phidgetError(cerr)
 	}
 	return nil
-}
-
-// Close - close the handle and delete it
-func (p *PhidgetLightSensor) Close() error {
-	if err := p.phidget.Close(); err != nil {
-		return err
-	}
-	return p.phidgetError(C.PhidgetLightSensor_delete(&p.handle))
 }

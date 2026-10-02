@@ -120,27 +120,19 @@ func (p *PhidgetRCServo) SetDataInterval(ms uint32) error {
 func (p *PhidgetRCServo) SetOnPositionChangeHandler(f func(float64)) error {
 	ctx := p.save(f)
 	return p.phidgetError(C.PhidgetRCServo_setOnPositionChangeHandler(
-		p.handle, (C.phidget_double_fcn)(unsafe.Pointer(C.ccallback)), ctx))
+		p.handle, (C.phidget_double_fcn)(unsafe.Pointer(C.callback)), ctx))
 }
 
 // SetOnVelocityChangeHandler sets a callback that fires when the velocity changes
 func (p *PhidgetRCServo) SetOnVelocityChangeHandler(f func(float64)) error {
 	ctx := p.save(f)
 	return p.phidgetError(C.PhidgetRCServo_setOnVelocityChangeHandler(
-		p.handle, (C.phidget_double_fcn)(unsafe.Pointer(C.ccallback)), ctx))
+		p.handle, (C.phidget_double_fcn)(unsafe.Pointer(C.callback)), ctx))
 }
 
 // SetOnTargetPositionReachedHandler sets a callback that fires when the target position is reached
 func (p *PhidgetRCServo) SetOnTargetPositionReachedHandler(f func(float64)) error {
 	ctx := p.save(f)
 	return p.phidgetError(C.PhidgetRCServo_setOnTargetPositionReachedHandler(
-		p.handle, (C.phidget_double_fcn)(unsafe.Pointer(C.ccallback)), ctx))
-}
-
-// Close closes the handle and deletes it
-func (p *PhidgetRCServo) Close() error {
-	if err := p.phidget.Close(); err != nil {
-		return err
-	}
-	return p.phidgetError(C.PhidgetRCServo_delete(&p.handle))
+		p.handle, (C.phidget_double_fcn)(unsafe.Pointer(C.callback)), ctx))
 }

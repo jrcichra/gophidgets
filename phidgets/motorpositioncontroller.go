@@ -242,20 +242,12 @@ func (p *PhidgetMotorPositionController) ResetFailsafe() error {
 func (p *PhidgetMotorPositionController) SetOnPositionChangeHandler(f func(float64)) error {
 	ctx := p.save(f)
 	return p.phidgetError(C.PhidgetMotorPositionController_setOnPositionChangeHandler(
-		p.handle, (C.phidget_double_fcn)(unsafe.Pointer(C.ccallback)), ctx))
+		p.handle, (C.phidget_double_fcn)(unsafe.Pointer(C.callback)), ctx))
 }
 
 // SetOnDutyCycleUpdateHandler sets a callback that fires on each duty cycle update
 func (p *PhidgetMotorPositionController) SetOnDutyCycleUpdateHandler(f func(float64)) error {
 	ctx := p.save(f)
 	return p.phidgetError(C.PhidgetMotorPositionController_setOnDutyCycleUpdateHandler(
-		p.handle, (C.phidget_double_fcn)(unsafe.Pointer(C.ccallback)), ctx))
-}
-
-// Close closes the handle and deletes it
-func (p *PhidgetMotorPositionController) Close() error {
-	if err := p.phidget.Close(); err != nil {
-		return err
-	}
-	return p.phidgetError(C.PhidgetMotorPositionController_delete(&p.handle))
+		p.handle, (C.phidget_double_fcn)(unsafe.Pointer(C.callback)), ctx))
 }

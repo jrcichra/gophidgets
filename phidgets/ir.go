@@ -163,7 +163,7 @@ func (p *PhidgetIR) TransmitRepeat() error {
 func (p *PhidgetIR) SetOnCodeHandler(f func(code string, bitCount uint32, isRepeat bool)) error {
 	ctx := p.save(f)
 	return p.phidgetError(C.PhidgetIR_setOnCodeHandler(
-		p.handle, (C.phidget_ircode_fcn)(unsafe.Pointer(C.circodecallback)), ctx))
+		p.handle, (C.phidget_ircode_fcn)(unsafe.Pointer(C.ircodecallback)), ctx))
 }
 
 // SetOnLearnHandler sets a callback that fires when an IR code is learned.
@@ -171,7 +171,7 @@ func (p *PhidgetIR) SetOnCodeHandler(f func(code string, bitCount uint32, isRepe
 func (p *PhidgetIR) SetOnLearnHandler(f func(code string, info IRCodeInfo)) error {
 	ctx := p.save(f)
 	return p.phidgetError(C.PhidgetIR_setOnLearnHandler(
-		p.handle, (C.phidget_irlearn_fcn)(unsafe.Pointer(C.cirlearncallback)), ctx))
+		p.handle, (C.phidget_irlearn_fcn)(unsafe.Pointer(C.irlearncallback)), ctx))
 }
 
 // SetOnRawDataHandler sets a callback that fires for raw IR timing samples.
@@ -179,13 +179,5 @@ func (p *PhidgetIR) SetOnLearnHandler(f func(code string, info IRCodeInfo)) erro
 func (p *PhidgetIR) SetOnRawDataHandler(f func(samples []uint32)) error {
 	ctx := p.save(f)
 	return p.phidgetError(C.PhidgetIR_setOnRawDataHandler(
-		p.handle, (C.phidget_irraw_fcn)(unsafe.Pointer(C.cirrawcallback)), ctx))
-}
-
-// Close closes the handle and deletes it
-func (p *PhidgetIR) Close() error {
-	if err := p.phidget.Close(); err != nil {
-		return err
-	}
-	return p.phidgetError(C.PhidgetIR_delete(&p.handle))
+		p.handle, (C.phidget_irraw_fcn)(unsafe.Pointer(C.irrawcallback)), ctx))
 }

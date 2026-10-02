@@ -74,7 +74,7 @@ func (p *PhidgetVoltageInput) GetSensorValue() (float64, error) {
 func (p *PhidgetVoltageInput) SetOnVoltageChangeHandler(f func(float64)) error {
 	//make a c function pointer to a go function pointer and pass it through the phidget context
 	pt := p.save(f)
-	cerr := C.PhidgetVoltageInput_setOnVoltageChangeHandler(p.handle, (C.phidget_double_fcn)(unsafe.Pointer(C.ccallback)), pt)
+	cerr := C.PhidgetVoltageInput_setOnVoltageChangeHandler(p.handle, (C.phidget_double_fcn)(unsafe.Pointer(C.callback)), pt)
 	if cerr != C.EPHIDGET_OK {
 		return p.phidgetError(cerr)
 	}
@@ -87,12 +87,4 @@ func (p *PhidgetVoltageInput) SetSensorType(sensorType string) error {
 		return p.phidgetError(C.PhidgetVoltageInput_setSensorType(p.handle, sensorCode))
 	}
 	return errors.New("Unknown sensorType: " + sensorType + ". Please add it to the mapping switch in gophidgets voltageinput.go")
-}
-
-// Close - close the handle and delete it
-func (p *PhidgetVoltageInput) Close() error {
-	if err := p.phidget.Close(); err != nil {
-		return err
-	}
-	return p.phidgetError(C.PhidgetVoltageInput_delete(&p.handle))
 }

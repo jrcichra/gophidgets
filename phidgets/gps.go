@@ -56,7 +56,7 @@ func (p *PhidgetGPS) GetPositionFixState() (bool, error) {
 func (p *PhidgetGPS) SetOnPositionChangeHandler(f func(float64, float64, float64)) error {
 	ctx := p.save(f)
 	return p.phidgetError(C.PhidgetGPS_setOnPositionChangeHandler(
-		p.handle, (C.phidget_threefloat_fcn)(unsafe.Pointer(C.cthreefloatcallback)), ctx))
+		p.handle, (C.phidget_threefloat_fcn)(unsafe.Pointer(C.threefloatcallback)), ctx))
 }
 
 // SetOnHeadingChangeHandler sets a callback that fires when the heading or velocity changes.
@@ -64,7 +64,7 @@ func (p *PhidgetGPS) SetOnPositionChangeHandler(f func(float64, float64, float64
 func (p *PhidgetGPS) SetOnHeadingChangeHandler(f func(float64, float64)) error {
 	ctx := p.save(f)
 	return p.phidgetError(C.PhidgetGPS_setOnHeadingChangeHandler(
-		p.handle, (C.phidget_twofloat_fcn)(unsafe.Pointer(C.ctwofloatcallback)), ctx))
+		p.handle, (C.phidget_twofloat_fcn)(unsafe.Pointer(C.twofloatcallback)), ctx))
 }
 
 // SetOnPositionFixStateChangeHandler sets a callback that fires when the fix state changes.
@@ -72,13 +72,5 @@ func (p *PhidgetGPS) SetOnHeadingChangeHandler(f func(float64, float64)) error {
 func (p *PhidgetGPS) SetOnPositionFixStateChangeHandler(f func(bool)) error {
 	ctx := p.save(f)
 	return p.phidgetError(C.PhidgetGPS_setOnPositionFixStateChangeHandler(
-		p.handle, (C.phidget_state_fcn)(unsafe.Pointer(C.cstatecallback)), ctx))
-}
-
-// Close closes the handle and deletes it
-func (p *PhidgetGPS) Close() error {
-	if err := p.phidget.Close(); err != nil {
-		return err
-	}
-	return p.phidgetError(C.PhidgetGPS_delete(&p.handle))
+		p.handle, (C.phidget_state_fcn)(unsafe.Pointer(C.statecallback)), ctx))
 }

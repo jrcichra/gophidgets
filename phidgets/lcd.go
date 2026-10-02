@@ -222,11 +222,3 @@ func (p *PhidgetLCD) SetCharacterBitmap(font int, character byte, bitmap []byte)
 	ptr := (*C.uint8_t)(unsafe.Pointer(&bitmap[0]))
 	return p.phidgetError(C.PhidgetLCD_setCharacterBitmap(p.handle, C.PhidgetLCD_Font(font), cchar, ptr))
 }
-
-// Close closes the handle and deletes it.
-func (p *PhidgetLCD) Close() error {
-	if err := p.phidget.Close(); err != nil {
-		return err
-	}
-	return p.phidgetError(C.PhidgetLCD_delete(&p.handle))
-}

@@ -49,11 +49,3 @@ func (p *PhidgetDigitalOutput) SetLEDCurrentLimit(milliamps float64) error {
 func (p *PhidgetDigitalOutput) GetLEDCurrentLimit() (float64, error) {
 	return getDouble(&p.phidget, func(r *C.double) C.PhidgetReturnCode { return C.PhidgetDigitalOutput_getLEDCurrentLimit(p.handle, r) })
 }
-
-// Close - close the handle and delete it
-func (p *PhidgetDigitalOutput) Close() error {
-	if err := p.phidget.Close(); err != nil {
-		return err
-	}
-	return p.phidgetError(C.PhidgetDigitalOutput_delete(&p.handle))
-}

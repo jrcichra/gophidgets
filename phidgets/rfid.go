@@ -70,7 +70,7 @@ func (p *PhidgetRFID) GetTagPresent() (bool, error) {
 func (p *PhidgetRFID) SetOnTagHandler(f func(tag string, protocol int)) error {
 	ctx := p.save(f)
 	return p.phidgetError(C.PhidgetRFID_setOnTagHandler(
-		p.handle, (C.phidget_rfid_fcn)(unsafe.Pointer(C.crfidtagcallback)), ctx))
+		p.handle, (C.phidget_rfid_fcn)(unsafe.Pointer(C.rfidtagcallback)), ctx))
 }
 
 // SetOnTagLostHandler sets a callback that fires when a detected tag is lost.
@@ -78,13 +78,5 @@ func (p *PhidgetRFID) SetOnTagHandler(f func(tag string, protocol int)) error {
 func (p *PhidgetRFID) SetOnTagLostHandler(f func(tag string, protocol int)) error {
 	ctx := p.save(f)
 	return p.phidgetError(C.PhidgetRFID_setOnTagLostHandler(
-		p.handle, (C.phidget_rfid_fcn)(unsafe.Pointer(C.crfidtagcallback)), ctx))
-}
-
-// Close closes the handle and deletes it
-func (p *PhidgetRFID) Close() error {
-	if err := p.phidget.Close(); err != nil {
-		return err
-	}
-	return p.phidgetError(C.PhidgetRFID_delete(&p.handle))
+		p.handle, (C.phidget_rfid_fcn)(unsafe.Pointer(C.rfidtagcallback)), ctx))
 }

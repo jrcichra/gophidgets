@@ -58,11 +58,7 @@ func (p *PhidgetPowerGuard) SetFanMode(mode int) error {
 
 // GetFanMode returns the fan mode (Phidget_FanMode)
 func (p *PhidgetPowerGuard) GetFanMode() (int, error) {
-	var r C.Phidget_FanMode
-	if cerr := C.PhidgetPowerGuard_getFanMode(p.handle, &r); cerr != C.EPHIDGET_OK {
-		return 0, p.phidgetError(cerr)
-	}
-	return int(r), nil
+	return get(&p.phidget, func(r *C.Phidget_FanMode) C.PhidgetReturnCode { return C.PhidgetPowerGuard_getFanMode(p.handle, r) }, func(r C.Phidget_FanMode) int { return int(r) })
 }
 
 // GetMinFailsafeTime returns the minimum settable failsafe time in milliseconds
@@ -83,12 +79,4 @@ func (p *PhidgetPowerGuard) EnableFailsafe(ms uint32) error {
 // ResetFailsafe resets the failsafe state
 func (p *PhidgetPowerGuard) ResetFailsafe() error {
 	return p.phidgetError(C.PhidgetPowerGuard_resetFailsafe(p.handle))
-}
-
-// Close closes the handle and deletes it
-func (p *PhidgetPowerGuard) Close() error {
-	if err := p.phidget.Close(); err != nil {
-		return err
-	}
-	return p.phidgetError(C.PhidgetPowerGuard_delete(&p.handle))
 }

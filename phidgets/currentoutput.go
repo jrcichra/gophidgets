@@ -60,11 +60,3 @@ func (p *PhidgetCurrentOutput) EnableFailsafe(ms uint32) error {
 func (p *PhidgetCurrentOutput) ResetFailsafe() error {
 	return p.phidgetError(C.PhidgetCurrentOutput_resetFailsafe(p.handle))
 }
-
-// Close closes the handle and deletes it
-func (p *PhidgetCurrentOutput) Close() error {
-	if err := p.phidget.Close(); err != nil {
-		return err
-	}
-	return p.phidgetError(C.PhidgetCurrentOutput_delete(&p.handle))
-}

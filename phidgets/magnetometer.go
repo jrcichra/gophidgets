@@ -87,13 +87,5 @@ func (p *PhidgetMagnetometer) GetHeatingEnabled() (bool, error) {
 func (p *PhidgetMagnetometer) SetOnMagneticFieldChangeHandler(f func([]float64, float64)) error {
 	ctx := p.save(f)
 	return p.phidgetError(C.PhidgetMagnetometer_setOnMagneticFieldChangeHandler(
-		p.handle, (C.phidget_motion_fcn)(unsafe.Pointer(C.cmotioncallback)), ctx))
-}
-
-// Close closes the handle and deletes it
-func (p *PhidgetMagnetometer) Close() error {
-	if err := p.phidget.Close(); err != nil {
-		return err
-	}
-	return p.phidgetError(C.PhidgetMagnetometer_delete(&p.handle))
+		p.handle, (C.phidget_motion_fcn)(unsafe.Pointer(C.motioncallback)), ctx))
 }

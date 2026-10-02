@@ -61,11 +61,3 @@ func (p *PhidgetVoltageOutput) GetVoltageOutputRange() (int, error) {
 		return C.PhidgetVoltageOutput_getVoltageOutputRange(p.handle, r)
 	}, func(r C.PhidgetVoltageOutput_VoltageOutputRange) int { return int(r) })
 }
-
-// Close closes the handle and deletes it
-func (p *PhidgetVoltageOutput) Close() error {
-	if err := p.phidget.Close(); err != nil {
-		return err
-	}
-	return p.phidgetError(C.PhidgetVoltageOutput_delete(&p.handle))
-}

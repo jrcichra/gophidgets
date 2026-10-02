@@ -130,27 +130,19 @@ func (p *PhidgetStepper) GetDataInterval() (uint32, error) {
 func (p *PhidgetStepper) SetOnPositionChangeHandler(f func(float64)) error {
 	ctx := p.save(f)
 	return p.phidgetError(C.PhidgetStepper_setOnPositionChangeHandler(
-		p.handle, (C.phidget_double_fcn)(unsafe.Pointer(C.ccallback)), ctx))
+		p.handle, (C.phidget_double_fcn)(unsafe.Pointer(C.callback)), ctx))
 }
 
 // SetOnVelocityChangeHandler sets a callback that fires when the velocity changes
 func (p *PhidgetStepper) SetOnVelocityChangeHandler(f func(float64)) error {
 	ctx := p.save(f)
 	return p.phidgetError(C.PhidgetStepper_setOnVelocityChangeHandler(
-		p.handle, (C.phidget_double_fcn)(unsafe.Pointer(C.ccallback)), ctx))
+		p.handle, (C.phidget_double_fcn)(unsafe.Pointer(C.callback)), ctx))
 }
 
 // SetOnStoppedHandler sets a callback that fires when the stepper has stopped moving
 func (p *PhidgetStepper) SetOnStoppedHandler(f func()) error {
 	ctx := p.save(f)
 	return p.phidgetError(C.PhidgetStepper_setOnStoppedHandler(
-		p.handle, (C.phidget_void_fcn)(unsafe.Pointer(C.cvoidcallback)), ctx))
-}
-
-// Close closes the handle and deletes it
-func (p *PhidgetStepper) Close() error {
-	if err := p.phidget.Close(); err != nil {
-		return err
-	}
-	return p.phidgetError(C.PhidgetStepper_delete(&p.handle))
+		p.handle, (C.phidget_void_fcn)(unsafe.Pointer(C.voidcallback)), ctx))
 }

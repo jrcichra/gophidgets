@@ -38,7 +38,7 @@ jobs:
           cd ..
 
       - name: Build
-        run: go build -v .
+        run: go build -v ./...
 
       - name: Vet
         run: go vet ./...

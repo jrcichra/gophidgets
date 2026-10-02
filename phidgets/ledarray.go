@@ -172,11 +172,9 @@ func (p *PhidgetLEDArray) GetMaxGamma() (float64, error) {
 
 // GetColorOrder returns the LED color order (PhidgetLEDArray_ColorOrder)
 func (p *PhidgetLEDArray) GetColorOrder() (int, error) {
-	var r C.PhidgetLEDArray_ColorOrder
-	if cerr := C.PhidgetLEDArray_getColorOrder(p.handle, &r); cerr != C.EPHIDGET_OK {
-		return 0, p.phidgetError(cerr)
-	}
-	return int(r), nil
+	return get(&p.phidget, func(r *C.PhidgetLEDArray_ColorOrder) C.PhidgetReturnCode {
+		return C.PhidgetLEDArray_getColorOrder(p.handle, r)
+	}, func(r C.PhidgetLEDArray_ColorOrder) int { return int(r) })
 }
 
 // SetColorOrder sets the LED color order (PhidgetLEDArray_ColorOrder)
@@ -222,12 +220,4 @@ func (p *PhidgetLEDArray) SetPowerEnabled(enabled bool) error {
 // GetPowerEnabled returns whether power to the LEDs is enabled
 func (p *PhidgetLEDArray) GetPowerEnabled() (bool, error) {
 	return getBool(&p.phidget, func(r *C.int) C.PhidgetReturnCode { return C.PhidgetLEDArray_getPowerEnabled(p.handle, r) })
-}
-
-// Close closes the handle and deletes it
-func (p *PhidgetLEDArray) Close() error {
-	if err := p.phidget.Close(); err != nil {
-		return err
-	}
-	return p.phidgetError(C.PhidgetLEDArray_delete(&p.handle))
 }

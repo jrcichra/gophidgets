@@ -24,47 +24,33 @@ func (p *PhidgetFirmwareUpgrade) Create() {
 
 // GetActualDeviceID returns the device ID of the device behind the upgrade channel
 func (p *PhidgetFirmwareUpgrade) GetActualDeviceID() (int, error) {
-	var r C.Phidget_DeviceID
-	if cerr := C.PhidgetFirmwareUpgrade_getActualDeviceID(p.handle, &r); cerr != C.EPHIDGET_OK {
-		return 0, p.phidgetError(cerr)
-	}
-	return int(r), nil
+	return get(&p.phidget, func(r *C.Phidget_DeviceID) C.PhidgetReturnCode {
+		return C.PhidgetFirmwareUpgrade_getActualDeviceID(p.handle, r)
+	}, func(r C.Phidget_DeviceID) int { return int(r) })
 }
 
 // GetActualDeviceName returns the name of the device behind the upgrade channel
 func (p *PhidgetFirmwareUpgrade) GetActualDeviceName() (string, error) {
-	var cstr *C.char
-	if cerr := C.PhidgetFirmwareUpgrade_getActualDeviceName(p.handle, &cstr); cerr != C.EPHIDGET_OK {
-		return "", p.phidgetError(cerr)
-	}
-	return C.GoString(cstr), nil
+	return getString(&p.phidget, func(r **C.char) C.PhidgetReturnCode { return C.PhidgetFirmwareUpgrade_getActualDeviceName(p.handle, r) })
 }
 
 // GetActualDeviceSKU returns the SKU of the device behind the upgrade channel
 func (p *PhidgetFirmwareUpgrade) GetActualDeviceSKU() (string, error) {
-	var cstr *C.char
-	if cerr := C.PhidgetFirmwareUpgrade_getActualDeviceSKU(p.handle, &cstr); cerr != C.EPHIDGET_OK {
-		return "", p.phidgetError(cerr)
-	}
-	return C.GoString(cstr), nil
+	return getString(&p.phidget, func(r **C.char) C.PhidgetReturnCode { return C.PhidgetFirmwareUpgrade_getActualDeviceSKU(p.handle, r) })
 }
 
 // GetActualDeviceVersion returns the firmware version of the device behind the upgrade channel
 func (p *PhidgetFirmwareUpgrade) GetActualDeviceVersion() (int, error) {
-	var r C.int
-	if cerr := C.PhidgetFirmwareUpgrade_getActualDeviceVersion(p.handle, &r); cerr != C.EPHIDGET_OK {
-		return 0, p.phidgetError(cerr)
-	}
-	return int(r), nil
+	return getInt(&p.phidget, func(r *C.int) C.PhidgetReturnCode {
+		return C.PhidgetFirmwareUpgrade_getActualDeviceVersion(p.handle, r)
+	})
 }
 
 // GetActualDeviceVINTID returns the VINT ID of the device behind the upgrade channel
 func (p *PhidgetFirmwareUpgrade) GetActualDeviceVINTID() (uint32, error) {
-	var r C.uint32_t
-	if cerr := C.PhidgetFirmwareUpgrade_getActualDeviceVINTID(p.handle, &r); cerr != C.EPHIDGET_OK {
-		return 0, p.phidgetError(cerr)
-	}
-	return uint32(r), nil
+	return getUint32(&p.phidget, func(r *C.uint32_t) C.PhidgetReturnCode {
+		return C.PhidgetFirmwareUpgrade_getActualDeviceVINTID(p.handle, r)
+	})
 }
 
 // GetProgress returns the firmware upgrade progress as a fraction (0.0–1.0)
@@ -85,13 +71,5 @@ func (p *PhidgetFirmwareUpgrade) SendFirmware(data []byte) error {
 func (p *PhidgetFirmwareUpgrade) SetOnProgressChangeHandler(f func(progress float64)) error {
 	ctx := p.save(f)
 	return p.phidgetError(C.PhidgetFirmwareUpgrade_setOnProgressChangeHandler(
-		p.handle, (C.phidget_double_fcn)(unsafe.Pointer(C.ccallback)), ctx))
-}
-
-// Close closes the handle and deletes it
-func (p *PhidgetFirmwareUpgrade) Close() error {
-	if err := p.phidget.Close(); err != nil {
-		return err
-	}
-	return p.phidgetError(C.PhidgetFirmwareUpgrade_delete(&p.handle))
+		p.handle, (C.phidget_double_fcn)(unsafe.Pointer(C.callback)), ctx))
 }

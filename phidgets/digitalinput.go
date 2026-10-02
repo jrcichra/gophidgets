@@ -31,13 +31,5 @@ func (p *PhidgetDigitalInput) GetState() (bool, error) {
 func (p *PhidgetDigitalInput) SetOnStateChangeHandler(f func(bool)) error {
 	ctx := p.save(f)
 	return p.phidgetError(C.PhidgetDigitalInput_setOnStateChangeHandler(
-		p.handle, (C.phidget_state_fcn)(unsafe.Pointer(C.cstatecallback)), ctx))
-}
-
-// Close - close the handle and delete it
-func (p *PhidgetDigitalInput) Close() error {
-	if err := p.phidget.Close(); err != nil {
-		return err
-	}
-	return p.phidgetError(C.PhidgetDigitalInput_delete(&p.handle))
+		p.handle, (C.phidget_state_fcn)(unsafe.Pointer(C.statecallback)), ctx))
 }

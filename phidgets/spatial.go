@@ -79,7 +79,7 @@ func (p *PhidgetSpatial) SetAlgorithm(algo int) error {
 func (p *PhidgetSpatial) SetOnSpatialDataHandler(f func([]float64, []float64, []float64, float64)) error {
 	ctx := p.save(f)
 	return p.phidgetError(C.PhidgetSpatial_setOnSpatialDataHandler(
-		p.handle, (C.phidget_spatial_fcn)(unsafe.Pointer(C.cspatialcallback)), ctx))
+		p.handle, (C.phidget_spatial_fcn)(unsafe.Pointer(C.spatialcallback)), ctx))
 }
 
 // SetOnAlgorithmDataHandler sets a callback that fires on each orientation algorithm update.
@@ -87,13 +87,5 @@ func (p *PhidgetSpatial) SetOnSpatialDataHandler(f func([]float64, []float64, []
 func (p *PhidgetSpatial) SetOnAlgorithmDataHandler(f func([]float64, float64)) error {
 	ctx := p.save(f)
 	return p.phidgetError(C.PhidgetSpatial_setOnAlgorithmDataHandler(
-		p.handle, (C.phidget_quaternion_fcn)(unsafe.Pointer(C.cquaternioncallback)), ctx))
-}
-
-// Close closes the handle and deletes it
-func (p *PhidgetSpatial) Close() error {
-	if err := p.phidget.Close(); err != nil {
-		return err
-	}
-	return p.phidgetError(C.PhidgetSpatial_delete(&p.handle))
+		p.handle, (C.phidget_motion_fcn)(unsafe.Pointer(C.quaternioncallback)), ctx))
 }

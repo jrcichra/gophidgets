@@ -110,17 +110,9 @@ func (p *PhidgetAccelerometer) GetMaxDataInterval() (uint32, error) {
 func (p *PhidgetAccelerometer) SetOnAccelerationChangeHandler(f func([]float64, float64)) error {
 	//make a c function pointer to a go function pointer and pass it through the phidget context
 	pt := p.save(f)
-	cerr := C.PhidgetAccelerometer_setOnAccelerationChangeHandler(p.handle, (C.phidget_motion_fcn)(unsafe.Pointer(C.cmotioncallback)), pt)
+	cerr := C.PhidgetAccelerometer_setOnAccelerationChangeHandler(p.handle, (C.phidget_motion_fcn)(unsafe.Pointer(C.motioncallback)), pt)
 	if cerr != C.EPHIDGET_OK {
 		return p.phidgetError(cerr)
 	}
 	return nil
-}
-
-// Close - close the handle and delete it
-func (p *PhidgetAccelerometer) Close() error {
-	if err := p.phidget.Close(); err != nil {
-		return err
-	}
-	return p.phidgetError(C.PhidgetAccelerometer_delete(&p.handle))
 }

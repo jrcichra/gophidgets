@@ -25,11 +25,9 @@ func (p *PhidgetDataAdapter) Create() {
 
 // GetDataAdapterVoltage returns the adapter I/O voltage (Phidget_DataAdapterVoltage)
 func (p *PhidgetDataAdapter) GetDataAdapterVoltage() (int, error) {
-	var r C.Phidget_DataAdapterVoltage
-	if cerr := C.PhidgetDataAdapter_getDataAdapterVoltage(p.handle, &r); cerr != C.EPHIDGET_OK {
-		return 0, p.phidgetError(cerr)
-	}
-	return int(r), nil
+	return get(&p.phidget, func(r *C.Phidget_DataAdapterVoltage) C.PhidgetReturnCode {
+		return C.PhidgetDataAdapter_getDataAdapterVoltage(p.handle, r)
+	}, func(r C.Phidget_DataAdapterVoltage) int { return int(r) })
 }
 
 // SetDataAdapterVoltage sets the adapter I/O voltage (Phidget_DataAdapterVoltage)
@@ -59,11 +57,9 @@ func (p *PhidgetDataAdapter) GetMaxDataBits() (uint32, error) {
 
 // GetEndianness returns the data endianness (PhidgetDataAdapter_Endianness)
 func (p *PhidgetDataAdapter) GetEndianness() (int, error) {
-	var r C.PhidgetDataAdapter_Endianness
-	if cerr := C.PhidgetDataAdapter_getEndianness(p.handle, &r); cerr != C.EPHIDGET_OK {
-		return 0, p.phidgetError(cerr)
-	}
-	return int(r), nil
+	return get(&p.phidget, func(r *C.PhidgetDataAdapter_Endianness) C.PhidgetReturnCode {
+		return C.PhidgetDataAdapter_getEndianness(p.handle, r)
+	}, func(r C.PhidgetDataAdapter_Endianness) int { return int(r) })
 }
 
 // SetEndianness sets the data endianness (PhidgetDataAdapter_Endianness)
@@ -73,11 +69,9 @@ func (p *PhidgetDataAdapter) SetEndianness(order int) error {
 
 // GetFrequency returns the bus frequency (PhidgetDataAdapter_Frequency)
 func (p *PhidgetDataAdapter) GetFrequency() (int, error) {
-	var r C.PhidgetDataAdapter_Frequency
-	if cerr := C.PhidgetDataAdapter_getFrequency(p.handle, &r); cerr != C.EPHIDGET_OK {
-		return 0, p.phidgetError(cerr)
-	}
-	return int(r), nil
+	return get(&p.phidget, func(r *C.PhidgetDataAdapter_Frequency) C.PhidgetReturnCode {
+		return C.PhidgetDataAdapter_getFrequency(p.handle, r)
+	}, func(r C.PhidgetDataAdapter_Frequency) int { return int(r) })
 }
 
 // SetFrequency sets the bus frequency (PhidgetDataAdapter_Frequency)
@@ -87,11 +81,9 @@ func (p *PhidgetDataAdapter) SetFrequency(freq int) error {
 
 // GetSPIChipSelect returns the SPI chip select configuration (PhidgetDataAdapter_SPIChipSelect)
 func (p *PhidgetDataAdapter) GetSPIChipSelect() (int, error) {
-	var r C.PhidgetDataAdapter_SPIChipSelect
-	if cerr := C.PhidgetDataAdapter_getSPIChipSelect(p.handle, &r); cerr != C.EPHIDGET_OK {
-		return 0, p.phidgetError(cerr)
-	}
-	return int(r), nil
+	return get(&p.phidget, func(r *C.PhidgetDataAdapter_SPIChipSelect) C.PhidgetReturnCode {
+		return C.PhidgetDataAdapter_getSPIChipSelect(p.handle, r)
+	}, func(r C.PhidgetDataAdapter_SPIChipSelect) int { return int(r) })
 }
 
 // SetSPIChipSelect sets the SPI chip select configuration (PhidgetDataAdapter_SPIChipSelect)
@@ -101,11 +93,9 @@ func (p *PhidgetDataAdapter) SetSPIChipSelect(sel int) error {
 
 // GetSPIMode returns the SPI mode (PhidgetDataAdapter_SPIMode)
 func (p *PhidgetDataAdapter) GetSPIMode() (int, error) {
-	var r C.PhidgetDataAdapter_SPIMode
-	if cerr := C.PhidgetDataAdapter_getSPIMode(p.handle, &r); cerr != C.EPHIDGET_OK {
-		return 0, p.phidgetError(cerr)
-	}
-	return int(r), nil
+	return get(&p.phidget, func(r *C.PhidgetDataAdapter_SPIMode) C.PhidgetReturnCode {
+		return C.PhidgetDataAdapter_getSPIMode(p.handle, r)
+	}, func(r C.PhidgetDataAdapter_SPIMode) int { return int(r) })
 }
 
 // SetSPIMode sets the SPI mode (PhidgetDataAdapter_SPIMode)
@@ -197,12 +187,4 @@ func (p *PhidgetDataAdapter) I2CComplexTransaction(address int32, packetString s
 		return nil, p.phidgetError(cerr)
 	}
 	return C.GoBytes(unsafe.Pointer(buf), C.int(recvLen)), nil
-}
-
-// Close closes the handle and deletes it
-func (p *PhidgetDataAdapter) Close() error {
-	if err := p.phidget.Close(); err != nil {
-		return err
-	}
-	return p.phidgetError(C.PhidgetDataAdapter_delete(&p.handle))
 }

@@ -8,23 +8,22 @@ import "C"
 import (
 	"errors"
 	"fmt"
+	"runtime/cgo"
 	"time"
 	"unsafe"
-
-	gopointer "github.com/mattn/go-pointer"
 )
 
 // Phidget - general phidget interface that all phidgets are derived from (for ease of type management)
 type phidget struct {
 	handle C.PhidgetHandle
-	ctxs   []unsafe.Pointer // gopointer contexts handed to C handlers; released on Close
+	ctxs   []cgo.Handle // handler contexts handed to C; released on Close
 }
 
 // save registers f as a C handler context and remembers it so Close can release it
 func (p *phidget) save(f interface{}) unsafe.Pointer {
-	ctx := gopointer.Save(f)
-	p.ctxs = append(p.ctxs, ctx)
-	return ctx
+	h := cgo.NewHandle(f)
+	p.ctxs = append(p.ctxs, h)
+	return C.handlectx(C.uintptr_t(h))
 }
 
 type Phidget interface {
@@ -137,24 +136,20 @@ func (e *PhidgetError) Is(target error) bool {
 	return false
 }
 
-func newPhidgetError(code C.PhidgetReturnCode) *PhidgetError {
+func newPhidgetError(code C.PhidgetReturnCode) error {
 	if code == C.EPHIDGET_OK {
 		return nil
 	}
 	var errString *C.char
 	C.Phidget_getErrorDescription(code, &errString)
-	message := C.GoString(errString)
-	return &PhidgetError{code: int32(code), message: message}
+	return &PhidgetError{code: int32(code), message: C.GoString(errString)}
 }
 
 func (p *phidget) phidgetError(cerr C.PhidgetReturnCode) error {
 	err := newPhidgetError(cerr)
-	if err == nil {
-		return nil
-	}
 	var className *C.char
-	if C.Phidget_getChannelClassName(p.handle, &className) == C.EPHIDGET_OK {
-		err.message = C.GoString(className) + ": " + err.message
+	if err != nil && C.Phidget_getChannelClassName(p.handle, &className) == C.EPHIDGET_OK {
+		err.(*PhidgetError).message = C.GoString(className) + ": " + err.Error()
 	}
 	return err
 }
@@ -163,14 +158,14 @@ func (p *phidget) phidgetError(cerr C.PhidgetReturnCode) error {
 func (p *phidget) SetOnAttachHandler(f func()) error {
 	ctx := p.save(f)
 	return p.phidgetError(C.Phidget_setOnAttachHandler(
-		p.handle, (C.phidget_void_fcn)(unsafe.Pointer(C.cvoidcallback)), ctx))
+		p.handle, (C.phidget_void_fcn)(unsafe.Pointer(C.voidcallback)), ctx))
 }
 
 // SetOnDetachHandler sets a callback that is called when the channel detaches
 func (p *phidget) SetOnDetachHandler(f func()) error {
 	ctx := p.save(f)
 	return p.phidgetError(C.Phidget_setOnDetachHandler(
-		p.handle, (C.phidget_void_fcn)(unsafe.Pointer(C.cvoidcallback)), ctx))
+		p.handle, (C.phidget_void_fcn)(unsafe.Pointer(C.voidcallback)), ctx))
 }
 
 // SetOnErrorHandler sets a callback that is called when the channel reports an error.
@@ -178,7 +173,7 @@ func (p *phidget) SetOnDetachHandler(f func()) error {
 func (p *phidget) SetOnErrorHandler(f func(code int, message string)) error {
 	ctx := p.save(f)
 	return p.phidgetError(C.Phidget_setOnErrorHandler(
-		p.handle, (C.phidget_error_fcn)(unsafe.Pointer(C.cerrorcallback)), ctx))
+		p.handle, (C.phidget_error_fcn)(unsafe.Pointer(C.errorcallback)), ctx))
 }
 
 // SetOnPropertyChangeHandler sets a callback that fires when a channel property
@@ -186,7 +181,7 @@ func (p *phidget) SetOnErrorHandler(f func(code int, message string)) error {
 func (p *phidget) SetOnPropertyChangeHandler(f func(propertyName string)) error {
 	ctx := p.save(f)
 	return p.phidgetError(C.Phidget_setOnPropertyChangeHandler(
-		p.handle, (C.phidget_prop_fcn)(unsafe.Pointer(C.cpropcallback)), ctx))
+		p.handle, (C.phidget_prop_fcn)(unsafe.Pointer(C.propcallback)), ctx))
 }
 
 // SetIsRemote sets a phidget sensor as a remote device
@@ -227,20 +222,12 @@ func (p *phidget) GetDeviceSerialNumber() (int, error) {
 
 // GetDeviceID returns the library ID of the attached device
 func (p *phidget) GetDeviceID() (int, error) {
-	var r C.Phidget_DeviceID
-	if cerr := C.Phidget_getDeviceID(p.handle, &r); cerr != C.EPHIDGET_OK {
-		return 0, p.phidgetError(cerr)
-	}
-	return int(r), nil
+	return get(p, func(r *C.Phidget_DeviceID) C.PhidgetReturnCode { return C.Phidget_getDeviceID(p.handle, r) }, func(r C.Phidget_DeviceID) int { return int(r) })
 }
 
 // GetDeviceName returns the name of the attached device
 func (p *phidget) GetDeviceName() (string, error) {
-	var cstr *C.char
-	if cerr := C.Phidget_getDeviceName(p.handle, &cstr); cerr != C.EPHIDGET_OK {
-		return "", p.phidgetError(cerr)
-	}
-	return C.GoString(cstr), nil
+	return getString(p, func(r **C.char) C.PhidgetReturnCode { return C.Phidget_getDeviceName(p.handle, r) })
 }
 
 // GetDeviceVersion returns the firmware version of the attached device
@@ -250,76 +237,48 @@ func (p *phidget) GetDeviceVersion() (int, error) {
 
 // GetDeviceSKU returns the SKU of the attached device
 func (p *phidget) GetDeviceSKU() (string, error) {
-	var cstr *C.char
-	if cerr := C.Phidget_getDeviceSKU(p.handle, &cstr); cerr != C.EPHIDGET_OK {
-		return "", p.phidgetError(cerr)
-	}
-	return C.GoString(cstr), nil
+	return getString(p, func(r **C.char) C.PhidgetReturnCode { return C.Phidget_getDeviceSKU(p.handle, r) })
 }
 
 // GetDeviceVINTID returns the VINT ID of the attached device
 func (p *phidget) GetDeviceVINTID() (uint32, error) {
-	var r C.uint32_t
-	if cerr := C.Phidget_getDeviceVINTID(p.handle, &r); cerr != C.EPHIDGET_OK {
-		return 0, p.phidgetError(cerr)
-	}
-	return uint32(r), nil
+	return getUint32(p, func(r *C.uint32_t) C.PhidgetReturnCode { return C.Phidget_getDeviceVINTID(p.handle, r) })
 }
 
 // GetDeviceClass returns the device class of the attached device
 func (p *phidget) GetDeviceClass() (int, error) {
-	var r C.Phidget_DeviceClass
-	if cerr := C.Phidget_getDeviceClass(p.handle, &r); cerr != C.EPHIDGET_OK {
-		return 0, p.phidgetError(cerr)
-	}
-	return int(r), nil
+	return get(p, func(r *C.Phidget_DeviceClass) C.PhidgetReturnCode { return C.Phidget_getDeviceClass(p.handle, r) }, func(r C.Phidget_DeviceClass) int { return int(r) })
 }
 
 // GetDeviceClassName returns the class name of the attached device
 func (p *phidget) GetDeviceClassName() (string, error) {
-	var cstr *C.char
-	if cerr := C.Phidget_getDeviceClassName(p.handle, &cstr); cerr != C.EPHIDGET_OK {
-		return "", p.phidgetError(cerr)
-	}
-	return C.GoString(cstr), nil
+	return getString(p, func(r **C.char) C.PhidgetReturnCode { return C.Phidget_getDeviceClassName(p.handle, r) })
 }
 
 // GetDeviceChannelCount returns the number of channels of the given class
 // (a PHIDGETCHCLASS_* value) that the attached device has
 func (p *phidget) GetDeviceChannelCount(cls int) (uint32, error) {
-	var r C.uint32_t
-	if cerr := C.Phidget_getDeviceChannelCount(p.handle, C.Phidget_ChannelClass(cls), &r); cerr != C.EPHIDGET_OK {
-		return 0, p.phidgetError(cerr)
-	}
-	return uint32(r), nil
+	return getUint32(p, func(r *C.uint32_t) C.PhidgetReturnCode {
+		return C.Phidget_getDeviceChannelCount(p.handle, C.Phidget_ChannelClass(cls), r)
+	})
 }
 
 // GetDeviceFirmwareUpgradeString returns the VINT-compatible firmware upgrade
 // string of the attached device
 func (p *phidget) GetDeviceFirmwareUpgradeString() (string, error) {
-	var cstr *C.char
-	if cerr := C.Phidget_getDeviceFirmwareUpgradeString(p.handle, &cstr); cerr != C.EPHIDGET_OK {
-		return "", p.phidgetError(cerr)
-	}
-	return C.GoString(cstr), nil
+	return getString(p, func(r **C.char) C.PhidgetReturnCode { return C.Phidget_getDeviceFirmwareUpgradeString(p.handle, r) })
 }
 
 // GetChannelClass returns the class of this channel (a PHIDGETCHCLASS_* value)
 func (p *phidget) GetChannelClass() (int, error) {
-	var r C.Phidget_ChannelClass
-	if cerr := C.Phidget_getChannelClass(p.handle, &r); cerr != C.EPHIDGET_OK {
-		return 0, p.phidgetError(cerr)
-	}
-	return int(r), nil
+	return get(p, func(r *C.Phidget_ChannelClass) C.PhidgetReturnCode { return C.Phidget_getChannelClass(p.handle, r) }, func(r C.Phidget_ChannelClass) int { return int(r) })
 }
 
 // GetChannelSubclass returns the subclass of this channel
 func (p *phidget) GetChannelSubclass() (int, error) {
-	var r C.Phidget_ChannelSubclass
-	if cerr := C.Phidget_getChannelSubclass(p.handle, &r); cerr != C.EPHIDGET_OK {
-		return 0, p.phidgetError(cerr)
-	}
-	return int(r), nil
+	return get(p, func(r *C.Phidget_ChannelSubclass) C.PhidgetReturnCode {
+		return C.Phidget_getChannelSubclass(p.handle, r)
+	}, func(r C.Phidget_ChannelSubclass) int { return int(r) })
 }
 
 // GetChannelPersistence returns the hub-port channel persistence state
@@ -382,11 +341,7 @@ func (p *phidget) GetHubPortCount() (int, error) {
 
 // GetHubPortSpeed returns the hub port speed in bps of this channel
 func (p *phidget) GetHubPortSpeed() (uint32, error) {
-	var r C.uint32_t
-	if cerr := C.Phidget_getHubPortSpeed(p.handle, &r); cerr != C.EPHIDGET_OK {
-		return 0, p.phidgetError(cerr)
-	}
-	return uint32(r), nil
+	return getUint32(p, func(r *C.uint32_t) C.PhidgetReturnCode { return C.Phidget_getHubPortSpeed(p.handle, r) })
 }
 
 // SetHubPortSpeed sets the hub port speed in bps of this channel. Pass
@@ -397,11 +352,7 @@ func (p *phidget) SetHubPortSpeed(speed uint32) error {
 
 // GetMaxHubPortSpeed returns the maximum supported hub port speed in bps
 func (p *phidget) GetMaxHubPortSpeed() (uint32, error) {
-	var r C.uint32_t
-	if cerr := C.Phidget_getMaxHubPortSpeed(p.handle, &r); cerr != C.EPHIDGET_OK {
-		return 0, p.phidgetError(cerr)
-	}
-	return uint32(r), nil
+	return getUint32(p, func(r *C.uint32_t) C.PhidgetReturnCode { return C.Phidget_getMaxHubPortSpeed(p.handle, r) })
 }
 
 // GetHubPortSupportsAutoSetSpeed returns whether this channel's hub port
@@ -418,11 +369,7 @@ func (p *phidget) GetHubPortSupportsSetSpeed() (bool, error) {
 
 // GetMaxVINTDeviceSpeed returns the maximum speed in bps supported by the VINT device
 func (p *phidget) GetMaxVINTDeviceSpeed() (uint32, error) {
-	var r C.uint32_t
-	if cerr := C.Phidget_getMaxVINTDeviceSpeed(p.handle, &r); cerr != C.EPHIDGET_OK {
-		return 0, p.phidgetError(cerr)
-	}
-	return uint32(r), nil
+	return getUint32(p, func(r *C.uint32_t) C.PhidgetReturnCode { return C.Phidget_getMaxVINTDeviceSpeed(p.handle, r) })
 }
 
 // GetVINTDeviceSupportsAutoSetSpeed returns whether the VINT device supports
@@ -439,11 +386,7 @@ func (p *phidget) GetVINTDeviceSupportsSetSpeed() (bool, error) {
 
 // GetDataInterval returns the data interval in milliseconds
 func (p *phidget) GetDataInterval() (uint32, error) {
-	var r C.uint32_t
-	if cerr := C.Phidget_getDataInterval(p.handle, &r); cerr != C.EPHIDGET_OK {
-		return 0, p.phidgetError(cerr)
-	}
-	return uint32(r), nil
+	return getUint32(p, func(r *C.uint32_t) C.PhidgetReturnCode { return C.Phidget_getDataInterval(p.handle, r) })
 }
 
 // SetDataInterval sets the data interval in milliseconds
@@ -453,20 +396,12 @@ func (p *phidget) SetDataInterval(ms uint32) error {
 
 // GetMinDataInterval returns the minimum data interval in milliseconds
 func (p *phidget) GetMinDataInterval() (uint32, error) {
-	var r C.uint32_t
-	if cerr := C.Phidget_getMinDataInterval(p.handle, &r); cerr != C.EPHIDGET_OK {
-		return 0, p.phidgetError(cerr)
-	}
-	return uint32(r), nil
+	return getUint32(p, func(r *C.uint32_t) C.PhidgetReturnCode { return C.Phidget_getMinDataInterval(p.handle, r) })
 }
 
 // GetMaxDataInterval returns the maximum data interval in milliseconds
 func (p *phidget) GetMaxDataInterval() (uint32, error) {
-	var r C.uint32_t
-	if cerr := C.Phidget_getMaxDataInterval(p.handle, &r); cerr != C.EPHIDGET_OK {
-		return 0, p.phidgetError(cerr)
-	}
-	return uint32(r), nil
+	return getUint32(p, func(r *C.uint32_t) C.PhidgetReturnCode { return C.Phidget_getMaxDataInterval(p.handle, r) })
 }
 
 // GetDataRate returns the data rate in samples per second
@@ -491,11 +426,7 @@ func (p *phidget) GetMaxDataRate() (float64, error) {
 
 // GetServerName returns the name of the phidget22 server in use
 func (p *phidget) GetServerName() (string, error) {
-	var cstr *C.char
-	if cerr := C.Phidget_getServerName(p.handle, &cstr); cerr != C.EPHIDGET_OK {
-		return "", p.phidgetError(cerr)
-	}
-	return C.GoString(cstr), nil
+	return getString(p, func(r **C.char) C.PhidgetReturnCode { return C.Phidget_getServerName(p.handle, r) })
 }
 
 // SetServerName sets the name of the phidget22 server to use
@@ -507,29 +438,17 @@ func (p *phidget) SetServerName(name string) error {
 
 // GetServerHostname returns the hostname of the phidget22 server in use
 func (p *phidget) GetServerHostname() (string, error) {
-	var cstr *C.char
-	if cerr := C.Phidget_getServerHostname(p.handle, &cstr); cerr != C.EPHIDGET_OK {
-		return "", p.phidgetError(cerr)
-	}
-	return C.GoString(cstr), nil
+	return getString(p, func(r **C.char) C.PhidgetReturnCode { return C.Phidget_getServerHostname(p.handle, r) })
 }
 
 // GetServerPeerName returns the peer name of the phidget22 server in use
 func (p *phidget) GetServerPeerName() (string, error) {
-	var cstr *C.char
-	if cerr := C.Phidget_getServerPeerName(p.handle, &cstr); cerr != C.EPHIDGET_OK {
-		return "", p.phidgetError(cerr)
-	}
-	return C.GoString(cstr), nil
+	return getString(p, func(r **C.char) C.PhidgetReturnCode { return C.Phidget_getServerPeerName(p.handle, r) })
 }
 
 // GetServerUniqueName returns the unique name of the phidget22 server in use
 func (p *phidget) GetServerUniqueName() (string, error) {
-	var cstr *C.char
-	if cerr := C.Phidget_getServerUniqueName(p.handle, &cstr); cerr != C.EPHIDGET_OK {
-		return "", p.phidgetError(cerr)
-	}
-	return C.GoString(cstr), nil
+	return getString(p, func(r **C.char) C.PhidgetReturnCode { return C.Phidget_getServerUniqueName(p.handle, r) })
 }
 
 // GetServerVersion returns the major and minor versions of the phidget22 server in use
@@ -576,27 +495,22 @@ func (p *phidget) SetDeviceLabel(label string) error {
 	return p.phidgetError(C.Phidget_setDeviceLabel(p.handle, clabel))
 }
 
-// Close - close the handle and delete it
+// Close closes the channel and deletes its handle
 func (p *phidget) Close() error {
 	if err := p.phidgetError(C.Phidget_close(p.handle)); err != nil {
 		return err
 	}
 	// Phidget_close waits for in-flight handlers, so the contexts are safe to release
-	for _, ctx := range p.ctxs {
-		gopointer.Unref(ctx)
+	for _, h := range p.ctxs {
+		h.Delete()
 	}
 	p.ctxs = nil
-	return nil
+	return p.phidgetError(C.Phidget_delete(&p.handle))
 }
 
 // GetChannelClassName gets the name of the channel class the channel belongs to.
 func (p *phidget) GetChannelClassName() (string, error) {
-	var name *C.char
-	cerr := C.Phidget_getChannelClassName(p.handle, &name)
-	if cerr != C.EPHIDGET_OK {
-		return "", p.phidgetError(cerr)
-	}
-	return C.GoString(name), nil
+	return getString(p, func(r **C.char) C.PhidgetReturnCode { return C.Phidget_getChannelClassName(p.handle, r) })
 }
 
 // SetIsHubPortDevice sets a phidget sensor as a remote device
@@ -606,20 +520,12 @@ func (p *phidget) SetIsHubPortDevice(b bool) error {
 
 // GetDeviceLabel retrieves the label for the device of this handle
 func (p *phidget) GetDeviceLabel() (string, error) {
-	var cstr *C.char
-	if cerr := C.Phidget_getDeviceLabel(p.handle, &cstr); cerr != C.EPHIDGET_OK {
-		return "", p.phidgetError(cerr)
-	}
-	return C.GoString(cstr), nil
+	return getString(p, func(r **C.char) C.PhidgetReturnCode { return C.Phidget_getDeviceLabel(p.handle, r) })
 }
 
 // GetChannelName retrieves the channel name of this handle
 func (p *phidget) GetChannelName() (string, error) {
-	var cstr *C.char
-	if cerr := C.Phidget_getChannelName(p.handle, &cstr); cerr != C.EPHIDGET_OK {
-		return "", p.phidgetError(cerr)
-	}
-	return C.GoString(cstr), nil
+	return getString(p, func(r **C.char) C.PhidgetReturnCode { return C.Phidget_getChannelName(p.handle, r) })
 }
 
 // GetAttached returns whether the Phidget device is attached
@@ -629,11 +535,7 @@ func (p *phidget) GetAttached() (bool, error) {
 
 // GetChannel retrives which channel this handle is attached to
 func (p *phidget) GetChannel() (int, error) {
-	var ch C.int
-	if cerr := C.Phidget_getChannel(p.handle, &ch); cerr != C.EPHIDGET_OK {
-		return -1, p.phidgetError(cerr)
-	}
-	return int(ch), nil
+	return getInt(p, func(r *C.int) C.PhidgetReturnCode { return C.Phidget_getChannel(p.handle, r) })
 }
 
 // String returns a string description of the handle

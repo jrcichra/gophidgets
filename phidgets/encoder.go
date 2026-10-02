@@ -79,13 +79,5 @@ func (p *PhidgetEncoder) GetDataInterval() (uint32, error) {
 func (p *PhidgetEncoder) SetOnPositionChangeHandler(f func(int, float64, bool)) error {
 	ctx := p.save(f)
 	return p.phidgetError(C.PhidgetEncoder_setOnPositionChangeHandler(
-		p.handle, (C.phidget_encoder_fcn)(unsafe.Pointer(C.cencodercallback)), ctx))
-}
-
-// Close closes the handle and deletes it
-func (p *PhidgetEncoder) Close() error {
-	if err := p.phidget.Close(); err != nil {
-		return err
-	}
-	return p.phidgetError(C.PhidgetEncoder_delete(&p.handle))
+		p.handle, (C.phidget_encoder_fcn)(unsafe.Pointer(C.encodercallback)), ctx))
 }

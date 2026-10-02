@@ -67,20 +67,12 @@ func (p *PhidgetCapacitiveTouch) GetDataInterval() (uint32, error) {
 func (p *PhidgetCapacitiveTouch) SetOnTouchHandler(f func(float64)) error {
 	ctx := p.save(f)
 	return p.phidgetError(C.PhidgetCapacitiveTouch_setOnTouchHandler(
-		p.handle, (C.phidget_double_fcn)(unsafe.Pointer(C.ccallback)), ctx))
+		p.handle, (C.phidget_double_fcn)(unsafe.Pointer(C.callback)), ctx))
 }
 
 // SetOnTouchEndHandler sets a callback that fires when touch ends
 func (p *PhidgetCapacitiveTouch) SetOnTouchEndHandler(f func()) error {
 	ctx := p.save(f)
 	return p.phidgetError(C.PhidgetCapacitiveTouch_setOnTouchEndHandler(
-		p.handle, (C.phidget_void_fcn)(unsafe.Pointer(C.cvoidcallback)), ctx))
-}
-
-// Close closes the handle and deletes it
-func (p *PhidgetCapacitiveTouch) Close() error {
-	if err := p.phidget.Close(); err != nil {
-		return err
-	}
-	return p.phidgetError(C.PhidgetCapacitiveTouch_delete(&p.handle))
+		p.handle, (C.phidget_void_fcn)(unsafe.Pointer(C.voidcallback)), ctx))
 }

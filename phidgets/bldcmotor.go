@@ -110,27 +110,19 @@ func (p *PhidgetBLDCMotor) GetDataInterval() (uint32, error) {
 func (p *PhidgetBLDCMotor) SetOnVelocityUpdateHandler(f func(float64)) error {
 	ctx := p.save(f)
 	return p.phidgetError(C.PhidgetBLDCMotor_setOnVelocityUpdateHandler(
-		p.handle, (C.phidget_double_fcn)(unsafe.Pointer(C.ccallback)), ctx))
+		p.handle, (C.phidget_double_fcn)(unsafe.Pointer(C.callback)), ctx))
 }
 
 // SetOnPositionChangeHandler sets a callback that fires when the position changes
 func (p *PhidgetBLDCMotor) SetOnPositionChangeHandler(f func(float64)) error {
 	ctx := p.save(f)
 	return p.phidgetError(C.PhidgetBLDCMotor_setOnPositionChangeHandler(
-		p.handle, (C.phidget_double_fcn)(unsafe.Pointer(C.ccallback)), ctx))
+		p.handle, (C.phidget_double_fcn)(unsafe.Pointer(C.callback)), ctx))
 }
 
 // SetOnBrakingStrengthChangeHandler sets a callback that fires when braking strength changes
 func (p *PhidgetBLDCMotor) SetOnBrakingStrengthChangeHandler(f func(float64)) error {
 	ctx := p.save(f)
 	return p.phidgetError(C.PhidgetBLDCMotor_setOnBrakingStrengthChangeHandler(
-		p.handle, (C.phidget_double_fcn)(unsafe.Pointer(C.ccallback)), ctx))
-}
-
-// Close closes the handle and deletes it
-func (p *PhidgetBLDCMotor) Close() error {
-	if err := p.phidget.Close(); err != nil {
-		return err
-	}
-	return p.phidgetError(C.PhidgetBLDCMotor_delete(&p.handle))
+		p.handle, (C.phidget_double_fcn)(unsafe.Pointer(C.callback)), ctx))
 }

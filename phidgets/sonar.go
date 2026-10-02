@@ -42,7 +42,7 @@ func (p *PhidgetDistanceSensor) SetDistanceChangeTrigger(distance uint32) error 
 func (p *PhidgetDistanceSensor) SetOnDistanceChangeHandler(f func(uint32)) error {
 	ctx := p.save(f)
 	return p.phidgetError(C.PhidgetDistanceSensor_setOnDistanceChangeHandler(
-		p.handle, (C.phidget_uint32_fcn)(unsafe.Pointer(C.cuint32callback)), ctx))
+		p.handle, (C.phidget_uint32_fcn)(unsafe.Pointer(C.uint32callback)), ctx))
 }
 
 // GetSonarReflections - The most recent reflection values that the channel has reported.
@@ -81,12 +81,4 @@ func (p *PhidgetDistanceSensor) GetSonarQuietMode() (bool, error) {
 	var r C.int
 	err := p.phidgetError(C.PhidgetDistanceSensor_getSonarQuietMode(p.handle, &r))
 	return r > 0, err
-}
-
-// Close - close the handle and delete it
-func (p *PhidgetDistanceSensor) Close() error {
-	if err := p.phidget.Close(); err != nil {
-		return err
-	}
-	return p.phidgetError(C.PhidgetDistanceSensor_delete(&p.handle))
 }

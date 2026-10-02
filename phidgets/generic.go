@@ -20,11 +20,3 @@ func (p *PhidgetGeneric) Create() {
 	C.PhidgetGeneric_create(&p.handle)
 	p.rawHandle(unsafe.Pointer(p.handle))
 }
-
-// Close closes the handle and deletes it
-func (p *PhidgetGeneric) Close() error {
-	if err := p.phidget.Close(); err != nil {
-		return err
-	}
-	return p.phidgetError(C.PhidgetGeneric_delete(&p.handle))
-}

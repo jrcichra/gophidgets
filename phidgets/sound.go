@@ -35,17 +35,9 @@ func (p *PhidgetSoundSensor) SetSPLChangeTrigger(dBs float64) error {
 func (p *PhidgetSoundSensor) SetOnSPLChangeHandler(f func(float64, float64, float64, []float64)) error {
 	//make a c function pointer to a go function pointer and pass it through the phidget context
 	pt := p.save(f)
-	cerr := C.PhidgetSoundSensor_setOnSPLChangeHandler(p.handle, (C.phidget_sound_fcn)(unsafe.Pointer(C.csoundcallback)), pt)
+	cerr := C.PhidgetSoundSensor_setOnSPLChangeHandler(p.handle, (C.phidget_sound_fcn)(unsafe.Pointer(C.soundcallback)), pt)
 	if cerr != C.EPHIDGET_OK {
 		return p.phidgetError(cerr)
 	}
 	return nil
-}
-
-// Close - close the handle and delete it
-func (p *PhidgetSoundSensor) Close() error {
-	if err := p.phidget.Close(); err != nil {
-		return err
-	}
-	return p.phidgetError(C.PhidgetSoundSensor_delete(&p.handle))
 }

@@ -1,19 +1,14 @@
 package phidgets
 
 /*
-#include <phidget22.h>
-typedef void (*attach_fcn)(PhidgetManagerHandle man, void *ctx, PhidgetHandle channel);
-typedef void (*detach_fcn)(PhidgetManagerHandle man, void *ctx, PhidgetHandle channel);
-void cattach_callback(PhidgetManagerHandle man, void *ctx, PhidgetHandle channel);
-void cmanager_detach_callback(PhidgetManagerHandle man, void *ctx, PhidgetHandle channel);
+#include "phidgets.h"
 */
 import "C"
 import (
 	"fmt"
+	"runtime/cgo"
 	"sync"
 	"unsafe"
-
-	gopointer "github.com/mattn/go-pointer"
 )
 
 // PhidgetManager is the struct that is a phidget manager handle
@@ -21,13 +16,134 @@ type PhidgetManager struct {
 	sync.Mutex
 	handle   C.PhidgetManagerHandle
 	handles  []Phidget
-	onDetach func()         // user callback invoked when a channel detaches
-	ctx      unsafe.Pointer // gopointer token identifying this manager to C handlers
+	onDetach func()     // user callback invoked when a channel detaches
+	ctx      cgo.Handle // identifies this manager to C handlers
+}
+
+// channelClasses wraps an attached channel in its class-specific type
+var channelClasses = map[C.Phidget_ChannelClass]func(C.PhidgetHandle) Phidget{
+	C.PHIDCHCLASS_ACCELEROMETER: func(h C.PhidgetHandle) Phidget {
+		return &PhidgetAccelerometer{phidget{handle: h}, C.PhidgetAccelerometerHandle(unsafe.Pointer(h))}
+	},
+	C.PHIDCHCLASS_BLDCMOTOR: func(h C.PhidgetHandle) Phidget {
+		return &PhidgetBLDCMotor{phidget{handle: h}, C.PhidgetBLDCMotorHandle(unsafe.Pointer(h))}
+	},
+	C.PHIDCHCLASS_CAPACITIVETOUCH: func(h C.PhidgetHandle) Phidget {
+		return &PhidgetCapacitiveTouch{phidget{handle: h}, C.PhidgetCapacitiveTouchHandle(unsafe.Pointer(h))}
+	},
+	C.PHIDCHCLASS_DATAADAPTER: func(h C.PhidgetHandle) Phidget {
+		return &PhidgetDataAdapter{phidget{handle: h}, C.PhidgetDataAdapterHandle(unsafe.Pointer(h))}
+	},
+	C.PHIDCHCLASS_CURRENTINPUT: func(h C.PhidgetHandle) Phidget {
+		return &PhidgetCurrentInput{phidget{handle: h}, C.PhidgetCurrentInputHandle(unsafe.Pointer(h))}
+	},
+	C.PHIDCHCLASS_CURRENTOUTPUT: func(h C.PhidgetHandle) Phidget {
+		return &PhidgetCurrentOutput{phidget{handle: h}, C.PhidgetCurrentOutputHandle(unsafe.Pointer(h))}
+	},
+	C.PHIDCHCLASS_DCMOTOR: func(h C.PhidgetHandle) Phidget {
+		return &PhidgetDCMotor{phidget{handle: h}, C.PhidgetDCMotorHandle(unsafe.Pointer(h))}
+	},
+	C.PHIDCHCLASS_DIGITALINPUT: func(h C.PhidgetHandle) Phidget {
+		return &PhidgetDigitalInput{phidget{handle: h}, C.PhidgetDigitalInputHandle(unsafe.Pointer(h))}
+	},
+	C.PHIDCHCLASS_DICTIONARY: func(h C.PhidgetHandle) Phidget {
+		return &PhidgetDictionary{phidget{handle: h}, C.PhidgetDictionaryHandle(unsafe.Pointer(h))}
+	},
+	C.PHIDCHCLASS_DIGITALOUTPUT: func(h C.PhidgetHandle) Phidget {
+		return &PhidgetDigitalOutput{phidget{handle: h}, C.PhidgetDigitalOutputHandle(unsafe.Pointer(h))}
+	},
+	C.PHIDCHCLASS_DISTANCESENSOR: func(h C.PhidgetHandle) Phidget {
+		return &PhidgetDistanceSensor{phidget{handle: h}, C.PhidgetDistanceSensorHandle(unsafe.Pointer(h))}
+	},
+	C.PHIDCHCLASS_ENCODER: func(h C.PhidgetHandle) Phidget {
+		return &PhidgetEncoder{phidget{handle: h}, C.PhidgetEncoderHandle(unsafe.Pointer(h))}
+	},
+	C.PHIDCHCLASS_FREQUENCYCOUNTER: func(h C.PhidgetHandle) Phidget {
+		return &PhidgetFrequencyCounter{phidget{handle: h}, C.PhidgetFrequencyCounterHandle(unsafe.Pointer(h))}
+	},
+	C.PHIDCHCLASS_FIRMWAREUPGRADE: func(h C.PhidgetHandle) Phidget {
+		return &PhidgetFirmwareUpgrade{phidget{handle: h}, C.PhidgetFirmwareUpgradeHandle(unsafe.Pointer(h))}
+	},
+	C.PHIDCHCLASS_GENERIC: func(h C.PhidgetHandle) Phidget {
+		return &PhidgetGeneric{phidget{handle: h}, C.PhidgetGenericHandle(unsafe.Pointer(h))}
+	},
+	C.PHIDCHCLASS_GPS: func(h C.PhidgetHandle) Phidget {
+		return &PhidgetGPS{phidget{handle: h}, C.PhidgetGPSHandle(unsafe.Pointer(h))}
+	},
+	C.PHIDCHCLASS_GYROSCOPE: func(h C.PhidgetHandle) Phidget {
+		return &PhidgetGyroscope{phidget{handle: h}, C.PhidgetGyroscopeHandle(unsafe.Pointer(h))}
+	},
+	C.PHIDCHCLASS_HUMIDITYSENSOR: func(h C.PhidgetHandle) Phidget {
+		return &PhidgetHumiditySensor{phidget{handle: h}, C.PhidgetHumiditySensorHandle(unsafe.Pointer(h))}
+	},
+	C.PHIDCHCLASS_HUB: func(h C.PhidgetHandle) Phidget {
+		return &PhidgetHub{phidget{handle: h}, C.PhidgetHubHandle(unsafe.Pointer(h))}
+	},
+	C.PHIDCHCLASS_IR: func(h C.PhidgetHandle) Phidget {
+		return &PhidgetIR{phidget{handle: h}, C.PhidgetIRHandle(unsafe.Pointer(h))}
+	},
+	C.PHIDCHCLASS_LCD: func(h C.PhidgetHandle) Phidget {
+		return &PhidgetLCD{phidget{handle: h}, C.PhidgetLCDHandle(unsafe.Pointer(h))}
+	},
+	C.PHIDCHCLASS_LEDARRAY: func(h C.PhidgetHandle) Phidget {
+		return &PhidgetLEDArray{phidget{handle: h}, C.PhidgetLEDArrayHandle(unsafe.Pointer(h))}
+	},
+	C.PHIDCHCLASS_LIGHTSENSOR: func(h C.PhidgetHandle) Phidget {
+		return &PhidgetLightSensor{phidget{handle: h}, C.PhidgetLightSensorHandle(unsafe.Pointer(h))}
+	},
+	C.PHIDCHCLASS_MAGNETOMETER: func(h C.PhidgetHandle) Phidget {
+		return &PhidgetMagnetometer{phidget{handle: h}, C.PhidgetMagnetometerHandle(unsafe.Pointer(h))}
+	},
+	C.PHIDCHCLASS_MOTORPOSITIONCONTROLLER: func(h C.PhidgetHandle) Phidget {
+		return &PhidgetMotorPositionController{phidget{handle: h}, C.PhidgetMotorPositionControllerHandle(unsafe.Pointer(h))}
+	},
+	C.PHIDCHCLASS_MOTORVELOCITYCONTROLLER: func(h C.PhidgetHandle) Phidget {
+		return &PhidgetMotorVelocityController{phidget{handle: h}, C.PhidgetMotorVelocityControllerHandle(unsafe.Pointer(h))}
+	},
+	C.PHIDCHCLASS_PHSENSOR: func(h C.PhidgetHandle) Phidget {
+		return &PhidgetPHSensor{phidget{handle: h}, C.PhidgetPHSensorHandle(unsafe.Pointer(h))}
+	},
+	C.PHIDCHCLASS_POWERGUARD: func(h C.PhidgetHandle) Phidget {
+		return &PhidgetPowerGuard{phidget{handle: h}, C.PhidgetPowerGuardHandle(unsafe.Pointer(h))}
+	},
+	C.PHIDCHCLASS_PRESSURESENSOR: func(h C.PhidgetHandle) Phidget {
+		return &PhidgetPressureSensor{phidget{handle: h}, C.PhidgetPressureSensorHandle(unsafe.Pointer(h))}
+	},
+	C.PHIDCHCLASS_RCSERVO: func(h C.PhidgetHandle) Phidget {
+		return &PhidgetRCServo{phidget{handle: h}, C.PhidgetRCServoHandle(unsafe.Pointer(h))}
+	},
+	C.PHIDCHCLASS_RFID: func(h C.PhidgetHandle) Phidget {
+		return &PhidgetRFID{phidget{handle: h}, C.PhidgetRFIDHandle(unsafe.Pointer(h))}
+	},
+	C.PHIDCHCLASS_RESISTANCEINPUT: func(h C.PhidgetHandle) Phidget {
+		return &PhidgetResistanceInput{phidget{handle: h}, C.PhidgetResistanceInputHandle(unsafe.Pointer(h))}
+	},
+	C.PHIDCHCLASS_SOUNDSENSOR: func(h C.PhidgetHandle) Phidget {
+		return &PhidgetSoundSensor{phidget{handle: h}, C.PhidgetSoundSensorHandle(unsafe.Pointer(h))}
+	},
+	C.PHIDCHCLASS_SPATIAL: func(h C.PhidgetHandle) Phidget {
+		return &PhidgetSpatial{phidget{handle: h}, C.PhidgetSpatialHandle(unsafe.Pointer(h))}
+	},
+	C.PHIDCHCLASS_STEPPER: func(h C.PhidgetHandle) Phidget {
+		return &PhidgetStepper{phidget{handle: h}, C.PhidgetStepperHandle(unsafe.Pointer(h))}
+	},
+	C.PHIDCHCLASS_TEMPERATURESENSOR: func(h C.PhidgetHandle) Phidget {
+		return &PhidgetTemperatureSensor{phidget{handle: h}, C.PhidgetTemperatureSensorHandle(unsafe.Pointer(h))}
+	},
+	C.PHIDCHCLASS_VOLTAGEINPUT: func(h C.PhidgetHandle) Phidget {
+		return &PhidgetVoltageInput{phidget{handle: h}, C.PhidgetVoltageInputHandle(unsafe.Pointer(h))}
+	},
+	C.PHIDCHCLASS_VOLTAGEOUTPUT: func(h C.PhidgetHandle) Phidget {
+		return &PhidgetVoltageOutput{phidget{handle: h}, C.PhidgetVoltageOutputHandle(unsafe.Pointer(h))}
+	},
+	C.PHIDCHCLASS_VOLTAGERATIOINPUT: func(h C.PhidgetHandle) Phidget {
+		return &PhidgetVoltageRatioInput{phidget{handle: h}, C.PhidgetVoltageRatioInputHandle(unsafe.Pointer(h))}
+	},
 }
 
 //export attach_handler
 func attach_handler(man C.PhidgetManagerHandle, ctx unsafe.Pointer, channel C.PhidgetHandle) {
-	m, _ := gopointer.Restore(ctx).(*PhidgetManager)
+	m, _ := cgo.Handle(uintptr(ctx)).Value().(*PhidgetManager)
 	if m == nil {
 		return
 	}
@@ -41,89 +157,12 @@ func attach_handler(man C.PhidgetManagerHandle, ctx unsafe.Pointer, channel C.Ph
 	m.Lock()
 	defer m.Unlock()
 
-	switch class {
-	case C.PHIDCHCLASS_ACCELEROMETER:
-		m.handles = append(m.handles, &PhidgetAccelerometer{phidget{handle: channel}, C.PhidgetAccelerometerHandle(unsafe.Pointer(channel))})
-	case C.PHIDCHCLASS_BLDCMOTOR:
-		m.handles = append(m.handles, &PhidgetBLDCMotor{phidget{handle: channel}, C.PhidgetBLDCMotorHandle(unsafe.Pointer(channel))})
-	case C.PHIDCHCLASS_CAPACITIVETOUCH:
-		m.handles = append(m.handles, &PhidgetCapacitiveTouch{phidget{handle: channel}, C.PhidgetCapacitiveTouchHandle(unsafe.Pointer(channel))})
-	case C.PHIDCHCLASS_DATAADAPTER:
-		m.handles = append(m.handles, &PhidgetDataAdapter{phidget{handle: channel}, C.PhidgetDataAdapterHandle(unsafe.Pointer(channel))})
-	case C.PHIDCHCLASS_CURRENTINPUT:
-		m.handles = append(m.handles, &PhidgetCurrentInput{phidget{handle: channel}, C.PhidgetCurrentInputHandle(unsafe.Pointer(channel))})
-	case C.PHIDCHCLASS_CURRENTOUTPUT:
-		m.handles = append(m.handles, &PhidgetCurrentOutput{phidget{handle: channel}, C.PhidgetCurrentOutputHandle(unsafe.Pointer(channel))})
-	case C.PHIDCHCLASS_DCMOTOR:
-		m.handles = append(m.handles, &PhidgetDCMotor{phidget{handle: channel}, C.PhidgetDCMotorHandle(unsafe.Pointer(channel))})
-	case C.PHIDCHCLASS_DIGITALINPUT:
-		m.handles = append(m.handles, &PhidgetDigitalInput{phidget{handle: channel}, C.PhidgetDigitalInputHandle(unsafe.Pointer(channel))})
-	case C.PHIDCHCLASS_DICTIONARY:
-		m.handles = append(m.handles, &PhidgetDictionary{phidget{handle: channel}, C.PhidgetDictionaryHandle(unsafe.Pointer(channel))})
-	case C.PHIDCHCLASS_DIGITALOUTPUT:
-		m.handles = append(m.handles, &PhidgetDigitalOutput{phidget{handle: channel}, C.PhidgetDigitalOutputHandle(unsafe.Pointer(channel))})
-	case C.PHIDCHCLASS_DISTANCESENSOR:
-		m.handles = append(m.handles, &PhidgetDistanceSensor{phidget{handle: channel}, C.PhidgetDistanceSensorHandle(unsafe.Pointer(channel))})
-	case C.PHIDCHCLASS_ENCODER:
-		m.handles = append(m.handles, &PhidgetEncoder{phidget{handle: channel}, C.PhidgetEncoderHandle(unsafe.Pointer(channel))})
-	case C.PHIDCHCLASS_FREQUENCYCOUNTER:
-		m.handles = append(m.handles, &PhidgetFrequencyCounter{phidget{handle: channel}, C.PhidgetFrequencyCounterHandle(unsafe.Pointer(channel))})
-	case C.PHIDCHCLASS_FIRMWAREUPGRADE:
-		m.handles = append(m.handles, &PhidgetFirmwareUpgrade{phidget{handle: channel}, C.PhidgetFirmwareUpgradeHandle(unsafe.Pointer(channel))})
-	case C.PHIDCHCLASS_GENERIC:
-		m.handles = append(m.handles, &PhidgetGeneric{phidget{handle: channel}, C.PhidgetGenericHandle(unsafe.Pointer(channel))})
-	case C.PHIDCHCLASS_GPS:
-		m.handles = append(m.handles, &PhidgetGPS{phidget{handle: channel}, C.PhidgetGPSHandle(unsafe.Pointer(channel))})
-	case C.PHIDCHCLASS_GYROSCOPE:
-		m.handles = append(m.handles, &PhidgetGyroscope{phidget{handle: channel}, C.PhidgetGyroscopeHandle(unsafe.Pointer(channel))})
-	case C.PHIDCHCLASS_HUMIDITYSENSOR:
-		m.handles = append(m.handles, &PhidgetHumiditySensor{phidget{handle: channel}, C.PhidgetHumiditySensorHandle(unsafe.Pointer(channel))})
-	case C.PHIDCHCLASS_HUB:
-		m.handles = append(m.handles, &PhidgetHub{phidget{handle: channel}, C.PhidgetHubHandle(unsafe.Pointer(channel))})
-	case C.PHIDCHCLASS_IR:
-		m.handles = append(m.handles, &PhidgetIR{phidget{handle: channel}, C.PhidgetIRHandle(unsafe.Pointer(channel))})
-	case C.PHIDCHCLASS_LCD:
-		m.handles = append(m.handles, &PhidgetLCD{phidget{handle: channel}, C.PhidgetLCDHandle(unsafe.Pointer(channel))})
-	case C.PHIDCHCLASS_LEDARRAY:
-		m.handles = append(m.handles, &PhidgetLEDArray{phidget{handle: channel}, C.PhidgetLEDArrayHandle(unsafe.Pointer(channel))})
-	case C.PHIDCHCLASS_LIGHTSENSOR:
-		m.handles = append(m.handles, &PhidgetLightSensor{phidget{handle: channel}, C.PhidgetLightSensorHandle(unsafe.Pointer(channel))})
-	case C.PHIDCHCLASS_MAGNETOMETER:
-		m.handles = append(m.handles, &PhidgetMagnetometer{phidget{handle: channel}, C.PhidgetMagnetometerHandle(unsafe.Pointer(channel))})
-	case C.PHIDCHCLASS_MOTORPOSITIONCONTROLLER:
-		m.handles = append(m.handles, &PhidgetMotorPositionController{phidget{handle: channel}, C.PhidgetMotorPositionControllerHandle(unsafe.Pointer(channel))})
-	case C.PHIDCHCLASS_MOTORVELOCITYCONTROLLER:
-		m.handles = append(m.handles, &PhidgetMotorVelocityController{phidget{handle: channel}, C.PhidgetMotorVelocityControllerHandle(unsafe.Pointer(channel))})
-	case C.PHIDCHCLASS_PHSENSOR:
-		m.handles = append(m.handles, &PhidgetPHSensor{phidget{handle: channel}, C.PhidgetPHSensorHandle(unsafe.Pointer(channel))})
-	case C.PHIDCHCLASS_POWERGUARD:
-		m.handles = append(m.handles, &PhidgetPowerGuard{phidget{handle: channel}, C.PhidgetPowerGuardHandle(unsafe.Pointer(channel))})
-	case C.PHIDCHCLASS_PRESSURESENSOR:
-		m.handles = append(m.handles, &PhidgetPressureSensor{phidget{handle: channel}, C.PhidgetPressureSensorHandle(unsafe.Pointer(channel))})
-	case C.PHIDCHCLASS_RCSERVO:
-		m.handles = append(m.handles, &PhidgetRCServo{phidget{handle: channel}, C.PhidgetRCServoHandle(unsafe.Pointer(channel))})
-	case C.PHIDCHCLASS_RFID:
-		m.handles = append(m.handles, &PhidgetRFID{phidget{handle: channel}, C.PhidgetRFIDHandle(unsafe.Pointer(channel))})
-	case C.PHIDCHCLASS_RESISTANCEINPUT:
-		m.handles = append(m.handles, &PhidgetResistanceInput{phidget{handle: channel}, C.PhidgetResistanceInputHandle(unsafe.Pointer(channel))})
-	case C.PHIDCHCLASS_SOUNDSENSOR:
-		m.handles = append(m.handles, &PhidgetSoundSensor{phidget{handle: channel}, C.PhidgetSoundSensorHandle(unsafe.Pointer(channel))})
-	case C.PHIDCHCLASS_SPATIAL:
-		m.handles = append(m.handles, &PhidgetSpatial{phidget{handle: channel}, C.PhidgetSpatialHandle(unsafe.Pointer(channel))})
-	case C.PHIDCHCLASS_STEPPER:
-		m.handles = append(m.handles, &PhidgetStepper{phidget{handle: channel}, C.PhidgetStepperHandle(unsafe.Pointer(channel))})
-	case C.PHIDCHCLASS_TEMPERATURESENSOR:
-		m.handles = append(m.handles, &PhidgetTemperatureSensor{phidget{handle: channel}, C.PhidgetTemperatureSensorHandle(unsafe.Pointer(channel))})
-	case C.PHIDCHCLASS_VOLTAGEINPUT:
-		m.handles = append(m.handles, &PhidgetVoltageInput{phidget{handle: channel}, C.PhidgetVoltageInputHandle(unsafe.Pointer(channel))})
-	case C.PHIDCHCLASS_VOLTAGEOUTPUT:
-		m.handles = append(m.handles, &PhidgetVoltageOutput{phidget{handle: channel}, C.PhidgetVoltageOutputHandle(unsafe.Pointer(channel))})
-	case C.PHIDCHCLASS_VOLTAGERATIOINPUT:
-		m.handles = append(m.handles, &PhidgetVoltageRatioInput{phidget{handle: channel}, C.PhidgetVoltageRatioInputHandle(unsafe.Pointer(channel))})
-	default:
+	newPhidget, ok := channelClasses[class]
+	if !ok {
 		fmt.Printf("unsupported phidget discovered: 0x%x\n", class)
 		return
 	}
+	m.handles = append(m.handles, newPhidget(channel))
 
 	// Keep a reference to the channel; it is released when the channel detaches
 	// (manager_detach_handler) or when the manager is closed.
@@ -132,7 +171,7 @@ func attach_handler(man C.PhidgetManagerHandle, ctx unsafe.Pointer, channel C.Ph
 
 //export manager_detach_handler
 func manager_detach_handler(man C.PhidgetManagerHandle, ctx unsafe.Pointer, channel C.PhidgetHandle) {
-	m, _ := gopointer.Restore(ctx).(*PhidgetManager)
+	m, _ := cgo.Handle(uintptr(ctx)).Value().(*PhidgetManager)
 	if m == nil {
 		return
 	}
@@ -171,31 +210,28 @@ func NewPhidgetManager() (*PhidgetManager, error) {
 	m := &PhidgetManager{}
 	C.PhidgetManager_create(&m.handle)
 
-	m.ctx = gopointer.Save(m)
+	m.ctx = cgo.NewHandle(m)
+	ctx := C.handlectx(C.uintptr_t(m.ctx))
 
-	cerr := C.PhidgetManager_setOnAttachHandler(m.handle, (C.attach_fcn)(unsafe.Pointer(C.cattach_callback)), m.ctx)
+	cerr := C.PhidgetManager_setOnAttachHandler(m.handle, (C.phidget_manager_fcn)(unsafe.Pointer(C.attach_handler)), ctx)
 	if cerr != C.EPHIDGET_OK {
-		gopointer.Unref(m.ctx)
+		m.ctx.Delete()
 		C.PhidgetManager_delete(&m.handle)
-		return nil, managerError(cerr)
+		return nil, newPhidgetError(cerr)
 	}
 	// Install the detach handler so we can support removing the devices
-	if cerr := C.PhidgetManager_setOnDetachHandler(m.handle, (C.detach_fcn)(unsafe.Pointer(C.cmanager_detach_callback)), m.ctx); cerr != C.EPHIDGET_OK {
-		gopointer.Unref(m.ctx)
+	if cerr := C.PhidgetManager_setOnDetachHandler(m.handle, (C.phidget_manager_fcn)(unsafe.Pointer(C.manager_detach_handler)), ctx); cerr != C.EPHIDGET_OK {
+		m.ctx.Delete()
 		C.PhidgetManager_delete(&m.handle)
-		return nil, managerError(cerr)
+		return nil, newPhidgetError(cerr)
 	}
 
 	if cerr := C.PhidgetManager_open(m.handle); cerr != C.EPHIDGET_OK {
 		C.PhidgetManager_delete(&m.handle)
-		return nil, managerError(cerr)
+		return nil, newPhidgetError(cerr)
 	}
 
 	return m, nil
-}
-
-func managerError(cerr C.PhidgetReturnCode) error {
-	return newPhidgetError(cerr)
 }
 
 // ListPhidgets returns a list of phidgets that have been discovered
@@ -209,10 +245,10 @@ func (m *PhidgetManager) ListPhidgets() []Phidget {
 // Close - close the handle and delete it
 func (m *PhidgetManager) Close() error {
 	if cerr := C.PhidgetManager_close(m.handle); cerr != C.EPHIDGET_OK {
-		return managerError(cerr)
+		return newPhidgetError(cerr)
 	}
 	if cerr := C.PhidgetManager_delete(&m.handle); cerr != C.EPHIDGET_OK {
-		return managerError(cerr)
+		return newPhidgetError(cerr)
 	}
 	m.Lock()
 	defer m.Unlock()
@@ -221,8 +257,7 @@ func (m *PhidgetManager) Close() error {
 	}
 	m.handles = []Phidget{}
 	// Manager_close has stopped handler threads, so the token is safe to release
-	gopointer.Unref(m.ctx)
-	m.ctx = nil
+	m.ctx.Delete()
 
 	return nil
 }

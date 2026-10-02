@@ -91,11 +91,3 @@ func (p *PhidgetHub) SetADCCalibrationValues(voltageInputGain, voltageRatioGain 
 	}
 	return p.phidgetError(C.PhidgetHub_setADCCalibrationValues(p.handle, &vi[0], &vr[0]))
 }
-
-// Close closes the handle and deletes it
-func (p *PhidgetHub) Close() error {
-	if err := p.phidget.Close(); err != nil {
-		return err
-	}
-	return p.phidgetError(C.PhidgetHub_delete(&p.handle))
-}

@@ -2,6 +2,7 @@
 #define GOPHIDGETS_H
 
 #include <stdint.h>
+#include <phidget22.h>
 
 /*
  * Callback function pointer types used by all device files.
@@ -9,7 +10,6 @@
  */
 typedef void (*phidget_double_fcn)   (void*, void*, double);
 typedef void (*phidget_motion_fcn)   (void*, void*, const double*, double);
-typedef void (*phidget_quaternion_fcn)(void*, void*, const double*, double);
 typedef void (*phidget_void_fcn)     (void*, void*);
 typedef void (*phidget_encoder_fcn)  (void*, void*, int, double, int);
 typedef void (*phidget_count_fcn)    (void*, void*, uint64_t, double);
@@ -28,31 +28,37 @@ typedef void (*phidget_ircode_fcn) (void*, void*, const char*, uint32_t, int);
 typedef void (*phidget_irraw_fcn)  (void*, void*, const uint32_t*, size_t);
 typedef void (*phidget_irlearn_fcn)(void*, void*, const char*, void*);
 typedef void (*phidget_prop_fcn)   (void*, void*, const char*);
+typedef void (*phidget_manager_fcn)(PhidgetManagerHandle, void*, PhidgetHandle);
 
 /*
- * Forward declarations of C shim functions defined in cdefs.go.
- * Device files reference these as function pointers for callbacks.
+ * Go functions exported via //export in common.go and manager.go, passed
+ * directly to libphidget22 as handlers (cast to the typedefs above).
+ * Signatures match the cgo-generated _cgo_export.h.
  */
-void ccallback(void*, void*, double);
-void cmotioncallback(void*, void*, const double*, double);
-void cquaternioncallback(void*, void*, const double*, double);
-void cvoidcallback(void*, void*);
-void cencodercallback(void*, void*, int, double, int);
-void ccountcallback(void*, void*, uint64_t, double);
-void ctwofloatcallback(void*, void*, double, double);
-void cthreefloatcallback(void*, void*, double, double, double);
-void cspatialcallback(void*, void*, const double*, const double*, const double*, double);
-void csoundcallback(void*, void*, double, double, double, const double*);
-void cstatecallback(void*, void*, int);
-void cuint32callback(void*, void*, uint32_t);
-void cerrorcallback(void*, void*, int, const char*);
-void crfidtagcallback(void*, void*, const char*, int);
-void cdictkvcallback(void*, void*, const char*, const char*);
-void cdictkeycallback(void*, void*, const char*);
-void circodecallback(void*, void*, const char*, uint32_t, int);
-void cirrawcallback(void*, void*, const uint32_t*, size_t);
-void cirlearncallback(void*, void*, const char*, PhidgetIR_CodeInfo*);
-void cpropcallback(void*, void*, const char*);
-void cmanager_detach_callback(PhidgetManagerHandle, void*, PhidgetHandle);
+void callback(void*, void*, double);
+void motioncallback(void*, void*, double*, double);
+void quaternioncallback(void*, void*, double*, double);
+void voidcallback(void*, void*);
+void encodercallback(void*, void*, int, double, int);
+void countcallback(void*, void*, uint64_t, double);
+void twofloatcallback(void*, void*, double, double);
+void threefloatcallback(void*, void*, double, double, double);
+void spatialcallback(void*, void*, double*, double*, double*, double);
+void soundcallback(void*, void*, double, double, double, double*);
+void statecallback(void*, void*, int);
+void uint32callback(void*, void*, uint32_t);
+void errorcallback(void*, void*, int, char*);
+void rfidtagcallback(void*, void*, char*, int);
+void dictkvcallback(void*, void*, char*, char*);
+void dictkeycallback(void*, void*, char*);
+void ircodecallback(void*, void*, char*, uint32_t, int);
+void irrawcallback(void*, void*, uint32_t*, size_t);
+void irlearncallback(void*, void*, char*, void*);
+void propcallback(void*, void*, char*);
+void attach_handler(PhidgetManagerHandle, void*, PhidgetHandle);
+void manager_detach_handler(PhidgetManagerHandle, void*, PhidgetHandle);
+
+/* handlectx turns a runtime/cgo.Handle into the void* ctx libphidget22 expects. */
+static inline void* handlectx(uintptr_t h) { return (void*)h; }
 
 #endif /* GOPHIDGETS_H */

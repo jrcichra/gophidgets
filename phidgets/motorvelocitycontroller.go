@@ -216,11 +216,9 @@ func (p *PhidgetMotorVelocityController) SetPositionType(positionType int) error
 
 // GetPositionType returns the position measurement source (Phidget_PositionType)
 func (p *PhidgetMotorVelocityController) GetPositionType() (int, error) {
-	var r C.Phidget_PositionType
-	if cerr := C.PhidgetMotorVelocityController_getPositionType(p.handle, &r); cerr != C.EPHIDGET_OK {
-		return 0, p.phidgetError(cerr)
-	}
-	return int(r), nil
+	return get(&p.phidget, func(r *C.Phidget_PositionType) C.PhidgetReturnCode {
+		return C.PhidgetMotorVelocityController_getPositionType(p.handle, r)
+	}, func(r C.Phidget_PositionType) int { return int(r) })
 }
 
 // SetFailsafeBrakingEnabled sets whether to hold the motor in place when the failsafe triggers
@@ -261,20 +259,12 @@ func (p *PhidgetMotorVelocityController) ResetFailsafe() error {
 func (p *PhidgetMotorVelocityController) SetOnVelocityChangeHandler(f func(float64)) error {
 	ctx := p.save(f)
 	return p.phidgetError(C.PhidgetMotorVelocityController_setOnVelocityChangeHandler(
-		p.handle, (C.phidget_double_fcn)(unsafe.Pointer(C.ccallback)), ctx))
+		p.handle, (C.phidget_double_fcn)(unsafe.Pointer(C.callback)), ctx))
 }
 
 // SetOnDutyCycleUpdateHandler sets a callback that fires on each duty cycle update
 func (p *PhidgetMotorVelocityController) SetOnDutyCycleUpdateHandler(f func(float64)) error {
 	ctx := p.save(f)
 	return p.phidgetError(C.PhidgetMotorVelocityController_setOnDutyCycleUpdateHandler(
-		p.handle, (C.phidget_double_fcn)(unsafe.Pointer(C.ccallback)), ctx))
-}
-
-// Close closes the handle and deletes it
-func (p *PhidgetMotorVelocityController) Close() error {
-	if err := p.phidget.Close(); err != nil {
-		return err
-	}
-	return p.phidgetError(C.PhidgetMotorVelocityController_delete(&p.handle))
+		p.handle, (C.phidget_double_fcn)(unsafe.Pointer(C.callback)), ctx))
 }

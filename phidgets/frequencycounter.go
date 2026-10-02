@@ -86,7 +86,7 @@ func (p *PhidgetFrequencyCounter) GetDataInterval() (uint32, error) {
 func (p *PhidgetFrequencyCounter) SetOnFrequencyChangeHandler(f func(float64)) error {
 	ctx := p.save(f)
 	return p.phidgetError(C.PhidgetFrequencyCounter_setOnFrequencyChangeHandler(
-		p.handle, (C.phidget_double_fcn)(unsafe.Pointer(C.ccallback)), ctx))
+		p.handle, (C.phidget_double_fcn)(unsafe.Pointer(C.callback)), ctx))
 }
 
 // SetOnCountChangeHandler sets a callback that fires when new pulses are counted.
@@ -94,13 +94,5 @@ func (p *PhidgetFrequencyCounter) SetOnFrequencyChangeHandler(f func(float64)) e
 func (p *PhidgetFrequencyCounter) SetOnCountChangeHandler(f func(uint64, float64)) error {
 	ctx := p.save(f)
 	return p.phidgetError(C.PhidgetFrequencyCounter_setOnCountChangeHandler(
-		p.handle, (C.phidget_count_fcn)(unsafe.Pointer(C.ccountcallback)), ctx))
-}
-
-// Close closes the handle and deletes it
-func (p *PhidgetFrequencyCounter) Close() error {
-	if err := p.phidget.Close(); err != nil {
-		return err
-	}
-	return p.phidgetError(C.PhidgetFrequencyCounter_delete(&p.handle))
+		p.handle, (C.phidget_count_fcn)(unsafe.Pointer(C.countcallback)), ctx))
 }
