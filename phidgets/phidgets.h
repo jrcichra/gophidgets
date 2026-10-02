@@ -18,6 +18,12 @@ typedef void (*phidget_threefloat_fcn)(void*, void*, double, double, double);
 typedef void (*phidget_spatial_fcn)  (void*, void*, const double*, const double*, const double*, double);
 typedef void (*phidget_sound_fcn)    (void*, void*, double, double, double, const double*);
 
+typedef void (*phidget_state_fcn)  (void*, void*, int);
+typedef void (*phidget_int_fcn)    (void*, void*, int);
+typedef void (*phidget_uint32_fcn) (void*, void*, uint32_t);
+typedef void (*phidget_error_fcn)  (void*, void*, int, const char*);
+typedef void (*phidget_rfid_fcn)   (void*, void*, const char*, int);
+
 /*
  * Forward declarations of C shim functions defined in cdefs.go.
  * Device files reference these as function pointers for callbacks.
@@ -32,5 +38,11 @@ void ctwofloatcallback(void*, void*, double, double);
 void cthreefloatcallback(void*, void*, double, double, double);
 void cspatialcallback(void*, void*, const double*, const double*, const double*, double);
 void csoundcallback(void*, void*, double, double, double, const double*);
+void cstatecallback(void*, void*, int);
+void cintcallback(void*, void*, int);
+void cuint32callback(void*, void*, uint32_t);
+void cerrorcallback(void*, void*, int, const char*);
+void crfidtagcallback(void*, void*, const char*, int);
+void cmanager_detach_callback(PhidgetManagerHandle, void*, PhidgetHandle);
 
 #endif /* GOPHIDGETS_H */

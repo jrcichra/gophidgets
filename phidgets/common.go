@@ -59,6 +59,31 @@ func spatialcallback(handle unsafe.Pointer, ctx unsafe.Pointer, accel *C.double,
 		cDoubles(accel, 3), cDoubles(angularRate, 3), cDoubles(magneticField, 3), float64(timestamp))
 }
 
+//export statecallback
+func statecallback(handle unsafe.Pointer, ctx unsafe.Pointer, state C.int) {
+	gopointer.Restore(ctx).(func(bool))(state != 0)
+}
+
+//export intcallback
+func intcallback(handle unsafe.Pointer, ctx unsafe.Pointer, value C.int) {
+	gopointer.Restore(ctx).(func(int))(int(value))
+}
+
+//export uint32callback
+func uint32callback(handle unsafe.Pointer, ctx unsafe.Pointer, value C.uint32_t) {
+	gopointer.Restore(ctx).(func(uint32))(uint32(value))
+}
+
+//export errorcallback
+func errorcallback(handle unsafe.Pointer, ctx unsafe.Pointer, code C.int, message *C.char) {
+	gopointer.Restore(ctx).(func(int, string))(int(code), C.GoString(message))
+}
+
+//export rfidtagcallback
+func rfidtagcallback(handle unsafe.Pointer, ctx unsafe.Pointer, tag *C.char, protocol C.int) {
+	gopointer.Restore(ctx).(func(string, int))(C.GoString(tag), int(protocol))
+}
+
 //export soundcallback
 func soundcallback(handle unsafe.Pointer, ctx unsafe.Pointer, dB C.double, dBA C.double, dBC C.double, octaves *C.double) {
 	gopointer.Restore(ctx).(func(float64, float64, float64, []float64))(float64(dB), float64(dBA), float64(dBC), cDoubles(octaves, 10))

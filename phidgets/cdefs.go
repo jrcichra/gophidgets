@@ -65,6 +65,42 @@ void cspatialcallback(void* handle, void* ctx, const double* accel, const double
   spatialcallback(handle, ctx, (double*)accel, (double*)angularRate, (double*)magneticField, timestamp);
 }
 
+// State callback: boolean state as int (digital input, stepper engaged, ...)
+void statecallback(void*, void*, int);
+void cstatecallback(void* handle, void* ctx, int state) {
+  statecallback(handle, ctx, state);
+}
+
+// Int callback: raw int value (GPS position fix state, ...)
+void intcallback(void*, void*, int);
+void cintcallback(void* handle, void* ctx, int value) {
+  intcallback(handle, ctx, value);
+}
+
+// Uint32 callback: raw uint32 value (distance sensor distance, ...)
+void uint32callback(void*, void*, uint32_t);
+void cuint32callback(void* handle, void* ctx, uint32_t value) {
+  uint32callback(handle, ctx, value);
+}
+
+// Channel error callback: EEPHIDGET_* event code + error message
+void errorcallback(void*, void*, int, const char*);
+void cerrorcallback(void* handle, void* ctx, int code, const char* message) {
+  errorcallback(handle, ctx, code, message);
+}
+
+// RFID tag / tag-lost callback: tag data string + protocol
+void rfidtagcallback(void*, void*, const char*, int);
+void crfidtagcallback(void* handle, void* ctx, const char* tag, int protocol) {
+  rfidtagcallback(handle, ctx, tag, protocol);
+}
+
+// Manager detach callback
+void manager_detach_handler(PhidgetManagerHandle man, void *ctx, PhidgetHandle channel);
+void cmanager_detach_callback(PhidgetManagerHandle man, void *ctx, PhidgetHandle channel) {
+  manager_detach_handler(man, ctx, channel);
+}
+
 // Manager attach callback
 void attach_handler(PhidgetManagerHandle man, void *ctx, PhidgetHandle channel);
 void cattach_callback(PhidgetManagerHandle man, void *ctx, PhidgetHandle channel) {

@@ -2,6 +2,7 @@ package phidgets
 
 /*
 #include <phidget22.h>
+#include "phidgets.h"
 */
 import "C"
 import (
@@ -47,6 +48,11 @@ type Phidget interface {
 	GetChannelName() (string, error)
 	GetAttached() (bool, error)
 
+	// Channel-level event handlers
+	SetOnAttachHandler(f func()) error
+	SetOnDetachHandler(f func()) error
+	SetOnErrorHandler(f func(code int, message string)) error
+
 	// Unexported function for internal management
 	getRawHandle() *C.PhidgetHandle
 }
@@ -61,6 +67,11 @@ func (p *phidget) getRawHandle() *C.PhidgetHandle {
 	return &p.handle
 }
 
+// Open opens the phidget immediately, without waiting for it to be attached.
+func (p *phidget) Open() error {
+	return p.phidgetError(C.Phidget_open(p.handle))
+}
+
 // OpenWaitForAttachment opens a phidget and waits for it to be available on the bus
 func (p *phidget) OpenWaitForAttachment(timeout time.Duration) error {
 	if cerr := C.Phidget_openWaitForAttachment(p.handle, C.uint(timeout.Milliseconds())); cerr != C.EPHIDGET_OK {
@@ -69,17 +80,107 @@ func (p *phidget) OpenWaitForAttachment(timeout time.Duration) error {
 	return nil
 }
 
+// PhidgetError is the typed error returned when a libphidget22 call fails.
+// Code() returns the underlying EPHIDGET_* return code and the error
+// message is unchanged.
+type PhidgetError struct {
+	code    int32
+	message string
+}
+
+func (e *PhidgetError) Error() string { return e.message }
+
+// Code returns the underlying EPHIDGET_* return code
+func (e *PhidgetError) Code() int32 { return e.code }
+
+var (
+	// ErrTimeout is matched by errors.Is when a libphidget22 call
+	// (such as OpenWaitForAttachment) returns EPHIDGET_TIMEOUT.
+	ErrTimeout = errors.New("gophidgets: timeout")
+	// ErrUnknownValue is matched by errors.Is when a libphidget22 call
+	// returns EPHIDGET_UNKNOWNVAL.
+	ErrUnknownValue = errors.New("gophidgets: unknown value")
+	// ErrNotAttached is matched by errors.Is when a libphidget22 call
+	// returns EPHIDGET_NOTATTACHED.
+	ErrNotAttached = errors.New("gophidgets: not attached")
+	// ErrClosed is matched by errors.Is when a libphidget22 call
+	// returns EPHIDGET_CLOSED.
+	ErrClosed = errors.New("gophidgets: closed")
+	// ErrUnsupported is matched by errors.Is when a libphidget22 call
+	// returns EPHIDGET_UNSUPPORTED.
+	ErrUnsupported = errors.New("gophidgets: unsupported")
+	// ErrInvalidArg is matched by errors.Is when a libphidget22 call
+	// returns EPHIDGET_INVALIDARG.
+	ErrInvalidArg = errors.New("gophidgets: invalid argument")
+	// ErrFailSafe is matched by errors.Is when a libphidget22 call
+	// returns EPHIDGET_FAILSAFE.
+	ErrFailSafe = errors.New("gophidgets: failsafe")
+)
+
+func (e *PhidgetError) Is(target error) bool {
+	switch e.code {
+	case int32(C.EPHIDGET_TIMEOUT):
+		return target == ErrTimeout
+	case int32(C.EPHIDGET_UNKNOWNVAL):
+		return target == ErrUnknownValue
+	case int32(C.EPHIDGET_NOTATTACHED):
+		return target == ErrNotAttached
+	case int32(C.EPHIDGET_CLOSED):
+		return target == ErrClosed
+	case int32(C.EPHIDGET_UNSUPPORTED):
+		return target == ErrUnsupported
+	case int32(C.EPHIDGET_INVALIDARG):
+		return target == ErrInvalidArg
+	case int32(C.EPHIDGET_FAILSAFE):
+		return target == ErrFailSafe
+	}
+	return false
+}
+
+func newPhidgetError(code C.PhidgetReturnCode, message string) *PhidgetError {
+	var errString *C.char
+	C.Phidget_getErrorDescription(code, &errString)
+	if code == C.EPHIDGET_OK {
+		return nil
+	}
+	if message == "" {
+		message = C.GoString(errString)
+	}
+	return &PhidgetError{code: int32(code), message: message}
+}
+
 func (p *phidget) phidgetError(cerr C.PhidgetReturnCode) error {
 	if cerr == C.EPHIDGET_OK {
 		return nil
 	}
-	var errorString *C.char
+	message := ""
 	var className *C.char
-	C.Phidget_getErrorDescription(cerr, &errorString)
 	if C.Phidget_getChannelClassName(p.handle, &className) == C.EPHIDGET_OK {
-		return fmt.Errorf("%s: %s", C.GoString(className), C.GoString(errorString))
+		message = C.GoString(className) + ": "
 	}
-	return errors.New(C.GoString(errorString))
+	return newPhidgetError(cerr, message)
+}
+
+// SetOnAttachHandler sets a callback that is called when the channel attaches
+func (p *phidget) SetOnAttachHandler(f func()) error {
+	ctx := p.save(f)
+	return p.phidgetError(C.Phidget_setOnAttachHandler(
+		p.handle, (C.phidget_void_fcn)(unsafe.Pointer(C.cvoidcallback)), ctx))
+}
+
+// SetOnDetachHandler sets a callback that is called when the channel detaches
+func (p *phidget) SetOnDetachHandler(f func()) error {
+	ctx := p.save(f)
+	return p.phidgetError(C.Phidget_setOnDetachHandler(
+		p.handle, (C.phidget_void_fcn)(unsafe.Pointer(C.cvoidcallback)), ctx))
+}
+
+// SetOnErrorHandler sets a callback that is called when the channel reports an error.
+// The callback receives the EEPHIDGET_* error event code and the error message.
+func (p *phidget) SetOnErrorHandler(f func(code int, message string)) error {
+	ctx := p.save(f)
+	return p.phidgetError(C.Phidget_setOnErrorHandler(
+		p.handle, (C.phidget_error_fcn)(unsafe.Pointer(C.cerrorcallback)), ctx))
 }
 
 // SetIsRemote sets a phidget sensor as a remote device

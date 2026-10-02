@@ -3,26 +3,31 @@ package phidgets
 /*
 #include <phidget22.h>
 typedef void (*attach_fcn)(PhidgetManagerHandle man, void *ctx, PhidgetHandle channel);
+typedef void (*detach_fcn)(PhidgetManagerHandle man, void *ctx, PhidgetHandle channel);
 void cattach_callback(PhidgetManagerHandle man, void *ctx, PhidgetHandle channel);
+void cmanager_detach_callback(PhidgetManagerHandle man, void *ctx, PhidgetHandle channel);
 */
 import "C"
 import (
-	"errors"
 	"fmt"
 	"sync"
 	"unsafe"
+
+	gopointer "github.com/mattn/go-pointer"
 )
 
 // PhidgetManager is the struct that is a phidget manager handle
 type PhidgetManager struct {
 	sync.Mutex
-	handle  C.PhidgetManagerHandle
-	handles []Phidget
+	handle   C.PhidgetManagerHandle
+	handles  []Phidget
+	onDetach func()         // user callback invoked when a channel detaches
+	ctx      unsafe.Pointer // gopointer token identifying this manager to C handlers
 }
 
 //export attach_handler
 func attach_handler(man C.PhidgetManagerHandle, ctx unsafe.Pointer, channel C.PhidgetHandle) {
-	m := (*PhidgetManager)(ctx)
+	m := gopointer.Restore(ctx).(*PhidgetManager)
 
 	var class C.Phidget_ChannelClass
 	if cerr := C.Phidget_getChannelClass(channel, &class); cerr != C.EPHIDGET_OK {
@@ -93,8 +98,42 @@ func attach_handler(man C.PhidgetManagerHandle, ctx unsafe.Pointer, channel C.Ph
 		return
 	}
 
-	// TODO: We are not doing a Phidget_release at any point to get rid of these
+	// Keep a reference to the channel; it is released when the channel detaches
+	// (manager_detach_handler) or when the manager is closed.
 	C.Phidget_retain(channel)
+}
+
+//export manager_detach_handler
+func manager_detach_handler(man C.PhidgetManagerHandle, ctx unsafe.Pointer, channel C.PhidgetHandle) {
+	m := gopointer.Restore(ctx).(*PhidgetManager)
+
+	m.Lock()
+	var removed Phidget
+	for i, p := range m.handles {
+		if p.getRawHandle() != nil && *p.getRawHandle() == channel {
+			removed = p
+			m.handles = append(m.handles[:i], m.handles[i+1:]...)
+			break
+		}
+	}
+	onDetach := m.onDetach
+	m.Unlock()
+
+	if removed != nil {
+		C.Phidget_release(&channel)
+		if onDetach != nil {
+			onDetach()
+		}
+	}
+}
+
+// SetOnDetachHandler sets a callback that is invoked when a channel
+// detaches from the hub. Detached handles are removed from ListPhidgets()
+// regardless of whether a callback is set.
+func (m *PhidgetManager) SetOnDetachHandler(f func()) {
+	m.Lock()
+	m.onDetach = f
+	m.Unlock()
 }
 
 // NewPhidgetManager Create creates a phidget manager
@@ -102,13 +141,20 @@ func NewPhidgetManager() (*PhidgetManager, error) {
 	m := &PhidgetManager{}
 	C.PhidgetManager_create(&m.handle)
 
-	cerr := C.PhidgetManager_setOnAttachHandler(m.handle, (C.attach_fcn)(unsafe.Pointer(C.cattach_callback)), unsafe.Pointer(m))
+	m.ctx = gopointer.Save(m)
+
+	cerr := C.PhidgetManager_setOnAttachHandler(m.handle, (C.attach_fcn)(unsafe.Pointer(C.cattach_callback)), m.ctx)
 	if cerr != C.EPHIDGET_OK {
+		gopointer.Unref(m.ctx)
 		C.PhidgetManager_delete(&m.handle)
 		return nil, managerError(cerr)
 	}
-	// TODO: Should install a PhidgetManager_OnDetachCallback as well so we can
-	// support removing the devices
+	// Install the detach handler so we can support removing the devices
+	if cerr := C.PhidgetManager_setOnDetachHandler(m.handle, (C.detach_fcn)(unsafe.Pointer(C.cmanager_detach_callback)), m.ctx); cerr != C.EPHIDGET_OK {
+		gopointer.Unref(m.ctx)
+		C.PhidgetManager_delete(&m.handle)
+		return nil, managerError(cerr)
+	}
 
 	if cerr := C.PhidgetManager_open(m.handle); cerr != C.EPHIDGET_OK {
 		C.PhidgetManager_delete(&m.handle)
@@ -122,9 +168,7 @@ func managerError(cerr C.PhidgetReturnCode) error {
 	if cerr == C.EPHIDGET_OK {
 		return nil
 	}
-	var errorString *C.char
-	C.Phidget_getErrorDescription(cerr, &errorString)
-	return errors.New(C.GoString(errorString))
+	return newPhidgetError(cerr, "")
 }
 
 // ListPhidgets returns a list of phidgets that have been discovered
@@ -149,6 +193,9 @@ func (m *PhidgetManager) Close() error {
 		C.Phidget_release(p.getRawHandle())
 	}
 	m.handles = []Phidget{}
+	// Manager_close has stopped handler threads, so the token is safe to release
+	gopointer.Unref(m.ctx)
+	m.ctx = nil
 
 	return nil
 }
