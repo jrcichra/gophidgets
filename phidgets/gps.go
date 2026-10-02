@@ -68,11 +68,12 @@ func (p *PhidgetGPS) SetOnHeadingChangeHandler(f func(float64, float64)) error {
 }
 
 // SetOnPositionFixStateChangeHandler sets a callback that fires when the fix state changes.
-// The callback receives 1 for fix acquired, 0 for fix lost.
-func (p *PhidgetGPS) SetOnPositionFixStateChangeHandler(f func(float64)) error {
+// The callback receives the new fix state as an int:
+// 0 = none, 1 = 2D fix, 2 = 3D fix, 3 = dead reckoning.
+func (p *PhidgetGPS) SetOnPositionFixStateChangeHandler(f func(int)) error {
 	ctx := p.save(f)
 	return p.phidgetError(C.PhidgetGPS_setOnPositionFixStateChangeHandler(
-		p.handle, (C.phidget_double_fcn)(unsafe.Pointer(C.ccallback)), ctx))
+		p.handle, (C.phidget_int_fcn)(unsafe.Pointer(C.cintcallback)), ctx))
 }
 
 // Close closes the handle and deletes it

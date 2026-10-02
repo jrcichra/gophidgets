@@ -2,6 +2,7 @@ package phidgets
 
 /*
 #include <phidget22.h>
+#include "phidgets.h"
 */
 import "C"
 import (
@@ -36,31 +37,13 @@ func (p *PhidgetDistanceSensor) SetDistanceChangeTrigger(distance uint32) error 
 	return p.phidgetError(C.PhidgetDistanceSensor_setDistanceChangeTrigger(p.handle, C.uint(distance)))
 }
 
-// SetOnDistanceChangeHandler - interrupt for distance changes calls a function
-// func (p *PhidgetDistanceSensor) SetOnDistanceChangeHandler(f func(uint32)) error {
-// 	//make a c function pointer to a go function pointer and pass it through the phidget context
-// 	var passthrough DistancePassthrough
-// 	passthrough.f = f
-// 	pt := gopointer.Save(passthrough)
-// 	cerr := C.PhidgetDistanceSensor_setOnDistanceChangeHandler(p.handle, (C.distance_callback_fcn)(unsafe.Pointer(C.cdistancecallback)), pt)
-// 	if cerr != C.EPHIDGET_OK {
-// 		return p.phidgetError(cerr)
-// 	}
-// 	return nil
-// }
-
-// // setOnSonarReflectionsUpdateHandler - interrupt for sonar reflections
-// func (p *PhidgetDistanceSensor) setOnSonarReflectionsUpdateHandler(f func([8]uint32, [8]uint32, uint32)) error {
-// 	//make a c function pointer to a go function pointer and pass it through the phidget context
-// 	var passthrough ReflectionPassthrough
-// 	passthrough.f = f
-// 	pt := gopointer.Save(passthrough)
-// 	cerr := C.PhidgetDistanceSensor_setOnDistanceChangeHandler(p.handle, (C.reflection_callback_fcn)(unsafe.Pointer(C.creflectioncallback)), pt)
-// 	if cerr != C.EPHIDGET_OK {
-// 		return p.phidgetError(cerr)
-// 	}
-// 	return nil
-// }
+// SetOnDistanceChangeHandler sets a callback that is called when the
+// reported distance changes. The callback receives the distance (mm).
+func (p *PhidgetDistanceSensor) SetOnDistanceChangeHandler(f func(uint32)) error {
+	ctx := p.save(f)
+	return p.phidgetError(C.PhidgetDistanceSensor_setOnDistanceChangeHandler(
+		p.handle, (C.phidget_uint32_fcn)(unsafe.Pointer(C.cuint32callback)), ctx))
+}
 
 // GetSonarReflections - The most recent reflection values that the channel has reported.
 func (p *PhidgetDistanceSensor) GetSonarReflections() ([]uint32, []uint32, error) {
