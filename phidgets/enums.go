@@ -64,3 +64,29 @@ const (
 	RFIDProtocolISO11785FDX = C.PROTOCOL_ISO11785_FDX_B
 	RFIDProtocolPhidget     = C.PROTOCOL_PHIDGETS
 )
+
+// ErrorEvent values, for matching the code delivered to the
+// SetOnErrorHandler callback (EEPHIDGET_*).
+const (
+	ErrorEventOK             = C.EEPHIDGET_OK
+	ErrorEventOverrun        = C.EEPHIDGET_OVERRUN
+	ErrorEventPacketLost     = C.EEPHIDGET_PACKETLOST
+	ErrorEventWrap           = C.EEPHIDGET_WRAP
+	ErrorEventOverTemp       = C.EEPHIDGET_OVERTEMP
+	ErrorEventOverCurrent    = C.EEPHIDGET_OVERCURRENT
+	ErrorEventOutOfRange     = C.EEPHIDGET_OUTOFRANGE
+	ErrorEventBadPower       = C.EEPHIDGET_BADPOWER
+	ErrorEventSaturation     = C.EEPHIDGET_SATURATION
+	ErrorEventOverVoltage    = C.EEPHIDGET_OVERVOLTAGE
+	ErrorEventFailsafe       = C.EEPHIDGET_FAILSAFE
+	ErrorEventVoltageError   = C.EEPHIDGET_VOLTAGEERROR
+	ErrorEventEnergyDump     = C.EEPHIDGET_ENERGYDUMP
+	ErrorEventMotorStall     = C.EEPHIDGET_MOTORSTALL
+	ErrorEventInvalidState   = C.EEPHIDGET_INVALIDSTATE
+	ErrorEventBadConnection  = C.EEPHIDGET_BADCONNECTION
+	ErrorEventOutOfRangeHigh = C.EEPHIDGET_OUTOFRANGEHIGH
+	ErrorEventOutOfRangeLow  = C.EEPHIDGET_OUTOFRANGELOW
+	ErrorEventFault          = C.EEPHIDGET_FAULT
+	ErrorEventEStop          = C.EEPHIDGET_ESTOP
+	ErrorEventBadCurrent     = C.EEPHIDGET_BADCURRENT
+)
