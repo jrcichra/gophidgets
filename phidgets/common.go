@@ -79,6 +79,36 @@ func rfidtagcallback(handle unsafe.Pointer, ctx unsafe.Pointer, tag *C.char, pro
 	gopointer.Restore(ctx).(func(string, int))(C.GoString(tag), int(protocol))
 }
 
+//export dictkvcallback
+func dictkvcallback(handle unsafe.Pointer, ctx unsafe.Pointer, key, value *C.char) {
+	gopointer.Restore(ctx).(func(string, string))(C.GoString(key), C.GoString(value))
+}
+
+//export dictkeycallback
+func dictkeycallback(handle unsafe.Pointer, ctx unsafe.Pointer, key *C.char) {
+	gopointer.Restore(ctx).(func(string))(C.GoString(key))
+}
+
+//export ircodecallback
+func ircodecallback(handle unsafe.Pointer, ctx unsafe.Pointer, code *C.char, bitCount C.uint32_t, isRepeat C.int) {
+	gopointer.Restore(ctx).(func(string, uint32, bool))(C.GoString(code), uint32(bitCount), isRepeat != 0)
+}
+
+//export irrawcallback
+func irrawcallback(handle unsafe.Pointer, ctx unsafe.Pointer, data *C.uint32_t, dataLen C.size_t) {
+	n := int(dataLen)
+	out := make([]uint32, n)
+	for i, v := range unsafe.Slice(data, n) {
+		out[i] = uint32(v)
+	}
+	gopointer.Restore(ctx).(func([]uint32))(out)
+}
+
+//export irlearncallback
+func irlearncallback(handle unsafe.Pointer, ctx unsafe.Pointer, code *C.char, info unsafe.Pointer) {
+	gopointer.Restore(ctx).(func(string, IRCodeInfo))(C.GoString(code), irCodeInfoFromC((*C.PhidgetIR_CodeInfo)(info)))
+}
+
 //export soundcallback
 func soundcallback(handle unsafe.Pointer, ctx unsafe.Pointer, dB C.double, dBA C.double, dBC C.double, octaves *C.double) {
 	gopointer.Restore(ctx).(func(float64, float64, float64, []float64))(float64(dB), float64(dBA), float64(dBC), cDoubles(octaves, 10))

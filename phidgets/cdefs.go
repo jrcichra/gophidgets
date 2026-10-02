@@ -89,6 +89,36 @@ void crfidtagcallback(void* handle, void* ctx, const char* tag, int protocol) {
   rfidtagcallback(handle, ctx, tag, protocol);
 }
 
+// Dictionary key + value callback (add, update)
+void dictkvcallback(void*, void*, const char*, const char*);
+void cdictkvcallback(void* handle, void* ctx, const char* key, const char* value) {
+  dictkvcallback(handle, ctx, key, value);
+}
+
+// Dictionary key callback (remove)
+void dictkeycallback(void*, void*, const char*);
+void cdictkeycallback(void* handle, void* ctx, const char* key) {
+  dictkeycallback(handle, ctx, key);
+}
+
+// IR code callback: code string + bit count + repeat flag
+void ircodecallback(void*, void*, const char*, uint32_t, int);
+void circodecallback(void* handle, void* ctx, const char* code, uint32_t bitCount, int isRepeat) {
+  ircodecallback(handle, ctx, code, bitCount, isRepeat);
+}
+
+// IR raw data callback: uint32 sample array + length
+void irrawcallback(void*, void*, const uint32_t*, size_t);
+void cirrawcallback(void* handle, void* ctx, const uint32_t* data, size_t dataLen) {
+  irrawcallback(handle, ctx, data, dataLen);
+}
+
+// IR learned-code callback: code string + code info struct
+void irlearncallback(void*, void*, const char*, void*);
+void cirlearncallback(void* handle, void* ctx, const char* code, PhidgetIR_CodeInfo* info) {
+  irlearncallback(handle, ctx, code, info);
+}
+
 // Manager detach callback
 void manager_detach_handler(PhidgetManagerHandle man, void *ctx, PhidgetHandle channel);
 void cmanager_detach_callback(PhidgetManagerHandle man, void *ctx, PhidgetHandle channel) {

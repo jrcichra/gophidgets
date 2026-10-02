@@ -65,6 +65,99 @@ const (
 	RFIDProtocolPhidget     = C.PROTOCOL_PHIDGETS
 )
 
+// FanMode values, for use with the methods that take them as int.
+const (
+	FanModeOff  = C.FAN_MODE_OFF
+	FanModeOn   = C.FAN_MODE_ON
+	FanModeAuto = C.FAN_MODE_AUTO
+)
+
+// HubPortMode values, for use with the PhidgetHub port-mode methods.
+const (
+	HubPortModeVintPort          = C.PORT_MODE_VINT_PORT
+	HubPortModeDigitalInput      = C.PORT_MODE_DIGITAL_INPUT
+	HubPortModeDigitalOutput     = C.PORT_MODE_DIGITAL_OUTPUT
+	HubPortModeVoltageInput      = C.PORT_MODE_VOLTAGE_INPUT
+	HubPortModeVoltageRatioInput = C.PORT_MODE_VOLTAGE_RATIO_INPUT
+)
+
+// IREncoding values, for use with the IRCodeInfo struct.
+const (
+	IREncodingUnknown = C.IR_ENCODING_UNKNOWN
+	IREncodingSpace   = C.IR_ENCODING_SPACE
+	IREncodingPulse   = C.IR_ENCODING_PULSE
+	IREncodingBiPhase = C.IR_ENCODING_BIPHASE
+	IREncodingRC5     = C.IR_ENCODING_RC5
+	IREncodingRC6     = C.IR_ENCODING_RC6
+)
+
+// IRLength values, for use with the IRCodeInfo struct.
+const (
+	IRLengthUnknown  = C.IR_LENGTH_UNKNOWN
+	IRLengthConstant = C.IR_LENGTH_CONSTANT
+	IRLengthVariable = C.IR_LENGTH_VARIABLE
+)
+
+// LEDColorOrder values, for use with the PhidgetLEDArray color-order methods.
+const (
+	LEDColorOrderRGB  = C.LED_COLOR_ORDER_RGB
+	LEDColorOrderGRB  = C.LED_COLOR_ORDER_GRB
+	LEDColorOrderRGBW = C.LED_COLOR_ORDER_RGBW
+	LEDColorOrderGRBW = C.LED_COLOR_ORDER_GRBW
+)
+
+// LEDAnimationType values, for use with the LEDAnimation struct.
+const (
+	LEDAnimationForwardScroll       = C.ANIMATION_TYPE_FORWARD_SCROLL
+	LEDAnimationReverseScroll       = C.ANIMATION_TYPE_REVERSE_SCROLL
+	LEDAnimationRandomize           = C.ANIMATION_TYPE_RANDOMIZE
+	LEDAnimationForwardScrollMirror = C.ANIMATION_TYPE_FORWARD_SCROLL_MIRROR
+	LEDAnimationReverseScrollMirror = C.ANIMATION_TYPE_REVERSE_SCROLL_MIRROR
+)
+
+// DataAdapterVoltage values, for use with the PhidgetDataAdapter voltage methods.
+const (
+	DataAdapterVoltageExtern = C.DATAADAPTER_VOLTAGE_EXTERN
+	DataAdapterVoltage2_5V   = C.DATAADAPTER_VOLTAGE_2_5V
+	DataAdapterVoltage3_3V   = C.DATAADAPTER_VOLTAGE_3_3V
+	DataAdapterVoltage5_0V   = C.DATAADAPTER_VOLTAGE_5_0V
+)
+
+// DataAdapterEndianness values, for use with the PhidgetDataAdapter endianness methods.
+const (
+	DataAdapterEndiannessMSBFirst = C.ENDIANNESS_MSB_FIRST
+	DataAdapterEndiannessLSBFirst = C.ENDIANNESS_LSB_FIRST
+)
+
+// DataAdapterFrequency values, for use with the PhidgetDataAdapter frequency methods (Hz).
+const (
+	DataAdapterFrequency10kHz   = C.FREQUENCY_10kHz
+	DataAdapterFrequency100kHz  = C.FREQUENCY_100kHz
+	DataAdapterFrequency400kHz  = C.FREQUENCY_400kHz
+	DataAdapterFrequency188kHz  = C.FREQUENCY_188kHz
+	DataAdapterFrequency375kHz  = C.FREQUENCY_375kHz
+	DataAdapterFrequency750kHz  = C.FREQUENCY_750kHz
+	DataAdapterFrequency1500kHz = C.FREQUENCY_1500kHz
+	DataAdapterFrequency3MHz    = C.FREQUENCY_3MHz
+	DataAdapterFrequency6MHz    = C.FREQUENCY_6MHz
+)
+
+// DataAdapterSPIChipSelect values, for use with the PhidgetDataAdapter chip-select methods.
+const (
+	DataAdapterSPIChipSelectActiveLow  = C.SPI_CHIP_SELECT_ACTIVE_LOW
+	DataAdapterSPIChipSelectActiveHigh = C.SPI_CHIP_SELECT_ACTIVE_HIGH
+	DataAdapterSPIChipSelectLow        = C.SPI_CHIP_SELECT_LOW
+	DataAdapterSPIChipSelectHigh       = C.SPI_CHIP_SELECT_HIGH
+)
+
+// DataAdapterSPIMode values, for use with the PhidgetDataAdapter SPI-mode methods.
+const (
+	DataAdapterSPIMode0 = C.SPI_MODE_0
+	DataAdapterSPIMode1 = C.SPI_MODE_1
+	DataAdapterSPIMode2 = C.SPI_MODE_2
+	DataAdapterSPIMode3 = C.SPI_MODE_3
+)
+
 // ErrorEvent values, for matching the code delivered to the
 // SetOnErrorHandler callback (EEPHIDGET_*).
 const (
