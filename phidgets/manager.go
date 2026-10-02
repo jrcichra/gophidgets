@@ -47,6 +47,8 @@ func attach_handler(man C.PhidgetManagerHandle, ctx unsafe.Pointer, channel C.Ph
 		m.handles = append(m.handles, &PhidgetCapacitiveTouch{phidget{handle: channel}, C.PhidgetCapacitiveTouchHandle(unsafe.Pointer(channel))})
 	case C.PHIDCHCLASS_CURRENTINPUT:
 		m.handles = append(m.handles, &PhidgetCurrentInput{phidget{handle: channel}, C.PhidgetCurrentInputHandle(unsafe.Pointer(channel))})
+	case C.PHIDCHCLASS_CURRENTOUTPUT:
+		m.handles = append(m.handles, &PhidgetCurrentOutput{phidget{handle: channel}, C.PhidgetCurrentOutputHandle(unsafe.Pointer(channel))})
 	case C.PHIDCHCLASS_DCMOTOR:
 		m.handles = append(m.handles, &PhidgetDCMotor{phidget{handle: channel}, C.PhidgetDCMotorHandle(unsafe.Pointer(channel))})
 	case C.PHIDCHCLASS_DIGITALINPUT:
@@ -71,12 +73,18 @@ func attach_handler(man C.PhidgetManagerHandle, ctx unsafe.Pointer, channel C.Ph
 		m.handles = append(m.handles, &PhidgetLightSensor{phidget{handle: channel}, C.PhidgetLightSensorHandle(unsafe.Pointer(channel))})
 	case C.PHIDCHCLASS_MAGNETOMETER:
 		m.handles = append(m.handles, &PhidgetMagnetometer{phidget{handle: channel}, C.PhidgetMagnetometerHandle(unsafe.Pointer(channel))})
+	case C.PHIDCHCLASS_MOTORPOSITIONCONTROLLER:
+		m.handles = append(m.handles, &PhidgetMotorPositionController{phidget{handle: channel}, C.PhidgetMotorPositionControllerHandle(unsafe.Pointer(channel))})
+	case C.PHIDCHCLASS_MOTORVELOCITYCONTROLLER:
+		m.handles = append(m.handles, &PhidgetMotorVelocityController{phidget{handle: channel}, C.PhidgetMotorVelocityControllerHandle(unsafe.Pointer(channel))})
 	case C.PHIDCHCLASS_PHSENSOR:
 		m.handles = append(m.handles, &PhidgetPHSensor{phidget{handle: channel}, C.PhidgetPHSensorHandle(unsafe.Pointer(channel))})
 	case C.PHIDCHCLASS_PRESSURESENSOR:
 		m.handles = append(m.handles, &PhidgetPressureSensor{phidget{handle: channel}, C.PhidgetPressureSensorHandle(unsafe.Pointer(channel))})
 	case C.PHIDCHCLASS_RCSERVO:
 		m.handles = append(m.handles, &PhidgetRCServo{phidget{handle: channel}, C.PhidgetRCServoHandle(unsafe.Pointer(channel))})
+	case C.PHIDCHCLASS_RFID:
+		m.handles = append(m.handles, &PhidgetRFID{phidget{handle: channel}, C.PhidgetRFIDHandle(unsafe.Pointer(channel))})
 	case C.PHIDCHCLASS_RESISTANCEINPUT:
 		m.handles = append(m.handles, &PhidgetResistanceInput{phidget{handle: channel}, C.PhidgetResistanceInputHandle(unsafe.Pointer(channel))})
 	case C.PHIDCHCLASS_SOUNDSENSOR:
