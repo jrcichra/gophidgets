@@ -22,6 +22,17 @@ Golang bindings for the Phidgets C library
   Sensor, RC Servo, Resistance Input, Sound Sensor, Spatial, Stepper,
   Temperature Sensor, Voltage Input, Voltage Ratio Input, Voltage Output
 
+Still unwrapped (available in the C library): Data Adapter, Dictionary,
+Firmware Upgrade, Generic, Hub, IR, and LED Array.
+
+## Requirements
+
+Link against a current libphidget22 build — the Motor Velocity
+Controller, Current Output, and a few other APIs are only present in the
+2026 1.26.x generation that CI builds from
+`https://www.phidgets.com/downloads/phidget22/libraries/linux/libphidget22.tar.gz`.
+Older installations will fail to compile the new classes.
+
 ## Example
 
 ```go
