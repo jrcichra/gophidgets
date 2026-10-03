@@ -38,4 +38,10 @@ jobs:
           cd ..
 
       - name: Build
-        run: go build -v .
+        run: go build -v ./...
+
+      - name: Vet
+        run: go vet ./...
+
+      - name: Test
+        run: go test ./...

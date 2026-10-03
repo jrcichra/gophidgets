@@ -1,8 +1,6 @@
 package phidgets
 
 /*
-#cgo CFLAGS: -g -Wall
-#cgo LDFLAGS: -lphidget22
 #include <phidget22.h>
 */
 import "C"
@@ -24,12 +22,7 @@ func (p *PhidgetDigitalOutput) Create() {
 
 // GetValue gets the state from a phidget digital output
 func (p *PhidgetDigitalOutput) GetState() (bool, error) {
-	var r C.int
-	cerr := C.PhidgetDigitalOutput_getState(p.handle, &r)
-	if cerr != C.EPHIDGET_OK {
-		return false, p.phidgetError(cerr)
-	}
-	return r != 0, nil
+	return getBool(&p.phidget, func(r *C.int) C.PhidgetReturnCode { return C.PhidgetDigitalOutput_getState(p.handle, r) })
 }
 
 // SetValue gets the state from a phidget digital output
@@ -37,10 +30,22 @@ func (p *PhidgetDigitalOutput) SetState(state bool) error {
 	return p.phidgetError(C.PhidgetDigitalOutput_setState(p.handle, boolToCInt(state)))
 }
 
-// Close - close the handle and delete it
-func (p *PhidgetDigitalOutput) Close() error {
-	if err := p.phidget.Close(); err != nil {
-		return err
-	}
-	return p.phidgetError(C.PhidgetDigitalOutput_delete(&p.handle))
+// SetDutyCycle sets the duty cycle of the digital output (0.0–1.0)
+func (p *PhidgetDigitalOutput) SetDutyCycle(dutyCycle float64) error {
+	return p.phidgetError(C.PhidgetDigitalOutput_setDutyCycle(p.handle, C.double(dutyCycle)))
+}
+
+// GetDutyCycle gets the duty cycle of the digital output (0.0–1.0)
+func (p *PhidgetDigitalOutput) GetDutyCycle() (float64, error) {
+	return getDouble(&p.phidget, func(r *C.double) C.PhidgetReturnCode { return C.PhidgetDigitalOutput_getDutyCycle(p.handle, r) })
+}
+
+// SetLEDCurrentLimit sets the LED current limit in milliamps
+func (p *PhidgetDigitalOutput) SetLEDCurrentLimit(milliamps float64) error {
+	return p.phidgetError(C.PhidgetDigitalOutput_setLEDCurrentLimit(p.handle, C.double(milliamps)))
+}
+
+// GetLEDCurrentLimit gets the LED current limit in milliamps
+func (p *PhidgetDigitalOutput) GetLEDCurrentLimit() (float64, error) {
+	return getDouble(&p.phidget, func(r *C.double) C.PhidgetReturnCode { return C.PhidgetDigitalOutput_getLEDCurrentLimit(p.handle, r) })
 }

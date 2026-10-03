@@ -1,9 +1,8 @@
 package phidgets
 
 /*
-#cgo CFLAGS: -g -Wall
-#cgo LDFLAGS: -lphidget22
 #include <phidget22.h>
+#include "phidgets.h"
 */
 import "C"
 import (
@@ -24,18 +23,13 @@ func (p *PhidgetDigitalInput) Create() {
 
 // GetValue gets the input from a phidget input sensor
 func (p *PhidgetDigitalInput) GetState() (bool, error) {
-	var r C.int
-	cerr := C.PhidgetDigitalInput_getState(p.handle, &r)
-	if cerr != C.EPHIDGET_OK {
-		return false, p.phidgetError(cerr)
-	}
-	return r != 0, nil
+	return getBool(&p.phidget, func(r *C.int) C.PhidgetReturnCode { return C.PhidgetDigitalInput_getState(p.handle, r) })
 }
 
-// Close - close the handle and delete it
-func (p *PhidgetDigitalInput) Close() error {
-	if err := p.phidget.Close(); err != nil {
-		return err
-	}
-	return p.phidgetError(C.PhidgetDigitalInput_delete(&p.handle))
+// SetOnStateChangeHandler sets a callback that is called when the
+// digital input state changes. The callback receives the new state.
+func (p *PhidgetDigitalInput) SetOnStateChangeHandler(f func(bool)) error {
+	ctx := p.save(f)
+	return p.phidgetError(C.PhidgetDigitalInput_setOnStateChangeHandler(
+		p.handle, (C.phidget_state_fcn)(unsafe.Pointer(C.statecallback)), ctx))
 }

@@ -1,19 +1,13 @@
 package phidgets
 
 /*
-#cgo CFLAGS: -g -Wall
-#cgo LDFLAGS: -lphidget22
-#include <stdlib.h>
 #include <phidget22.h>
-typedef void (*callback_fcn)(void* handle, void* ctx, double b);
-void ccallback(void* handle, void* ctx, double b);  // Forward declaration.
+#include "phidgets.h"
 */
 import "C"
 import (
 	"errors"
 	"unsafe"
-
-	gopointer "github.com/mattn/go-pointer"
 )
 
 var voltageRatioInputSensorTypeMap map[string]C.PhidgetVoltageRatioInput_SensorType = map[string]C.PhidgetVoltageRatioInput_SensorType{
@@ -82,29 +76,19 @@ func (p *PhidgetVoltageRatioInput) Create() {
 
 // GetVoltageRatio gets the voltage ratio from a phidget voltageinputratio sensor
 func (p *PhidgetVoltageRatioInput) GetVoltageRatio() (float64, error) {
-	var r C.double
-	if cerr := C.PhidgetVoltageRatioInput_getVoltageRatio(p.handle, &r); cerr != C.EPHIDGET_OK {
-		return 0, p.phidgetError(cerr)
-	}
-	return float64(r), nil
+	return getDouble(&p.phidget, func(r *C.double) C.PhidgetReturnCode { return C.PhidgetVoltageRatioInput_getVoltageRatio(p.handle, r) })
 }
 
 // GetSensorValue gets the sensor value from a phidget voltageinputratio sensor
 func (p *PhidgetVoltageRatioInput) GetSensorValue() (float64, error) {
-	var r C.double
-	if cerr := C.PhidgetVoltageRatioInput_getSensorValue(p.handle, &r); cerr != C.EPHIDGET_OK {
-		return 0, p.phidgetError(cerr)
-	}
-	return float64(r), nil
+	return getDouble(&p.phidget, func(r *C.double) C.PhidgetReturnCode { return C.PhidgetVoltageRatioInput_getSensorValue(p.handle, r) })
 }
 
 // SetOnVoltageRatioChangeHandler - voltage input changes calls a function
 func (p *PhidgetVoltageRatioInput) SetOnVoltageRatioChangeHandler(f func(float64)) error {
 	//make a c function pointer to a go function pointer and pass it through the phidget context
-	var passthrough Passthrough
-	passthrough.f = f
-	pt := gopointer.Save(passthrough)
-	cerr := C.PhidgetVoltageRatioInput_setOnVoltageRatioChangeHandler(p.handle, (C.callback_fcn)(unsafe.Pointer(C.ccallback)), pt)
+	pt := p.save(f)
+	cerr := C.PhidgetVoltageRatioInput_setOnVoltageRatioChangeHandler(p.handle, (C.phidget_double_fcn)(unsafe.Pointer(C.callback)), pt)
 	if cerr != C.EPHIDGET_OK {
 		return p.phidgetError(cerr)
 	}
@@ -117,12 +101,4 @@ func (p *PhidgetVoltageRatioInput) SetSensorType(sensorType string) error {
 		return p.phidgetError(C.PhidgetVoltageRatioInput_setSensorType(p.handle, sensorCode))
 	}
 	return errors.New("Unknown sensorType: " + sensorType + ". Please add it to the mapping switch in gophidgets voltageinputratio.go")
-}
-
-// Close - close the handle and delete it
-func (p *PhidgetVoltageRatioInput) Close() error {
-	if err := p.phidget.Close(); err != nil {
-		return err
-	}
-	return p.phidgetError(C.PhidgetVoltageRatioInput_delete(&p.handle))
 }

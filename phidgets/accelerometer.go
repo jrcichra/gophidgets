@@ -1,18 +1,12 @@
 package phidgets
 
 /*
-#cgo CFLAGS: -g -Wall
-#cgo LDFLAGS: -lphidget22
-#include <stdlib.h>
 #include <phidget22.h>
-typedef void (*callback_fcn)(void* handle, void* ctx, const double acceleration[3], double timestamp);
-void ccallback(void* handle, void* ctx, const double acceleration[3], double timestamp);  // Forward declaration.
+#include "phidgets.h"
 */
 import "C"
 import (
 	"unsafe"
-
-	gopointer "github.com/mattn/go-pointer"
 )
 
 // PhidgetAccelerometer is the struct that is a phidget motion sensor
@@ -59,12 +53,9 @@ func (p *PhidgetAccelerometer) GetMaxAcceleration() ([]float64, error) {
 
 // GetAccelerationChangeTrigger gets the acceleration from a phidget temperature sensor
 func (p *PhidgetAccelerometer) GetAccelerationChangeTrigger() (float64, error) {
-	var r C.double
-	cerr := C.PhidgetAccelerometer_getAccelerationChangeTrigger(p.handle, &r)
-	if cerr != C.EPHIDGET_OK {
-		return 0, p.phidgetError(cerr)
-	}
-	return float64(r), nil
+	return getDouble(&p.phidget, func(r *C.double) C.PhidgetReturnCode {
+		return C.PhidgetAccelerometer_getAccelerationChangeTrigger(p.handle, r)
+	})
 }
 
 // SetAccelerationChangeTrigger sets the acceleration trigger in the phidget temperature sensor
@@ -74,41 +65,26 @@ func (p *PhidgetAccelerometer) SetAccelerationChangeTrigger(value float64) error
 
 // GetMinAccelerationChangeTrigger sets the min acceleration trigger in the phidget temperature sensor
 func (p *PhidgetAccelerometer) GetMinAccelerationChangeTrigger() (float64, error) {
-	var r C.double
-	if cerr := C.PhidgetAccelerometer_getMinAccelerationChangeTrigger(p.handle, &r); cerr != C.EPHIDGET_OK {
-		return 0, p.phidgetError(cerr)
-	}
-	return float64(r), nil
+	return getDouble(&p.phidget, func(r *C.double) C.PhidgetReturnCode {
+		return C.PhidgetAccelerometer_getMinAccelerationChangeTrigger(p.handle, r)
+	})
 }
 
 // GetMaxAccelerationChangeTrigger sets the min acceleration trigger in the phidget temperature sensor
 func (p *PhidgetAccelerometer) GetMaxAccelerationChangeTrigger() (float64, error) {
-	var r C.double
-	cerr := C.PhidgetAccelerometer_getMaxAccelerationChangeTrigger(p.handle, &r)
-	if cerr != C.EPHIDGET_OK {
-		return 0, p.phidgetError(cerr)
-	}
-	return float64(r), nil
+	return getDouble(&p.phidget, func(r *C.double) C.PhidgetReturnCode {
+		return C.PhidgetAccelerometer_getMaxAccelerationChangeTrigger(p.handle, r)
+	})
 }
 
 // GetAxisCount return the number of axis of the motion sensor
 func (p *PhidgetAccelerometer) GetAxisCount() (int, error) {
-	var r C.int
-	cerr := C.PhidgetAccelerometer_getAxisCount(p.handle, &r)
-	if cerr != C.EPHIDGET_OK {
-		return 0, p.phidgetError(cerr)
-	}
-	return int(r), nil
+	return getInt(&p.phidget, func(r *C.int) C.PhidgetReturnCode { return C.PhidgetAccelerometer_getAxisCount(p.handle, r) })
 }
 
 // GetDataInterval return the number of axis of the motion sensor
 func (p *PhidgetAccelerometer) GetDataInterval() (uint32, error) {
-	var r C.uint32_t
-	cerr := C.PhidgetAccelerometer_getDataInterval(p.handle, &r)
-	if cerr != C.EPHIDGET_OK {
-		return 0, p.phidgetError(cerr)
-	}
-	return (uint32)(r), nil
+	return getUint32(&p.phidget, func(r *C.uint32_t) C.PhidgetReturnCode { return C.PhidgetAccelerometer_getDataInterval(p.handle, r) })
 }
 
 // SetDataInterval sets the interval between OnAccelerationChange callback calls
@@ -122,41 +98,21 @@ func (p *PhidgetAccelerometer) SetDataInterval(value uint32) error {
 
 // GetMinDataInterval return the number of axis of the motion sensor
 func (p *PhidgetAccelerometer) GetMinDataInterval() (uint32, error) {
-	var r C.uint32_t
-	cerr := C.PhidgetAccelerometer_getMinDataInterval(p.handle, &r)
-	if cerr != C.EPHIDGET_OK {
-		return 0, p.phidgetError(cerr)
-	}
-	return (uint32)(r), nil
+	return getUint32(&p.phidget, func(r *C.uint32_t) C.PhidgetReturnCode { return C.PhidgetAccelerometer_getMinDataInterval(p.handle, r) })
 }
 
 // GetMaxDataInterval return the number of axis of the motion sensor
 func (p *PhidgetAccelerometer) GetMaxDataInterval() (uint32, error) {
-	var r C.uint32_t
-	cerr := C.PhidgetAccelerometer_getMaxDataInterval(p.handle, &r)
-	if cerr != C.EPHIDGET_OK {
-		return 0, p.phidgetError(cerr)
-	}
-	return (uint32)(r), nil
+	return getUint32(&p.phidget, func(r *C.uint32_t) C.PhidgetReturnCode { return C.PhidgetAccelerometer_getMaxDataInterval(p.handle, r) })
 }
 
 // SetOnAccelerationChangeHandler - interrupt for motion changes calls a function
 func (p *PhidgetAccelerometer) SetOnAccelerationChangeHandler(f func([]float64, float64)) error {
 	//make a c function pointer to a go function pointer and pass it through the phidget context
-	var passthrough MotionPassthrough
-	passthrough.f = f
-	pt := gopointer.Save(passthrough)
-	cerr := C.PhidgetAccelerometer_setOnAccelerationChangeHandler(p.handle, (C.callback_fcn)(unsafe.Pointer(C.ccallback)), pt)
+	pt := p.save(f)
+	cerr := C.PhidgetAccelerometer_setOnAccelerationChangeHandler(p.handle, (C.phidget_motion_fcn)(unsafe.Pointer(C.motioncallback)), pt)
 	if cerr != C.EPHIDGET_OK {
 		return p.phidgetError(cerr)
 	}
 	return nil
-}
-
-// Close - close the handle and delete it
-func (p *PhidgetAccelerometer) Close() error {
-	if err := p.phidget.Close(); err != nil {
-		return err
-	}
-	return p.phidgetError(C.PhidgetAccelerometer_delete(&p.handle))
 }
